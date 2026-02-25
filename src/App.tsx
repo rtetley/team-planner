@@ -93,14 +93,14 @@ function AppContent() {
         }
         homeLinkProps={{
           to: '/',
-          title: 'Accueil - Team Planner'
+          title: t('footer.homeTitle')
         }}
         accessibility="fully compliant"
-        contentDescription="Team Planner is a comprehensive tool for managing software development teams, projects, and tasks. Built with React, TypeScript, MUI, and the French Design System (DSFR)."
+        contentDescription={t('footer.contentDescription')}
         bottomItems={[
           headerFooterDisplayItem,
           {
-            text: 'License',
+            text: t('footer.licenseText'),
             linkProps: {
               href: '#'
             }
