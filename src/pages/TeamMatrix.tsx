@@ -58,6 +58,19 @@ export default function TeamMatrix() {
 
   const maturityLevels: MaturityLevel[] = ['M1', 'M2', 'M3', 'M4'];
 
+  const getMaturityColor = (level: MaturityLevel | null): string => {
+    if (!level) return 'transparent';
+    
+    const colors = {
+      M1: '#ef4444', // Red
+      M2: '#f97316', // Orange
+      M3: '#eab308', // Yellow
+      M4: '#22c55e', // Green
+    };
+    
+    return colors[level];
+  };
+
   return (
     <Container maxWidth="xl" sx={{ mt: 4, mb: 4 }}>
       <Typography variant="h3" gutterBottom>
@@ -96,13 +109,26 @@ export default function TeamMatrix() {
                   </Box>
                 </TableCell>
                 {mockTasks.map((task) => (
-                  <TableCell key={task.id} align="center">
+                  <TableCell 
+                    key={task.id} 
+                    align="center"
+                    sx={{ 
+                      backgroundColor: getMaturityColor(getMaturityLevel(member.id, task.id)),
+                      transition: 'background-color 0.3s ease'
+                    }}
+                  >
                     <Select
                       value={getMaturityLevel(member.id, task.id) || ''}
                       onChange={(e) => handleMaturityChange(member.id, task.id, e)}
                       displayEmpty
                       size="small"
-                      sx={{ minWidth: 80 }}
+                      sx={{ 
+                        minWidth: 80,
+                        '& .MuiSelect-select': {
+                          color: getMaturityLevel(member.id, task.id) ? '#fff' : 'inherit',
+                          fontWeight: 'bold'
+                        }
+                      }}
                     >
                       <MenuItem value="">
                         <em>None</em>
