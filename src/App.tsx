@@ -16,27 +16,27 @@ function AppContent() {
   const navigation = [
     {
       text: 'Dashboard',
-      linkProps: { href: '/' },
+      linkProps: { to: '/' },
       isActive: location.pathname === '/'
     },
     {
       text: 'Team',
-      linkProps: { href: '/team' },
+      linkProps: { to: '/team' },
       isActive: location.pathname === '/team'
     },
     {
       text: 'Projects',
-      linkProps: { href: '/projects' },
+      linkProps: { to: '/projects' },
       isActive: location.pathname === '/projects'
     },
     {
       text: 'Tasks',
-      linkProps: { href: '/tasks' },
+      linkProps: { to: '/tasks' },
       isActive: location.pathname === '/tasks'
     },
     {
       text: 'Team Matrix',
-      linkProps: { href: '/matrix' },
+      linkProps: { to: '/matrix' },
       isActive: location.pathname === '/matrix'
     }
   ];
@@ -53,7 +53,7 @@ function AppContent() {
         }
         serviceTitle="Team Planning Tool"
         homeLinkProps={{
-          href: '/',
+          to: '/',
           title: 'Accueil - Team Planner'
         }}
         navigation={navigation}
@@ -77,7 +77,7 @@ function AppContent() {
           </>
         }
         homeLinkProps={{
-          href: '/',
+          to: '/',
           title: 'Accueil - Team Planner'
         }}
         accessibility="fully compliant"
