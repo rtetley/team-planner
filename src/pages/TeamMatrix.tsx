@@ -16,8 +16,10 @@ import {
 } from '@mui/material';
 import { mockTeamMembers, mockTasks, mockTeamMatrix } from '../data/mockData';
 import { MaturityLevel } from '../types';
+import { useTranslation } from 'react-i18next';
 
 export default function TeamMatrix() {
+  const { t } = useTranslation();
   const [matrixCells, setMatrixCells] = useState(mockTeamMatrix.cells);
 
   const getMaturityLevel = (teamMemberId: string, taskId: string): MaturityLevel | null => {
@@ -74,12 +76,12 @@ export default function TeamMatrix() {
   return (
     <Container maxWidth="xl" sx={{ mt: 4, mb: 4 }}>
       <Typography variant="h3" gutterBottom>
-        Team Maturity Matrix
+        {t('matrix.title')}
       </Typography>
       
       <Box sx={{ mb: 3 }}>
         <Typography variant="body2" color="textSecondary">
-          Assess team member maturity for each task/objective (M1 = Beginner, M4 = Expert)
+          {t('matrix.description')}
         </Typography>
       </Box>
 
@@ -87,7 +89,7 @@ export default function TeamMatrix() {
         <Table sx={{ minWidth: 650 }}>
           <TableHead>
             <TableRow>
-              <TableCell sx={{ fontWeight: 'bold', minWidth: 150 }}>Team Member</TableCell>
+              <TableCell sx={{ fontWeight: 'bold', minWidth: 150 }}>{t('matrix.teamMember')}</TableCell>
               {mockTasks.map((task) => (
                 <TableCell key={task.id} align="center" sx={{ fontWeight: 'bold', minWidth: 120 }}>
                   {task.title}
@@ -131,7 +133,7 @@ export default function TeamMatrix() {
                       }}
                     >
                       <MenuItem value="">
-                        <em>None</em>
+                        <em>{t('matrix.none')}</em>
                       </MenuItem>
                       {maturityLevels.map((level) => (
                         <MenuItem key={level} value={level}>

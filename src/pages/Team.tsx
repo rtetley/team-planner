@@ -8,12 +8,15 @@ import {
   Box,
 } from '@mui/material';
 import { mockTeamMembers } from '../data/mockData';
+import { useTranslation } from 'react-i18next';
 
 export default function Team() {
+  const { t } = useTranslation();
+  
   return (
     <Container maxWidth="lg" sx={{ mt: 4, mb: 4 }}>
       <Typography variant="h3" gutterBottom>
-        Team Members
+        {t('team.title')}
       </Typography>
 
       <Grid container spacing={3}>
@@ -29,7 +32,7 @@ export default function Team() {
                 </Typography>
                 <Box sx={{ mt: 2 }}>
                   <Typography variant="body2" gutterBottom>
-                    Skills:
+                    {t('team.skills')}:
                   </Typography>
                   <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1 }}>
                     {member.skills.map((skill, index) => (

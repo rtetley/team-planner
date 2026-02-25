@@ -8,12 +8,15 @@ import {
   Box,
 } from '@mui/material';
 import { mockProjects } from '../data/mockData';
+import { useTranslation } from 'react-i18next';
 
 export default function Projects() {
+  const { t } = useTranslation();
+  
   return (
     <Container maxWidth="lg" sx={{ mt: 4, mb: 4 }}>
       <Typography variant="h3" gutterBottom>
-        Projects
+        {t('projects.title')}
       </Typography>
 
       <Grid container spacing={3}>
@@ -27,7 +30,7 @@ export default function Projects() {
                 
                 <Box sx={{ mt: 2, mb: 2 }}>
                   <Typography variant="body2" gutterBottom>
-                    Tech Stack:
+                    {t('projects.techStack')}:
                   </Typography>
                   <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1 }}>
                     {project.techStack.map((tech, index) => (
@@ -37,7 +40,7 @@ export default function Projects() {
                 </Box>
 
                 <Typography variant="body2" color="textSecondary">
-                  Duration: {new Date(project.startDate).toLocaleDateString()} - {new Date(project.endDate).toLocaleDateString()}
+                  {t('projects.duration')}: {new Date(project.startDate).toLocaleDateString()} - {new Date(project.endDate).toLocaleDateString()}
                 </Typography>
               </CardContent>
             </Card>

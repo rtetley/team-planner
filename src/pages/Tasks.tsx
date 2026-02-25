@@ -8,8 +8,11 @@ import {
   Box,
 } from '@mui/material';
 import { mockTasks, mockTeamMembers, mockProjects } from '../data/mockData';
+import { useTranslation } from 'react-i18next';
 
 export default function Tasks() {
+  const { t } = useTranslation();
+  
   const getStatusColor = (status: string) => {
     switch (status) {
       case 'done':
@@ -34,7 +37,7 @@ export default function Tasks() {
   return (
     <Container maxWidth="lg" sx={{ mt: 4, mb: 4 }}>
       <Typography variant="h3" gutterBottom>
-        Tasks
+        {t('tasks.title')}
       </Typography>
 
       <Grid container spacing={3}>
@@ -47,7 +50,7 @@ export default function Tasks() {
                     {task.title}
                   </Typography>
                   <Chip 
-                    label={task.status} 
+                    label={t(`tasks.status.${task.status}`)} 
                     size="small" 
                     color={getStatusColor(task.status) as any}
                   />
@@ -59,10 +62,10 @@ export default function Tasks() {
 
                 <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
                   <Typography variant="caption">
-                    <strong>Assigned to:</strong> {getMemberName(task.assignedTo)}
+                    <strong>{t('tasks.assignedTo')}:</strong> {getMemberName(task.assignedTo)}
                   </Typography>
                   <Typography variant="caption">
-                    <strong>Project:</strong> {getProjectName(task.projectId)}
+                    <strong>{t('tasks.project')}:</strong> {getProjectName(task.projectId)}
                   </Typography>
                 </Box>
               </CardContent>

@@ -1,14 +1,16 @@
 import { Container, Typography, Grid, Card, CardContent, Box } from '@mui/material';
 import { mockTeamMembers, mockProjects, mockTasks } from '../data/mockData';
+import { useTranslation } from 'react-i18next';
 
 export default function Dashboard() {
+  const { t } = useTranslation();
   const tasksInProgress = mockTasks.filter((t) => t.status === 'in-progress').length;
   const tasksDone = mockTasks.filter((t) => t.status === 'done').length;
 
   return (
     <Container maxWidth="lg" sx={{ mt: 4, mb: 4 }}>
       <Typography variant="h3" gutterBottom>
-        Dashboard
+        {t('dashboard.title')}
       </Typography>
       
       <Grid container spacing={3}>
@@ -16,7 +18,7 @@ export default function Dashboard() {
           <Card>
             <CardContent>
               <Typography color="textSecondary" gutterBottom>
-                Team Members
+                {t('dashboard.teamMembers')}
               </Typography>
               <Typography variant="h4">
                 {mockTeamMembers.length}
@@ -29,7 +31,7 @@ export default function Dashboard() {
           <Card>
             <CardContent>
               <Typography color="textSecondary" gutterBottom>
-                Active Projects
+                {t('dashboard.activeProjects')}
               </Typography>
               <Typography variant="h4">
                 {mockProjects.length}
@@ -42,7 +44,7 @@ export default function Dashboard() {
           <Card>
             <CardContent>
               <Typography color="textSecondary" gutterBottom>
-                Tasks In Progress
+                {t('dashboard.openTasks')}
               </Typography>
               <Typography variant="h4">
                 {tasksInProgress}

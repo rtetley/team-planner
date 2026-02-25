@@ -3,6 +3,7 @@ import ReactDOM from 'react-dom/client'
 import { startReactDsfr } from '@codegouvfr/react-dsfr/spa'
 import App from './App.tsx'
 import { Link } from 'react-router-dom'
+import './i18n'
 
 declare module '@codegouvfr/react-dsfr/spa' {
   interface RegisterLink {

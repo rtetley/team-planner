@@ -4,38 +4,41 @@ import MuiDsfrThemeProvider from '@codegouvfr/react-dsfr/mui';
 import { Header } from '@codegouvfr/react-dsfr/Header';
 import { Footer } from '@codegouvfr/react-dsfr/Footer';
 import { headerFooterDisplayItem } from '@codegouvfr/react-dsfr/Display';
+import { LanguageSelect } from '@codegouvfr/react-dsfr/LanguageSelect';
 import Dashboard from './pages/Dashboard';
 import Team from './pages/Team';
 import Projects from './pages/Projects';
 import Tasks from './pages/Tasks';
 import TeamMatrix from './pages/TeamMatrix';
+import { useTranslation } from 'react-i18next';
 
 function AppContent() {
   const location = useLocation();
+  const { t, i18n } = useTranslation();
 
   const navigation = [
     {
-      text: 'Dashboard',
+      text: t('navigation.dashboard'),
       linkProps: { to: '/' },
       isActive: location.pathname === '/'
     },
     {
-      text: 'Team',
+      text: t('navigation.team'),
       linkProps: { to: '/team' },
       isActive: location.pathname === '/team'
     },
     {
-      text: 'Projects',
+      text: t('navigation.projects'),
       linkProps: { to: '/projects' },
       isActive: location.pathname === '/projects'
     },
     {
-      text: 'Tasks',
+      text: t('navigation.tasks'),
       linkProps: { to: '/tasks' },
       isActive: location.pathname === '/tasks'
     },
     {
-      text: 'Team Matrix',
+      text: t('navigation.matrix'),
       linkProps: { to: '/matrix' },
       isActive: location.pathname === '/matrix'
     }
@@ -57,7 +60,19 @@ function AppContent() {
           title: 'Accueil - Team Planner'
         }}
         navigation={navigation}
-        quickAccessItems={[headerFooterDisplayItem]}
+        quickAccessItems={[
+          headerFooterDisplayItem,
+          <LanguageSelect
+            key="language-select"
+            lang={i18n.language}
+            supportedLangs={['fr', 'en']}
+            fullNameByLang={{
+              fr: 'Français',
+              en: 'English'
+            }}
+            setLang={(lang: string) => i18n.changeLanguage(lang)}
+          />
+        ]}
       />
       <Box component="main" sx={{ flexGrow: 1, bgcolor: 'background.default' }}>
         <Routes>
@@ -91,6 +106,14 @@ function AppContent() {
             }
           }
         ]}
+        license={
+          <>
+            {t('footer.license')}{' '}
+            <a href="https://github.com/etalab/licence-ouverte/blob/master/LO.md" target="_blank" rel="noopener">
+              {t('footer.licenseLink')}
+            </a>
+          </>
+        }
       />
     </Box>
   );
