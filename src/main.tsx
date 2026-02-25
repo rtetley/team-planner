@@ -12,6 +12,9 @@ declare module '@codegouvfr/react-dsfr/spa' {
 
 startReactDsfr({ defaultColorScheme: 'system', Link })
 
+// Import DSFR styles for Vite/SPA
+import '@codegouvfr/react-dsfr/main.css'
+
 ReactDOM.createRoot(document.getElementById('root')!).render(
   <React.StrictMode>
     <App />
