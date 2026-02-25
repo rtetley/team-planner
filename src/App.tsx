@@ -98,12 +98,12 @@ function AppContent() {
 
 function App() {
   return (
-    <MuiDsfrThemeProvider>
-      <CssBaseline />
-      <Router>
+    <Router>
+      <MuiDsfrThemeProvider>
+        <CssBaseline />
         <AppContent />
-      </Router>
-    </MuiDsfrThemeProvider>
+      </MuiDsfrThemeProvider>
+    </Router>
   );
 }
 
