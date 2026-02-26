@@ -2,14 +2,12 @@ import {
   Container,
   Typography,
   Box,
-  Chip,
   Card,
   CardContent,
-  Divider,
+  LinearProgress,
   IconButton,
 } from '@mui/material';
 import EditIcon from '@mui/icons-material/Edit';
-import ReactMarkdown from 'react-markdown';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
 import { useObjectives } from '../context/ObjectivesContext';
@@ -22,85 +20,139 @@ const quarterColors: Record<Quarter, string> = {
   T4: '#22c55e',
 };
 
+const QUARTER_ORDER: Quarter[] = ['T1', 'T2', 'T3', 'T4'];
+
+function getGridColumn(quarters: Quarter[]): string {
+  if (!quarters.length) return '1 / 2';
+  const indices = quarters
+    .map((q) => QUARTER_ORDER.indexOf(q))
+    .filter((i) => i !== -1);
+  if (!indices.length) return '1 / 2';
+  const min = Math.min(...indices);
+  const max = Math.max(...indices);
+  return `${min + 1} / ${max + 2}`;
+}
+
 export default function Objectives() {
   const { t } = useTranslation();
   const navigate = useNavigate();
   const { objectives } = useObjectives();
 
   return (
-    <Container maxWidth="lg" sx={{ mt: 4, mb: 4 }}>
+    <Container maxWidth="xl" sx={{ mt: 4, mb: 4 }}>
       <Typography variant="h3" gutterBottom>
         {t('objectives.title')}
       </Typography>
 
-      <Box sx={{ display: 'flex', flexDirection: 'column', gap: 3 }}>
-        {objectives.map((objective) => (
-          <Card key={objective.id} variant="outlined">
-            <CardContent sx={{ p: 3 }}>
-              {/* Title + Quarter chips + Edit button */}
-              <Box sx={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: 2, mb: 1.5 }}>
-                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                  <Typography variant="h6" fontWeight="bold">
-                    {objective.title}
+      <Box
+        sx={{
+          display: 'grid',
+          gridTemplateColumns: 'repeat(4, 1fr)',
+          columnGap: 1.5,
+          rowGap: 1.5,
+          gridAutoFlow: 'row dense',
+        }}
+      >
+        {/* Column headers — explicit row 1 */}
+        {QUARTER_ORDER.map((q, i) => (
+          <Box
+            key={q}
+            sx={{
+              gridColumn: i + 1,
+              gridRow: 1,
+              bgcolor: quarterColors[q],
+              color: '#fff',
+              p: 1.5,
+              borderRadius: 1,
+              textAlign: 'center',
+            }}
+          >
+            <Typography variant="subtitle1" fontWeight="bold">
+              {t(`objectives.${q}`)}
+            </Typography>
+          </Box>
+        ))}
+
+        {/* Objective cards — auto-placed from row 2 onwards */}
+        {objectives.map((obj) => {
+          const firstQuarter =
+            QUARTER_ORDER.find((q) => obj.quarters.includes(q)) ?? 'T1';
+          const accentColor = quarterColors[firstQuarter];
+          return (
+            <Card
+              key={obj.id}
+              variant="outlined"
+              sx={{
+                gridColumn: getGridColumn(obj.quarters),
+                borderTop: `4px solid ${accentColor}`,
+              }}
+            >
+              <CardContent sx={{ p: 2, '&:last-child': { pb: 2 } }}>
+                {/* Title + edit button */}
+                <Box
+                  sx={{
+                    display: 'flex',
+                    alignItems: 'flex-start',
+                    justifyContent: 'space-between',
+                    gap: 1,
+                    mb: 1.5,
+                  }}
+                >
+                  <Typography
+                    variant="subtitle2"
+                    fontWeight="bold"
+                    sx={{ lineHeight: 1.4 }}
+                  >
+                    {obj.title}
                   </Typography>
                   <IconButton
                     size="small"
-                    onClick={() => navigate(`/objectives/${objective.id}`)}
+                    onClick={() => navigate(`/objectives/${obj.id}`)}
                     aria-label="edit"
+                    sx={{ flexShrink: 0, mt: -0.25 }}
                   >
                     <EditIcon fontSize="small" />
                   </IconButton>
                 </Box>
-                <Box sx={{ display: 'flex', gap: 0.5, flexShrink: 0 }}>
-                  {objective.quarters.length > 0
-                    ? objective.quarters.map((q) => (
-                        <Chip
-                          key={q}
-                          label={q}
-                          size="small"
-                          sx={{
-                            bgcolor: quarterColors[q],
-                            color: '#fff',
-                            fontWeight: 'bold',
-                          }}
-                        />
-                      ))
-                    : (
-                        <Typography variant="caption" color="textSecondary">
-                          {t('objectives.noQuarters')}
-                        </Typography>
-                      )
-                  }
+
+                {/* KPI progress */}
+                <Box>
+                  <Box
+                    sx={{
+                      display: 'flex',
+                      justifyContent: 'space-between',
+                      mb: 0.5,
+                    }}
+                  >
+                    <Typography variant="caption" color="text.secondary">
+                      {t('objectives.kpiProgress')}
+                    </Typography>
+                    <Typography
+                      variant="caption"
+                      fontWeight="bold"
+                      sx={{ color: accentColor }}
+                    >
+                      {obj.kpiProgress}%
+                    </Typography>
+                  </Box>
+                  <LinearProgress
+                    variant="determinate"
+                    value={obj.kpiProgress}
+                    sx={{
+                      height: 6,
+                      borderRadius: 3,
+                      bgcolor: `${accentColor}22`,
+                      '& .MuiLinearProgress-bar': {
+                        bgcolor: accentColor,
+                        borderRadius: 3,
+                      },
+                    }}
+                  />
                 </Box>
-              </Box>
-
-              {/* Markdown description */}
-              <Box
-                sx={{
-                  '& p': { mt: 0, mb: 1, fontSize: '0.9rem' },
-                  '& ul': { mt: 0, mb: 1, pl: 3 },
-                  '& li': { fontSize: '0.9rem' },
-                  '& strong': { fontWeight: 'bold' },
-                  color: 'text.secondary',
-                }}
-              >
-                <ReactMarkdown>{objective.description}</ReactMarkdown>
-              </Box>
-
-              <Divider sx={{ my: 1.5 }} />
-
-              {/* KPI */}
-              <Box sx={{ display: 'flex', alignItems: 'baseline', gap: 1 }}>
-                <Typography variant="body2" fontWeight="bold" color="text.secondary" sx={{ flexShrink: 0 }}>
-                  {t('objectives.kpi')}:
-                </Typography>
-                <Typography variant="body2">
-                  {objective.kpi}
-                </Typography>
-              </Box>
-            </CardContent>
-          </Card>
-        ))}
+              </CardContent>
+            </Card>
+          );
+        })}
       </Box>
     </Container>
   );

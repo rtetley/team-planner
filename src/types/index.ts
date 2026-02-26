@@ -43,5 +43,6 @@ export interface Objective {
   title: string;
   description: string;
   kpi: string;
+  kpiProgress: number;
   quarters: Quarter[];
 }

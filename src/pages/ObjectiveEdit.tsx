@@ -14,6 +14,7 @@ import {
   FormControl,
   SelectChangeEvent,
   Paper,
+  Slider,
 } from '@mui/material';
 import ReactMarkdown from 'react-markdown';
 import { useTranslation } from 'react-i18next';
@@ -40,6 +41,7 @@ export default function ObjectiveEdit() {
   const [title, setTitle] = useState(objective?.title ?? '');
   const [description, setDescription] = useState(objective?.description ?? '');
   const [kpi, setKpi] = useState(objective?.kpi ?? '');
+  const [kpiProgress, setKpiProgress] = useState<number>(objective?.kpiProgress ?? 0);
   const [quarters, setQuarters] = useState<Quarter[]>(objective?.quarters ?? []);
 
   if (!objective) {
@@ -51,7 +53,7 @@ export default function ObjectiveEdit() {
   }
 
   const handleSave = () => {
-    updateObjective({ ...objective, title, description, kpi, quarters });
+    updateObjective({ ...objective, title, description, kpi, kpiProgress, quarters });
     navigate('/objectives');
   };
 
@@ -131,6 +133,28 @@ export default function ObjectiveEdit() {
           onChange={(e) => setKpi(e.target.value)}
           fullWidth
         />
+
+        {/* KPI Progress slider */}
+        <Box>
+          <Typography variant="body2" color="text.secondary" gutterBottom>
+            {t('objectives.kpiProgressField')}
+          </Typography>
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+            <Slider
+              value={kpiProgress}
+              onChange={(_, val) => setKpiProgress(val as number)}
+              valueLabelDisplay="auto"
+              min={0}
+              max={100}
+              step={5}
+              marks
+              sx={{ flex: 1 }}
+            />
+            <Typography variant="body1" fontWeight="bold" sx={{ minWidth: 44, textAlign: 'right' }}>
+              {kpiProgress}%
+            </Typography>
+          </Box>
+        </Box>
 
         {/* Quarters multi-select */}
         <FormControl fullWidth>
