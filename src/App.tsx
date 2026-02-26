@@ -12,6 +12,7 @@ import Tasks from './pages/Tasks';
 import TeamMatrix from './pages/TeamMatrix';
 import Objectives from './pages/Objectives';
 import ObjectiveEdit from './pages/ObjectiveEdit';
+import Skills from './pages/Skills';
 import { ObjectivesProvider } from './context/ObjectivesContext';
 import { useTranslation } from 'react-i18next';
 
@@ -41,9 +42,9 @@ function AppContent() {
       isActive: location.pathname === '/tasks'
     },
     {
-      text: t('navigation.matrix'),
-      linkProps: { to: '/matrix' },
-      isActive: location.pathname === '/matrix'
+      text: t('navigation.skills'),
+      linkProps: { to: '/skills' },
+      isActive: location.pathname === '/skills'
     },
     {
       text: t('navigation.objectives'),
@@ -89,6 +90,7 @@ function AppContent() {
           <Route path="/projects" element={<Projects />} />
           <Route path="/tasks" element={<Tasks />} />
           <Route path="/matrix" element={<TeamMatrix />} />
+          <Route path="/skills" element={<Skills />} />
           <Route path="/objectives" element={<Objectives />} />
           <Route path="/objectives/new" element={<ObjectiveEdit />} />
           <Route path="/objectives/:id" element={<ObjectiveEdit />} />
