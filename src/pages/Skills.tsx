@@ -286,20 +286,30 @@ export default function Skills() {
               from { opacity: 0; transform: scale(0.7); }
               to   { opacity: 1; transform: scale(1); }
             }
-            .animated { animation: fadeIn 0.25s ease both; }
+            @keyframes fadeInEdge {
+              from { opacity: 0; }
+              to   { opacity: 1; }
+            }
+            .animated     { animation: fadeIn     0.25s ease both; }
+            .edge-animated { animation: fadeInEdge 0.28s ease both; }
           `}</style>
 
-          {/* Edges */}
+          {/* Edges — appear after their node has settled */}
           {positions.map((pos, i) => {
             const child = children[i];
             const edgeColor = resolveColor(child, [...ancestors, centerNode]);
             return (
-              <Edge
+              <g
                 key={child.id}
-                x1={CX} y1={CY}
-                x2={pos.x} y2={pos.y}
-                color={edgeColor}
-              />
+                className="edge-animated"
+                style={{ animationDelay: `${i * 35 + 200}ms` }}
+              >
+                <Edge
+                  x1={CX} y1={CY}
+                  x2={pos.x} y2={pos.y}
+                  color={edgeColor}
+                />
+              </g>
             );
           })}
 
