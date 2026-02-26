@@ -35,3 +35,13 @@ export interface TeamMatrix {
   name: string;
   cells: MatrixCell[];
 }
+
+export type Quarter = 'T1' | 'T2' | 'T3' | 'T4';
+
+export interface Objective {
+  id: string;
+  title: string;
+  description: string;
+  kpi: string;
+  quarters: Quarter[];
+}

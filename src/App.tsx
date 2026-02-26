@@ -10,6 +10,9 @@ import Team from './pages/Team';
 import Projects from './pages/Projects';
 import Tasks from './pages/Tasks';
 import TeamMatrix from './pages/TeamMatrix';
+import Objectives from './pages/Objectives';
+import ObjectiveEdit from './pages/ObjectiveEdit';
+import { ObjectivesProvider } from './context/ObjectivesContext';
 import { useTranslation } from 'react-i18next';
 
 function AppContent() {
@@ -41,6 +44,11 @@ function AppContent() {
       text: t('navigation.matrix'),
       linkProps: { to: '/matrix' },
       isActive: location.pathname === '/matrix'
+    },
+    {
+      text: t('navigation.objectives'),
+      linkProps: { to: '/objectives' },
+      isActive: location.pathname === '/objectives'
     }
   ];
 
@@ -81,6 +89,8 @@ function AppContent() {
           <Route path="/projects" element={<Projects />} />
           <Route path="/tasks" element={<Tasks />} />
           <Route path="/matrix" element={<TeamMatrix />} />
+          <Route path="/objectives" element={<Objectives />} />
+          <Route path="/objectives/:id" element={<ObjectiveEdit />} />
         </Routes>
       </Box>
       <Footer
@@ -124,7 +134,9 @@ function App() {
     <Router>
       <MuiDsfrThemeProvider>
         <CssBaseline />
-        <AppContent />
+        <ObjectivesProvider>
+          <AppContent />
+        </ObjectivesProvider>
       </MuiDsfrThemeProvider>
     </Router>
   );

@@ -1,4 +1,4 @@
-import { TeamMember, Project, Task, TeamMatrix } from '../types';
+import { TeamMember, Project, Task, TeamMatrix, Objective } from '../types';
 
 export const mockTeamMembers: TeamMember[] = [
   {
@@ -105,3 +105,34 @@ export const mockTeamMatrix: TeamMatrix = {
     { teamMemberId: '4', taskId: '3', maturityLevel: 'M3' },
   ],
 };
+
+export const mockObjectives: Objective[] = [
+  {
+    id: '1',
+    title: 'Deliver Team Planner MVP',
+    description: `Ship the first usable version of the Team Planner tool.\n\n- All 5 pages functional\n- DSFR compliant UI\n- Deployed to production`,
+    kpi: '100% of planned features shipped by end of Q1',
+    quarters: ['T1'],
+  },
+  {
+    id: '2',
+    title: 'Improve CI/CD pipeline reliability',
+    description: `Reduce deployment failures and improve developer confidence.\n\n- Automated tests coverage > 80%\n- Deployment time < 5 minutes\n- Zero manual deployment steps`,
+    kpi: 'Deployment failure rate < 2%',
+    quarters: ['T1', 'T2'],
+  },
+  {
+    id: '3',
+    title: 'Migrate e-commerce platform to new infrastructure',
+    description: `Move the existing e-commerce backend to Kubernetes.\n\n**Scope:**\n- Containerise all services\n- Set up auto-scaling\n- Migrate database with zero downtime`,
+    kpi: 'Zero downtime migration, p95 latency < 200ms post-migration',
+    quarters: ['T2', 'T3'],
+  },
+  {
+    id: '4',
+    title: 'Launch documentation portal',
+    description: `Provide a centralised, searchable documentation hub for all internal teams.\n\n- Onboard 3 contributing teams\n- Cover all public APIs`,
+    kpi: 'Documentation coverage > 90% of public APIs',
+    quarters: ['T3'],
+  },
+];
