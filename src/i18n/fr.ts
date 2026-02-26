@@ -53,6 +53,7 @@ export const fr = {
       preview: 'Aperçu',
       save: 'Enregistrer',
       cancel: 'Annuler',
+      editButton: 'Modifier',
       notFound: 'Objectif introuvable'
     },
     matrix: {

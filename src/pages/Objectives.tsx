@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import {
   Container,
   Typography,
@@ -5,13 +6,19 @@ import {
   Card,
   CardContent,
   LinearProgress,
-  IconButton,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogActions,
+  Button,
+  Divider,
 } from '@mui/material';
 import EditIcon from '@mui/icons-material/Edit';
+import ReactMarkdown from 'react-markdown';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
 import { useObjectives } from '../context/ObjectivesContext';
-import { Quarter } from '../types';
+import { Objective, Quarter } from '../types';
 
 const quarterColors: Record<Quarter, string> = {
   T1: '#3b82f6',
@@ -37,6 +44,7 @@ export default function Objectives() {
   const { t } = useTranslation();
   const navigate = useNavigate();
   const { objectives } = useObjectives();
+  const [viewObjective, setViewObjective] = useState<Objective | null>(null);
 
   return (
     <Container maxWidth="xl" sx={{ mt: 4, mb: 4 }}>
@@ -82,38 +90,27 @@ export default function Objectives() {
             <Card
               key={obj.id}
               variant="outlined"
+              onClick={() => setViewObjective(obj)}
               sx={{
                 gridColumn: getGridColumn(obj.quarters),
                 borderTop: `4px solid ${accentColor}`,
+                cursor: 'pointer',
+                transition: 'transform 0.15s ease, box-shadow 0.15s ease',
+                '&:hover': {
+                  transform: 'scale(1.03)',
+                  boxShadow: `0 6px 20px ${accentColor}44`,
+                },
               }}
             >
               <CardContent sx={{ p: 2, '&:last-child': { pb: 2 } }}>
-                {/* Title + edit button */}
-                <Box
-                  sx={{
-                    display: 'flex',
-                    alignItems: 'flex-start',
-                    justifyContent: 'space-between',
-                    gap: 1,
-                    mb: 1.5,
-                  }}
+                {/* Title */}
+                <Typography
+                  variant="subtitle2"
+                  fontWeight="bold"
+                  sx={{ lineHeight: 1.4, mb: 1.5 }}
                 >
-                  <Typography
-                    variant="subtitle2"
-                    fontWeight="bold"
-                    sx={{ lineHeight: 1.4 }}
-                  >
-                    {obj.title}
-                  </Typography>
-                  <IconButton
-                    size="small"
-                    onClick={() => navigate(`/objectives/${obj.id}`)}
-                    aria-label="edit"
-                    sx={{ flexShrink: 0, mt: -0.25 }}
-                  >
-                    <EditIcon fontSize="small" />
-                  </IconButton>
-                </Box>
+                  {obj.title}
+                </Typography>
 
                 {/* KPI progress */}
                 <Box>
@@ -154,6 +151,91 @@ export default function Objectives() {
           );
         })}
       </Box>
+
+      {/* View modal */}
+      <Dialog
+        open={!!viewObjective}
+        onClose={() => setViewObjective(null)}
+        maxWidth="sm"
+        fullWidth
+      >
+        {viewObjective && (() => {
+          const firstQ = QUARTER_ORDER.find((q) => viewObjective.quarters.includes(q)) ?? 'T1';
+          const color = quarterColors[firstQ];
+          return (
+            <>
+              <DialogTitle sx={{ borderTop: `4px solid ${color}`, pt: 2.5 }}>
+                <Typography variant="h6" fontWeight="bold">
+                  {viewObjective.title}
+                </Typography>
+              </DialogTitle>
+              <DialogContent dividers>
+                {/* Description */}
+                <Box
+                  sx={{
+                    mb: 2,
+                    '& p': { mt: 0, mb: 1, fontSize: '0.9rem' },
+                    '& ul': { mt: 0, mb: 1, pl: 3 },
+                    '& li': { fontSize: '0.9rem' },
+                    '& strong': { fontWeight: 'bold' },
+                  }}
+                >
+                  <ReactMarkdown>{viewObjective.description}</ReactMarkdown>
+                </Box>
+
+                <Divider sx={{ my: 1.5 }} />
+
+                {/* KPI target */}
+                <Box sx={{ mb: 1.5 }}>
+                  <Typography variant="caption" color="text.secondary" display="block" gutterBottom>
+                    {t('objectives.kpiField')}
+                  </Typography>
+                  <Typography variant="body2">{viewObjective.kpi}</Typography>
+                </Box>
+
+                <Divider sx={{ my: 1.5 }} />
+
+                {/* KPI progress */}
+                <Box>
+                  <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 0.75 }}>
+                    <Typography variant="caption" color="text.secondary">
+                      {t('objectives.kpiProgress')}
+                    </Typography>
+                    <Typography variant="caption" fontWeight="bold" sx={{ color }}>
+                      {viewObjective.kpiProgress}%
+                    </Typography>
+                  </Box>
+                  <LinearProgress
+                    variant="determinate"
+                    value={viewObjective.kpiProgress}
+                    sx={{
+                      height: 8,
+                      borderRadius: 4,
+                      bgcolor: `${color}22`,
+                      '& .MuiLinearProgress-bar': { bgcolor: color, borderRadius: 4 },
+                    }}
+                  />
+                </Box>
+              </DialogContent>
+              <DialogActions>
+                <Button onClick={() => setViewObjective(null)}>
+                  {t('matrix.close')}
+                </Button>
+                <Button
+                  variant="outlined"
+                  startIcon={<EditIcon />}
+                  onClick={() => {
+                    setViewObjective(null);
+                    navigate(`/objectives/${viewObjective.id}`);
+                  }}
+                >
+                  {t('objectives.editButton')}
+                </Button>
+              </DialogActions>
+            </>
+          );
+        })()}
+      </Dialog>
     </Container>
   );
 }

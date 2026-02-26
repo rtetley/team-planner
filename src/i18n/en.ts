@@ -53,6 +53,7 @@ export const en = {
       preview: 'Preview',
       save: 'Save',
       cancel: 'Cancel',
+      editButton: 'Edit',
       notFound: 'Objective not found'
     },
     matrix: {
