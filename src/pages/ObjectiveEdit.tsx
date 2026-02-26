@@ -12,10 +12,12 @@ import {
   OutlinedInput,
   InputLabel,
   FormControl,
+  FormHelperText,
   SelectChangeEvent,
   Paper,
   Slider,
 } from '@mui/material';
+import AddIcon from '@mui/icons-material/Add';
 import ReactMarkdown from 'react-markdown';
 import { useTranslation } from 'react-i18next';
 import { useObjectives } from '../context/ObjectivesContext';
@@ -32,19 +34,22 @@ const quarterColors: Record<Quarter, string> = {
 
 export default function ObjectiveEdit() {
   const { id } = useParams();
-  const { objectives, updateObjective } = useObjectives();
+  const { objectives, addObjective, updateObjective } = useObjectives();
   const navigate = useNavigate();
   const { t } = useTranslation();
 
-  const objective = objectives.find((o) => o.id === id);
+  const isNew = id === undefined; // routed via /objectives/new (no param)
+  const objective = isNew ? undefined : objectives.find((o) => o.id === id);
 
   const [title, setTitle] = useState(objective?.title ?? '');
   const [description, setDescription] = useState(objective?.description ?? '');
   const [kpi, setKpi] = useState(objective?.kpi ?? '');
   const [kpiProgress, setKpiProgress] = useState<number>(objective?.kpiProgress ?? 0);
   const [quarters, setQuarters] = useState<Quarter[]>(objective?.quarters ?? []);
+  const [submitted, setSubmitted] = useState(false);
 
-  if (!objective) {
+  // Not found: only when an id param exists but matches nothing
+  if (!isNew && !objective) {
     return (
       <Container maxWidth="lg" sx={{ mt: 4 }}>
         <Typography variant="h5" color="error">{t('objectives.notFound')}</Typography>
@@ -52,8 +57,28 @@ export default function ObjectiveEdit() {
     );
   }
 
+  const titleError = submitted && !title.trim();
+  const kpiError = submitted && !kpi.trim();
+  const quartersError = submitted && quarters.length === 0;
+
+  const isValid = title.trim() && kpi.trim() && quarters.length > 0;
+
   const handleSave = () => {
-    updateObjective({ ...objective, title, description, kpi, kpiProgress, quarters });
+    setSubmitted(true);
+    if (!isValid) return;
+
+    if (isNew) {
+      addObjective({
+        id: crypto.randomUUID(),
+        title: title.trim(),
+        description,
+        kpi: kpi.trim(),
+        kpiProgress,
+        quarters,
+      });
+    } else {
+      updateObjective({ ...objective!, title: title.trim(), description, kpi: kpi.trim(), kpiProgress, quarters });
+    }
     navigate('/objectives');
   };
 
@@ -61,6 +86,10 @@ export default function ObjectiveEdit() {
     const value = event.target.value;
     setQuarters(typeof value === 'string' ? (value.split(',') as Quarter[]) : value);
   };
+
+  const headingLabel = isNew
+    ? t('objectives.newObjectiveHeading')
+    : (title || objective!.title);
 
   return (
     <Container maxWidth="lg" sx={{ mt: 4, mb: 4 }}>
@@ -76,7 +105,7 @@ export default function ObjectiveEdit() {
         </Typography>
         <Typography variant="h3" component="span" color="text.secondary"> / </Typography>
         <Typography variant="h3" component="span" color="text.secondary" sx={{ fontSize: '1.5rem' }}>
-          {title || objective.title}
+          {headingLabel}
         </Typography>
       </Box>
 
@@ -88,6 +117,8 @@ export default function ObjectiveEdit() {
           onChange={(e) => setTitle(e.target.value)}
           fullWidth
           required
+          error={titleError}
+          helperText={titleError ? t('objectives.errorTitleRequired') : ''}
         />
 
         {/* Markdown editor + preview */}
@@ -132,6 +163,9 @@ export default function ObjectiveEdit() {
           value={kpi}
           onChange={(e) => setKpi(e.target.value)}
           fullWidth
+          required
+          error={kpiError}
+          helperText={kpiError ? t('objectives.errorKpiRequired') : ''}
         />
 
         {/* KPI Progress slider */}
@@ -157,7 +191,7 @@ export default function ObjectiveEdit() {
         </Box>
 
         {/* Quarters multi-select */}
-        <FormControl fullWidth>
+        <FormControl fullWidth required error={quartersError}>
           <InputLabel>{t('objectives.quartersField')}</InputLabel>
           <Select
             multiple
@@ -186,6 +220,9 @@ export default function ObjectiveEdit() {
               </MenuItem>
             ))}
           </Select>
+          {quartersError && (
+            <FormHelperText>{t('objectives.errorQuartersRequired')}</FormHelperText>
+          )}
         </FormControl>
 
         {/* Actions */}
@@ -193,7 +230,11 @@ export default function ObjectiveEdit() {
           <Button variant="outlined" onClick={() => navigate('/objectives')}>
             {t('objectives.cancel')}
           </Button>
-          <Button variant="contained" onClick={handleSave} disabled={!title.trim()}>
+          <Button
+            variant="contained"
+            startIcon={isNew ? <AddIcon /> : undefined}
+            onClick={handleSave}
+          >
             {t('objectives.save')}
           </Button>
         </Box>

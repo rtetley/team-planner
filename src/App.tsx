@@ -90,6 +90,7 @@ function AppContent() {
           <Route path="/tasks" element={<Tasks />} />
           <Route path="/matrix" element={<TeamMatrix />} />
           <Route path="/objectives" element={<Objectives />} />
+          <Route path="/objectives/new" element={<ObjectiveEdit />} />
           <Route path="/objectives/:id" element={<ObjectiveEdit />} />
         </Routes>
       </Box>

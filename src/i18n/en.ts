@@ -45,6 +45,8 @@ export const en = {
       T4: 'Q4',
       timing: 'Timing',
       noQuarters: 'No quarters defined',
+      newObjective: 'New objective',
+      newObjectiveHeading: 'New objective',
       titleField: 'Title',
       descriptionField: 'Description',
       kpiField: 'KPI Target',
@@ -54,7 +56,10 @@ export const en = {
       save: 'Save',
       cancel: 'Cancel',
       editButton: 'Edit',
-      notFound: 'Objective not found'
+      notFound: 'Objective not found',
+      errorTitleRequired: 'Title is required',
+      errorKpiRequired: 'KPI target is required',
+      errorQuartersRequired: 'At least one quarter must be selected'
     },
     matrix: {
       title: 'Team Maturity Matrix',

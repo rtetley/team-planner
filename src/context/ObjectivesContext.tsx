@@ -4,6 +4,7 @@ import { Objective } from '../types';
 
 interface ObjectivesContextType {
   objectives: Objective[];
+  addObjective: (objective: Objective) => void;
   updateObjective: (updated: Objective) => void;
 }
 
@@ -12,12 +13,16 @@ const ObjectivesContext = createContext<ObjectivesContextType | null>(null);
 export function ObjectivesProvider({ children }: { children: ReactNode }) {
   const [objectives, setObjectives] = useState<Objective[]>(mockObjectives);
 
+  const addObjective = (objective: Objective) => {
+    setObjectives((prev) => [...prev, objective]);
+  };
+
   const updateObjective = (updated: Objective) => {
     setObjectives((prev) => prev.map((o) => (o.id === updated.id ? updated : o)));
   };
 
   return (
-    <ObjectivesContext.Provider value={{ objectives, updateObjective }}>
+    <ObjectivesContext.Provider value={{ objectives, addObjective, updateObjective }}>
       {children}
     </ObjectivesContext.Provider>
   );

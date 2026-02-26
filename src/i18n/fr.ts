@@ -45,6 +45,8 @@ export const fr = {
       T4: 'T4',
       timing: 'Planning',
       noQuarters: 'Aucun trimestre défini',
+      newObjective: 'Nouvel objectif',
+      newObjectiveHeading: 'Nouvel objectif',
       titleField: 'Titre',
       descriptionField: 'Description',
       kpiField: 'Objectif KPI',
@@ -54,7 +56,10 @@ export const fr = {
       save: 'Enregistrer',
       cancel: 'Annuler',
       editButton: 'Modifier',
-      notFound: 'Objectif introuvable'
+      notFound: 'Objectif introuvable',
+      errorTitleRequired: 'Le titre est requis',
+      errorKpiRequired: 'L\'objectif KPI est requis',
+      errorQuartersRequired: 'Au moins un trimestre doit être sélectionné'
     },
     matrix: {
       title: 'Matrice de maturité de l\'équipe',
