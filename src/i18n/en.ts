@@ -153,7 +153,8 @@ export const en = {
       accessibility: 'fully compliant',
       contentDescription: 'TeamTree is a comprehensive tool for managing software development teams, projects, and tasks. Built with React, TypeScript, MUI, and the French Design System (DSFR).',
       licenseText: 'License',
-      homeTitle: 'Home - TeamTree'
+      homeTitle: 'Home - TeamTree',
+      serviceTitle: 'Team Skill management made easy'
     }
   }
 };
