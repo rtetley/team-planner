@@ -63,7 +63,7 @@ function AppContent() {
             TREE
           </>
         }
-        serviceTitle="TeamTree"
+        serviceTitle="Team Skill management made easy"
         homeLinkProps={{
           to: '/',
           title: 'Accueil - TeamTree'
