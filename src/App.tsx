@@ -60,10 +60,10 @@ function AppContent() {
           <>
             TEAM
             <br />
-            PLANNER
+            TREE
           </>
         }
-        serviceTitle="Team Planning Tool"
+        serviceTitle="TeamTree"
         homeLinkProps={{
           to: '/',
           title: 'Accueil - TeamTree'
@@ -101,7 +101,7 @@ function AppContent() {
           <>
             TEAM
             <br />
-            PLANNER
+            TREE
           </>
         }
         homeLinkProps={{
