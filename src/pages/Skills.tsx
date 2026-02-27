@@ -125,18 +125,18 @@ function wrapText(text: string, maxChars = 10): string[] {
 
 // ── Skill node SVG element ────────────────────────────────────────────────────
 interface SkillNodeElProps {
-  node: NodeDatum; isFocused: boolean; isConnected: boolean;
+  node: NodeDatum; isFocused: boolean; isChild: boolean;
   onClick: () => void; label: string;
 }
 
-function SkillNodeEl({ node, isFocused, isConnected, onClick, label }: SkillNodeElProps) {
+function SkillNodeEl({ node, isFocused, isChild, onClick, label }: SkillNodeElProps) {
   const [hovered, setHovered] = useState(false);
   const { stroke, fill, text } = PALETTE[node.colorKey];
   const r  = BASE_R[node.depth] ?? 22;
   const lines = wrapText(label);
   const fs = [12, 11, 9.5, 8.5][node.depth] ?? 8.5;
-  const scale = isFocused ? FOCUS_SCALE : hovered ? 1.1 : 1;
-  const sw = isFocused ? 2.5 : isConnected ? 1.5 : hovered ? 1.5 : 1;
+  const scale = isFocused ? FOCUS_SCALE : isChild ? 1.08 : hovered ? 1.1 : 1;
+  const sw = isFocused ? 2.5 : isChild ? 2 : hovered ? 1.5 : 1;
 
   return (
     <g
@@ -165,8 +165,8 @@ function SkillNodeEl({ node, isFocused, isConnected, onClick, label }: SkillNode
         {/* Label */}
         {lines.map((line, i) => (
           <text key={i} textAnchor="middle" dominantBaseline="middle"
-            fontSize={fs} fontWeight={isFocused ? 700 : 500}
-            fill={isFocused ? text : '#9aa8b8'}
+            fontSize={fs} fontWeight={isFocused ? 700 : isChild ? 600 : 500}
+            fill={isFocused ? text : isChild ? text : '#9aa8b8'}
             y={(i - (lines.length - 1) / 2) * (fs + 2.5)}
             style={{ userSelect: 'none', pointerEvents: 'none' }}>
             {line}
@@ -195,15 +195,27 @@ export default function Skills() {
     setPanY(VH / 2 - node.y);
   }, []);
 
-  // Direct neighbours of focused node (for edge + ring highlight)
-  const connectedIds = useMemo(() => {
+  // Direct children of focused node
+  const childrenIds = useMemo(() => {
     const s = new Set<string>();
-    edges.forEach(e => {
-      if (e.parentId === focusedId) s.add(e.childId);
-      if (e.childId  === focusedId) s.add(e.parentId);
-    });
+    edges.forEach(e => { if (e.parentId === focusedId) s.add(e.childId); });
     return s;
   }, [edges, focusedId]);
+
+  // Ancestor path from root → direct parent (for breadcrumbs)
+  const ancestorPath = useMemo(() => {
+    const path: NodeDatum[] = [];
+    let current = focusedId;
+    while (true) {
+      const parentEdge = edges.find(e => e.childId === current);
+      if (!parentEdge) break;
+      const parent = nodeMap.get(parentEdge.parentId);
+      if (!parent) break;
+      path.unshift(parent);
+      current = parent.id;
+    }
+    return path; // root first
+  }, [edges, nodeMap, focusedId]);
 
   // ── matrix state ────────────────────────────────────────────────────────
   const [matrixCells, setMatrixCells] = useState(mockTeamMatrix.cells);
@@ -249,14 +261,37 @@ export default function Skills() {
   return (
     <Container maxWidth="lg" sx={{ mt: 4, mb: 4 }}>
       {/* Header */}
-      <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 1 }}>
+      <Box sx={{ mb: 0.5 }}>
         <Typography variant="h3">{t('skills.title')}</Typography>
-        {focusedNode && focusedNode.id !== 'root' && (
-          <Typography variant="caption" sx={{ color: PALETTE[focusedNode.colorKey].text, fontWeight: 600, letterSpacing: 1 }}>
-            ◈ {t(focusedNode.labelKey)}
+      </Box>
+
+      {/* Breadcrumbs */}
+      <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5, mb: 1, flexWrap: 'wrap', minHeight: 24 }}>
+        {ancestorPath.map((ancestor) => {
+          const color = PALETTE[ancestor.colorKey].stroke;
+          return (
+            <Box key={ancestor.id} sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
+              <Typography
+                variant="caption"
+                onClick={() => { const n = nodeMap.get(ancestor.id); if (n) handleNodeClick(n); }}
+                sx={{ cursor: 'pointer', color: 'text.secondary', transition: 'color 0.2s', '&:hover': { color, textDecoration: 'underline' } }}
+              >
+                {t(ancestor.labelKey)}
+              </Typography>
+              <Typography variant="caption" color="text.disabled">/</Typography>
+            </Box>
+          );
+        })}
+        {focusedNode && (
+          <Typography variant="caption" sx={{
+            color: PALETTE[focusedNode.colorKey].stroke,
+            fontWeight: 700,
+          }}>
+            {t(focusedNode.labelKey)}
           </Typography>
         )}
       </Box>
+
       <Typography variant="caption" color="text.secondary" sx={{ display: 'block', mb: 1.5 }}>
         {t('skills.hint')}
       </Typography>
@@ -282,13 +317,16 @@ export default function Skills() {
             {/* Edges */}
             {edges.map((e, i) => {
               const { stroke } = PALETTE[e.colorKey];
-              const lit = e.parentId === focusedId || e.childId === focusedId;
+              const toChild  = e.parentId === focusedId;
+              const toParent = e.childId  === focusedId;
+              const sw      = toChild ? 2 : toParent ? 1.2 : 0.8;
+              const opacity = toChild ? 0.75 : toParent ? 0.35 : 0.15;
               return (
                 <line key={i}
                   x1={e.x1} y1={e.y1} x2={e.x2} y2={e.y2}
                   stroke={stroke}
-                  strokeWidth={lit ? 1.8 : 0.8}
-                  strokeOpacity={lit ? 0.65 : 0.18}
+                  strokeWidth={sw}
+                  strokeOpacity={opacity}
                   style={{ transition: 'stroke-opacity 0.35s ease, stroke-width 0.35s ease' }}
                 />
               );
@@ -298,7 +336,7 @@ export default function Skills() {
             {nodes.map(n => (
               <SkillNodeEl key={n.id} node={n}
                 isFocused={n.id === focusedId}
-                isConnected={connectedIds.has(n.id)}
+                isChild={childrenIds.has(n.id)}
                 onClick={() => handleNodeClick(n)}
                 label={t(n.labelKey)}
               />
@@ -325,7 +363,7 @@ export default function Skills() {
         {(skillTreeRoot.children ?? []).map(cat => {
           const ck = (CAT_KEYS[cat.id] ?? 'default') as PKey;
           const color = PALETTE[ck].stroke;
-          const isFocusedCat = focusedId === cat.id || connectedIds.has(cat.id);
+          const isFocusedCat = focusedId === cat.id || childrenIds.has(cat.id);
           return (
             <Box key={cat.id}
               onClick={() => { const n = nodeMap.get(cat.id); if (n) handleNodeClick(n); }}
