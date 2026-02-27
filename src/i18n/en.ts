@@ -64,8 +64,9 @@ export const en = {
     },
     matrix: {
       title: 'Team Maturity Matrix',
-      description: 'Assess team member maturity for each task/objective',
+      description: 'Assess team member maturity levels for the selected skills',
       teamMember: 'Team Member',
+      showing: 'Showing skills for:',
       none: 'None',
       modalTitle: 'Skill / Will Model',
       skill: 'Skill',

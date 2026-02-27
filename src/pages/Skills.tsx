@@ -24,8 +24,10 @@ import {
 import InfoIcon from '@mui/icons-material/Info';
 import { useTranslation } from 'react-i18next';
 import { skillTreeRoot, SkillNode } from '../data/skillTree';
-import { mockTeamMembers, mockTasks, mockTeamMatrix } from '../data/mockData';
+import { mockTeamMembers } from '../data/mockData';
 import { MaturityLevel } from '../types';
+
+interface SkillCell { teamMemberId: string; skillId: string; maturityLevel: MaturityLevel; }
 
 // ── Flat Anthracite Palette ──────────────────────────────────────────────────
 type PKey = 'root' | 'development' | 'research' | 'communication' | 'organisation' | 'default';
@@ -218,33 +220,36 @@ export default function Skills() {
   }, [edges, nodeMap, focusedId]);
 
   // ── matrix state ────────────────────────────────────────────────────────
-  const [matrixCells, setMatrixCells] = useState(mockTeamMatrix.cells);
+  const [skillCells, setSkillCells] = useState<SkillCell[]>([]);
   const [modalOpen, setModalOpen] = useState(false);
 
-  const getMaturityLevel = (teamMemberId: string, taskId: string): MaturityLevel | null => {
-    const cell = matrixCells.find(
-      (c) => c.teamMemberId === teamMemberId && c.taskId === taskId
-    );
-    return cell?.maturityLevel ?? null;
-  };
+  // Focused node (needed by matrixSkills and the breadcrumb display)
+  const focusedNode = nodeMap.get(focusedId);
 
-  const handleMaturityChange = (
+  // Columns = focused node's children, or just the focused node itself if it's a leaf
+  const matrixSkills = useMemo(() => {
+    if (childrenIds.size === 0) return focusedNode ? [focusedNode] : [];
+    return nodes.filter(n => childrenIds.has(n.id));
+  }, [nodes, childrenIds, focusedNode]);
+
+  const getSkillLevel = (teamMemberId: string, skillId: string): MaturityLevel | null =>
+    skillCells.find(c => c.teamMemberId === teamMemberId && c.skillId === skillId)?.maturityLevel ?? null;
+
+  const handleSkillChange = (
     teamMemberId: string,
-    taskId: string,
+    skillId: string,
     event: SelectChangeEvent<MaturityLevel | ''>
   ) => {
     const value = event.target.value as MaturityLevel | '';
-    setMatrixCells((prev) => {
-      const existingIndex = prev.findIndex(
-        (c) => c.teamMemberId === teamMemberId && c.taskId === taskId
-      );
-      if (value === '') return prev.filter((_, i) => i !== existingIndex);
-      if (existingIndex >= 0) {
+    setSkillCells(prev => {
+      const idx = prev.findIndex(c => c.teamMemberId === teamMemberId && c.skillId === skillId);
+      if (value === '') return prev.filter((_, i) => i !== idx);
+      if (idx >= 0) {
         const next = [...prev];
-        next[existingIndex] = { teamMemberId, taskId, maturityLevel: value };
+        next[idx] = { teamMemberId, skillId, maturityLevel: value };
         return next;
       }
-      return [...prev, { teamMemberId, taskId, maturityLevel: value }];
+      return [...prev, { teamMemberId, skillId, maturityLevel: value }];
     });
   };
 
@@ -254,9 +259,6 @@ export default function Skills() {
     if (!level) return 'transparent';
     return { M1: '#ef4444', M2: '#f97316', M3: '#eab308', M4: '#22c55e' }[level];
   };
-
-  // focused node label (for the breadcrumb-style hint)
-  const focusedNode = nodeMap.get(focusedId);
 
   return (
     <Container maxWidth="lg" sx={{ mt: 4, mb: 4 }}>
@@ -389,9 +391,24 @@ export default function Skills() {
           <InfoIcon />
         </IconButton>
       </Box>
-      <Typography variant="body2" color="textSecondary" sx={{ mb: 3 }}>
+      <Typography variant="body2" color="textSecondary" sx={{ mb: 0.5 }}>
         {t('matrix.description')}
       </Typography>
+      {focusedNode && (
+        <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.75, mb: 3 }}>
+          <Typography variant="body2" color="text.secondary">{t('matrix.showing')}</Typography>
+          {ancestorPath.map(a => (
+            <Box key={a.id} sx={{ display: 'inline-flex', alignItems: 'center', gap: 0.5 }}>
+              <Typography variant="body2" color="text.disabled">{t(a.labelKey)}</Typography>
+              <Typography variant="body2" color="text.disabled">/</Typography>
+            </Box>
+          ))}
+          <Typography variant="body2"
+            sx={{ fontWeight: 700, color: PALETTE[focusedNode.colorKey].stroke }}>
+            {t(focusedNode.labelKey)}
+          </Typography>
+        </Box>
+      )}
 
       {/* Skill/Will modal */}
       <Dialog open={modalOpen} onClose={() => setModalOpen(false)} maxWidth="md" fullWidth>
@@ -449,9 +466,10 @@ export default function Skills() {
           <TableHead>
             <TableRow>
               <TableCell sx={{ fontWeight: 'bold', minWidth: 150 }}>{t('matrix.teamMember')}</TableCell>
-              {mockTasks.map((task) => (
-                <TableCell key={task.id} align="center" sx={{ fontWeight: 'bold', minWidth: 120 }}>
-                  {task.title}
+              {matrixSkills.map((skill) => (
+                <TableCell key={skill.id} align="center"
+                  sx={{ fontWeight: 'bold', minWidth: 120, color: PALETTE[skill.colorKey].stroke }}>
+                  {t(skill.labelKey)}
                 </TableCell>
               ))}
             </TableRow>
@@ -465,18 +483,18 @@ export default function Skills() {
                     <Typography variant="caption" color="textSecondary">{member.position}</Typography>
                   </Box>
                 </TableCell>
-                {mockTasks.map((task) => (
+                {matrixSkills.map((skill) => (
                   <TableCell
-                    key={task.id}
+                    key={skill.id}
                     align="center"
-                    sx={{ bgcolor: getMaturityColor(getMaturityLevel(member.id, task.id)), transition: 'background-color 0.3s ease' }}
+                    sx={{ bgcolor: getMaturityColor(getSkillLevel(member.id, skill.id)), transition: 'background-color 0.3s ease' }}
                   >
                     <Select
-                      value={getMaturityLevel(member.id, task.id) ?? ''}
-                      onChange={(e) => handleMaturityChange(member.id, task.id, e)}
+                      value={getSkillLevel(member.id, skill.id) ?? ''}
+                      onChange={(e) => handleSkillChange(member.id, skill.id, e)}
                       displayEmpty
                       size="small"
-                      sx={{ minWidth: 80, '& .MuiSelect-select': { color: getMaturityLevel(member.id, task.id) ? '#fff' : 'inherit', fontWeight: 'bold' } }}
+                      sx={{ minWidth: 80, '& .MuiSelect-select': { color: getSkillLevel(member.id, skill.id) ? '#fff' : 'inherit', fontWeight: 'bold' } }}
                     >
                       <MenuItem value=""><em>{t('matrix.none')}</em></MenuItem>
                       {maturityLevels.map((level) => (

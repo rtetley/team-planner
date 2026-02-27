@@ -64,8 +64,9 @@ export const fr = {
     },
     matrix: {
       title: 'Matrice de maturité de l\'équipe',
-      description: 'Évaluez la maturité des membres de l\'équipe pour chaque tâche/objectif',
+      description: 'Évaluez les niveaux de maturité des membres de l\'équipe pour les compétences sélectionnées',
       teamMember: 'Membre de l\'équipe',
+      showing: 'Compétences affichées pour :',
       none: 'Aucun',
       modalTitle: 'Modèle Compétence / Motivation',
       skill: 'Compétence',
