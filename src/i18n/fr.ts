@@ -86,7 +86,7 @@ export const fr = {
     skills: {
       title: 'Compétences',
       back: 'Retour',
-      hint: 'Cliquez sur un nœud pour explorer'
+      hint: 'Cliquez sur un nœud pour centrer la vue — l\'arbre complet est toujours visible'
     },
     skillTree: {
       root: 'Compétences',

@@ -1,10 +1,9 @@
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useMemo } from 'react';
 import {
   Container,
   Typography,
   Box,
   IconButton,
-  Tooltip,
   Divider,
   Table,
   TableBody,
@@ -22,131 +21,174 @@ import {
   DialogActions,
   Button,
 } from '@mui/material';
-import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import InfoIcon from '@mui/icons-material/Info';
 import { useTranslation } from 'react-i18next';
 import { skillTreeRoot, SkillNode } from '../data/skillTree';
 import { mockTeamMembers, mockTasks, mockTeamMatrix } from '../data/mockData';
 import { MaturityLevel } from '../types';
 
-// ── colour palette per top-level category ──────────────────────────────────
-const CATEGORY_COLORS: Record<string, string> = {
-  development: '#3b82f6',
-  research: '#8b5cf6',
-  communication: '#f97316',
-  organisation: '#22c55e',
-  root: '#1d4ed8',
+// ── RPG Palette ──────────────────────────────────────────────────────────────
+type PKey = 'root' | 'development' | 'research' | 'communication' | 'organisation' | 'default';
+
+const PALETTE: Record<PKey, { stroke: string; fill: string }> = {
+  root:          { stroke: '#fbbf24', fill: '#1a1100' },
+  development:   { stroke: '#22d3ee', fill: '#001519' },
+  research:      { stroke: '#b975f5', fill: '#0e0019' },
+  communication: { stroke: '#fb923c', fill: '#1a0900' },
+  organisation:  { stroke: '#34d399', fill: '#001510' },
+  default:       { stroke: '#7c8fa6', fill: '#0f1520' },
 };
 
-function resolveColor(node: SkillNode, ancestors: SkillNode[]): string {
-  // Walk ancestors to find the top-level category
-  const topLevel = ancestors[1] ?? node;
-  return CATEGORY_COLORS[topLevel.id] ?? CATEGORY_COLORS[node.id] ?? '#6b7280';
+const CAT_KEYS: Record<string, PKey> = {
+  root: 'root', development: 'development', research: 'research',
+  communication: 'communication', organisation: 'organisation',
+};
+
+const TREE_BG = '#060b18';
+
+// ── Geometry ─────────────────────────────────────────────────────────────────
+const D1 = 225;                    // root → category
+const D2 = 162;                    // category → sub
+const D3 = 108;                    // sub → leaf
+const SPREAD_L2 = Math.PI * 0.65;  // sub angular spread
+const SPREAD_L3 = Math.PI * 0.55;  // leaf angular spread
+const BASE_R: Record<number, number> = { 0: 50, 1: 40, 2: 31, 3: 22 };
+const FOCUS_SCALE = 1.5;
+const VW = 800;
+const VH = 600;
+
+// ── Star field (deterministic) ───────────────────────────────────────────────
+const STARS = Array.from({ length: 45 }, (_, i) => ({
+  x: ((i * 127 + 23) % 770) + 15,
+  y: ((i * 193 + 61) % 560) + 15,
+  r: i % 5 === 0 ? 1.2 : i % 3 === 0 ? 0.7 : 0.35,
+  opacity: 0.2 + (i % 4) * 0.08,
+}));
+
+// ── Types ─────────────────────────────────────────────────────────────────────
+interface NodeDatum {
+  id: string; labelKey: string;
+  x: number; y: number;
+  depth: number; colorKey: PKey;
+}
+interface EdgeDatum {
+  x1: number; y1: number; x2: number; y2: number;
+  colorKey: PKey; parentId: string; childId: string;
 }
 
-// ── geometry helpers ────────────────────────────────────────────────────────
-const CX = 400;
-const CY = 340;
-const ORBIT_R = 190;   // distance from center to child nodes
-const ROOT_R = 54;
-const NODE_R = 42;
-const LEAF_R = 34;
+// ── Full-tree layout ──────────────────────────────────────────────────────────
+function buildLayout(root: SkillNode): { nodes: NodeDatum[]; edges: EdgeDatum[] } {
+  const nodes: NodeDatum[] = [];
+  const edges: EdgeDatum[] = [];
 
-function circlePoints(n: number, r: number, cx = CX, cy = CY) {
-  return Array.from({ length: n }, (_, i) => {
-    const angle = (2 * Math.PI * i) / n - Math.PI / 2;
-    return { x: cx + r * Math.cos(angle), y: cy + r * Math.sin(angle) };
-  });
-}
+  function walk(
+    node: SkillNode, x: number, y: number, outAngle: number,
+    depth: number, parentPos: { x: number; y: number } | null,
+    parentId: string | null, colorKey: PKey,
+  ) {
+    nodes.push({ id: node.id, labelKey: node.labelKey, x, y, depth, colorKey });
+    if (parentId !== null && parentPos !== null)
+      edges.push({ x1: parentPos.x, y1: parentPos.y, x2: x, y2: y, colorKey, parentId, childId: node.id });
 
-// ── node component ──────────────────────────────────────────────────────────
-interface NodeProps {
-  x: number;
-  y: number;
-  radius: number;
-  label: string;
-  color: string;
-  isCenter?: boolean;
-  isLeaf?: boolean;
-  onClick?: () => void;
-}
+    const children = node.children ?? [];
+    if (!children.length) return;
+    const pos = { x, y };
 
-function TreeNode({ x, y, radius, label, color, isCenter, isLeaf, onClick }: NodeProps) {
-  const [hovered, setHovered] = useState(false);
-
-  const words = label.split(' ');
-  const lines: string[] = [];
-  let current = '';
-  for (const word of words) {
-    const candidate = current ? `${current} ${word}` : word;
-    if (candidate.length > 12 && current) {
-      lines.push(current);
-      current = word;
+    if (depth === 0) {
+      children.forEach((child, i) => {
+        const angle = (2 * Math.PI * i) / children.length - Math.PI / 2;
+        const ck = (CAT_KEYS[child.id] ?? 'default') as PKey;
+        walk(child, D1 * Math.cos(angle), D1 * Math.sin(angle), angle, 1, pos, node.id, ck);
+      });
     } else {
-      current = candidate;
+      const spread = depth === 1 ? SPREAD_L2 : SPREAD_L3;
+      const dist   = depth === 1 ? D2 : D3;
+      children.forEach((child, i) => {
+        const angle = children.length === 1
+          ? outAngle
+          : outAngle - spread / 2 + (i * spread) / (children.length - 1);
+        walk(child, x + dist * Math.cos(angle), y + dist * Math.sin(angle),
+          angle, depth + 1, pos, node.id, colorKey);
+      });
     }
   }
-  if (current) lines.push(current);
 
-  const scale = hovered && !isCenter ? 1.12 : 1;
-  const fontSize = isCenter ? 13 : isLeaf ? 10 : 11;
+  walk(root, 0, 0, -Math.PI / 2, 0, null, null, 'root');
+  return { nodes, edges };
+}
+
+// ── Text wrap ─────────────────────────────────────────────────────────────────
+function wrapText(text: string, maxChars = 10): string[] {
+  const words = text.split(' ');
+  const lines: string[] = [];
+  let cur = '';
+  for (const w of words) {
+    const cand = cur ? `${cur} ${w}` : w;
+    if (cand.length > maxChars && cur) { lines.push(cur); cur = w; }
+    else cur = cand;
+  }
+  if (cur) lines.push(cur);
+  return lines;
+}
+
+// ── Skill node SVG element ────────────────────────────────────────────────────
+interface SkillNodeElProps {
+  node: NodeDatum; isFocused: boolean; isConnected: boolean;
+  onClick: () => void; label: string;
+}
+
+function SkillNodeEl({ node, isFocused, isConnected, onClick, label }: SkillNodeElProps) {
+  const [hovered, setHovered] = useState(false);
+  const { stroke, fill } = PALETTE[node.colorKey];
+  const r  = BASE_R[node.depth] ?? 22;
+  const lines = wrapText(label);
+  const fs = [12, 11, 9.5, 8.5][node.depth] ?? 8.5;
+  const scale = isFocused ? FOCUS_SCALE : hovered ? 1.15 : 1;
+  const lit   = isFocused || isConnected;
 
   return (
     <g
-      transform={`translate(${x},${y}) scale(${scale})`}
-      style={{ cursor: onClick ? 'pointer' : 'default', transition: 'transform 0.15s ease' }}
+      transform={`translate(${node.x}, ${node.y})`}
       onClick={onClick}
       onMouseEnter={() => setHovered(true)}
       onMouseLeave={() => setHovered(false)}
+      style={{ cursor: 'pointer' }}
     >
-      <circle
-        r={radius}
-        fill={isCenter ? color : hovered ? color : `${color}cc`}
-        stroke={color}
-        strokeWidth={isCenter ? 3 : 2}
-        style={{ transition: 'fill 0.15s ease, filter 0.15s ease' }}
-        filter={hovered && !isCenter ? `drop-shadow(0 4px 8px ${color}88)` : undefined}
-      />
-      {lines.map((line, i) => (
-        <text
-          key={i}
-          textAnchor="middle"
-          dominantBaseline="middle"
-          fontSize={fontSize}
-          fontWeight={isCenter ? 700 : 600}
-          fill="#fff"
-          y={(i - (lines.length - 1) / 2) * (fontSize + 2)}
-          style={{ userSelect: 'none', pointerEvents: 'none' }}
-        >
-          {line}
-        </text>
-      ))}
+      {/* Pulsing ring (focused only) */}
+      {isFocused && (
+        <circle r={r * 1.7} fill="none" stroke={stroke} strokeWidth={1}
+          opacity={0.3} className="skill-pulse" />
+      )}
+
+      {/* Scale group */}
+      <g style={{
+        transformBox: 'fill-box', transformOrigin: 'center',
+        transform: `scale(${scale})`,
+        transition: 'transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1)',
+      }}>
+        {/* Outer glow ring */}
+        <circle r={r + 5} fill="none" stroke={stroke}
+          strokeWidth={lit ? 1 : 0.5}
+          opacity={isFocused ? 0.55 : isConnected ? 0.3 : hovered ? 0.25 : 0.1}
+          style={{ transition: 'opacity 0.3s ease' }} />
+        {/* Body */}
+        <circle r={r} fill={fill} stroke={stroke}
+          strokeWidth={isFocused ? 2.5 : 1.5}
+          filter={`url(#glow-${isFocused ? 'focus' : 'soft'})`}
+          style={{ transition: 'stroke-width 0.3s ease' }} />
+        {/* Label */}
+        {lines.map((line, i) => (
+          <text key={i} textAnchor="middle" dominantBaseline="middle"
+            fontSize={fs} fontWeight={isFocused ? 700 : 500}
+            fill={isFocused ? stroke : '#c8d6e8'}
+            y={(i - (lines.length - 1) / 2) * (fs + 2.5)}
+            style={{ userSelect: 'none', pointerEvents: 'none' }}>
+            {line}
+          </text>
+        ))}
+      </g>
     </g>
   );
-}
-
-// ── edge component ───────────────────────────────────────────────────────────
-function Edge({ x1, y1, x2, y2, color }: { x1: number; y1: number; x2: number; y2: number; color: string }) {
-  return (
-    <line
-      x1={x1} y1={y1} x2={x2} y2={y2}
-      stroke={color}
-      strokeWidth={2}
-      strokeOpacity={0.4}
-      strokeDasharray="5 4"
-    />
-  );
-}
-
-// ── breadcrumb helpers ───────────────────────────────────────────────────────
-function findPath(node: SkillNode, targetId: string, path: SkillNode[] = []): SkillNode[] | null {
-  const next = [...path, node];
-  if (node.id === targetId) return next;
-  for (const child of node.children ?? []) {
-    const result = findPath(child, targetId, next);
-    if (result) return result;
-  }
-  return null;
 }
 
 // ── main page ────────────────────────────────────────────────────────────────
@@ -154,9 +196,28 @@ export default function Skills() {
   const { t } = useTranslation();
 
   // ── skill tree state ────────────────────────────────────────────────────
-  const [centerNode, setCenterNode] = useState<SkillNode>(skillTreeRoot);
-  const [ancestors, setAncestors] = useState<SkillNode[]>([]);
-  const [animKey, setAnimKey] = useState(0);
+  const { nodes, edges } = useMemo(() => buildLayout(skillTreeRoot), []);
+  const nodeMap = useMemo(() => new Map(nodes.map(n => [n.id, n])), [nodes]);
+
+  const [focusedId, setFocusedId] = useState<string>('root');
+  const [panX, setPanX] = useState(VW / 2);
+  const [panY, setPanY] = useState(VH / 2);
+
+  const handleNodeClick = useCallback((node: NodeDatum) => {
+    setFocusedId(node.id);
+    setPanX(VW / 2 - node.x);
+    setPanY(VH / 2 - node.y);
+  }, []);
+
+  // Direct neighbours of focused node (for edge + ring highlight)
+  const connectedIds = useMemo(() => {
+    const s = new Set<string>();
+    edges.forEach(e => {
+      if (e.parentId === focusedId) s.add(e.childId);
+      if (e.childId  === focusedId) s.add(e.parentId);
+    });
+    return s;
+  }, [edges, focusedId]);
 
   // ── matrix state ────────────────────────────────────────────────────────
   const [matrixCells, setMatrixCells] = useState(mockTeamMatrix.cells);
@@ -196,168 +257,134 @@ export default function Skills() {
     return { M1: '#ef4444', M2: '#f97316', M3: '#eab308', M4: '#22c55e' }[level];
   };
 
-  const navigateTo = useCallback((node: SkillNode) => {
-    if (!node.children?.length) return; // leaf — no further navigation
-    const path = findPath(skillTreeRoot, node.id) ?? [];
-    setAncestors(path.slice(0, -1)); // everything except the node itself
-    setCenterNode(node);
-    setAnimKey((k) => k + 1);
-  }, []);
-
-  const navigateBack = useCallback(() => {
-    if (!ancestors.length) return;
-    const parent = ancestors[ancestors.length - 1];
-    const path = findPath(skillTreeRoot, parent.id) ?? [];
-    setAncestors(path.slice(0, -1));
-    setCenterNode(parent);
-    setAnimKey((k) => k + 1);
-  }, [ancestors]);
-
-  const children = centerNode.children ?? [];
-  const positions = circlePoints(children.length, ORBIT_R);
-  const centerColor = resolveColor(centerNode, ancestors);
-  const isLeafNode = (n: SkillNode) => !n.children?.length;
+  // focused node label (for the breadcrumb-style hint)
+  const focusedNode = nodeMap.get(focusedId);
 
   return (
     <Container maxWidth="lg" sx={{ mt: 4, mb: 4 }}>
       {/* Header */}
-      <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5, mb: 1 }}>
-        {ancestors.length > 0 && (
-          <Tooltip title={t('skills.back')}>
-            <IconButton onClick={navigateBack} size="small">
-              <ArrowBackIcon />
-            </IconButton>
-          </Tooltip>
-        )}
+      <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 1 }}>
         <Typography variant="h3">{t('skills.title')}</Typography>
+        {focusedNode && focusedNode.id !== 'root' && (
+          <Typography variant="caption" sx={{ color: PALETTE[focusedNode.colorKey].stroke, fontWeight: 600, letterSpacing: 1 }}>
+            ◈ {t(focusedNode.labelKey)}
+          </Typography>
+        )}
       </Box>
-
-      {/* Breadcrumb */}
-      {ancestors.length > 0 && (
-        <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5, mb: 2, flexWrap: 'wrap' }}>
-          {ancestors.map((a, i) => (
-            <Box key={a.id} sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
-              <Typography
-                variant="body2"
-                sx={{
-                  cursor: 'pointer',
-                  color: 'text.secondary',
-                  '&:hover': { textDecoration: 'underline' },
-                }}
-                onClick={() => navigateTo(a)}
-              >
-                {t(a.labelKey)}
-              </Typography>
-              {i < ancestors.length - 1 && (
-                <Typography variant="body2" color="text.disabled">/</Typography>
-              )}
-            </Box>
-          ))}
-          <Typography variant="body2" color="text.disabled">/</Typography>
-          <Typography variant="body2" fontWeight="bold">{t(centerNode.labelKey)}</Typography>
-        </Box>
-      )}
-
-      {/* Hint */}
-      {children.length > 0 && (
-        <Typography variant="caption" color="text.secondary" sx={{ display: 'block', mb: 1 }}>
-          {t('skills.hint')}
-        </Typography>
-      )}
+      <Typography variant="caption" color="text.secondary" sx={{ display: 'block', mb: 1.5 }}>
+        {t('skills.hint')}
+      </Typography>
 
       {/* SVG tree */}
-      <Box
-        sx={{
-          width: '100%',
-          borderRadius: 2,
-          border: '1px solid',
-          borderColor: 'divider',
-          bgcolor: 'background.paper',
-          overflow: 'hidden',
-        }}
-      >
-        <svg
-          key={animKey}
-          viewBox="0 0 800 680"
-          style={{ width: '100%', height: 'auto', display: 'block' }}
-        >
-          <style>{`
-            @keyframes fadeIn {
-              from { opacity: 0; transform: scale(0.7); }
-              to   { opacity: 1; transform: scale(1); }
-            }
-            @keyframes fadeInEdge {
-              from { opacity: 0; }
-              to   { opacity: 1; }
-            }
-            .animated     { animation: fadeIn     0.25s ease both; }
-            .edge-animated { animation: fadeInEdge 0.28s ease both; }
-          `}</style>
+      <Box sx={{
+        width: '100%',
+        borderRadius: 3,
+        overflow: 'hidden',
+        border: '1px solid rgba(34,211,238,0.12)',
+        boxShadow: '0 0 60px rgba(6,11,24,0.8), inset 0 0 120px rgba(0,0,0,0.4)',
+        bgcolor: TREE_BG,
+      }}>
+        <svg viewBox={`0 0 ${VW} ${VH}`} style={{ width: '100%', height: 'auto', display: 'block' }}>
+          {/* ── Defs ── */}
+          <defs>
+            <filter id="glow-soft" x="-60%" y="-60%" width="220%" height="220%">
+              <feGaussianBlur in="SourceGraphic" stdDeviation="2.5" result="blur"/>
+              <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+            </filter>
+            <filter id="glow-focus" x="-80%" y="-80%" width="260%" height="260%">
+              <feGaussianBlur in="SourceGraphic" stdDeviation="6" result="blur"/>
+              <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+            </filter>
+            <radialGradient id="bg-radial" cx="50%" cy="50%" r="55%">
+              <stop offset="0%" stopColor="#0c1830"/>
+              <stop offset="100%" stopColor={TREE_BG}/>
+            </radialGradient>
+          </defs>
 
-          {/* Edges — appear after their node has settled */}
-          {positions.map((pos, i) => {
-            const child = children[i];
-            const edgeColor = resolveColor(child, [...ancestors, centerNode]);
-            return (
-              <g
-                key={child.id}
-                className="edge-animated"
-                style={{ animationDelay: `${i * 35 + 200}ms` }}
-              >
-                <Edge
-                  x1={CX} y1={CY}
-                  x2={pos.x} y2={pos.y}
-                  color={edgeColor}
-                />
-              </g>
-            );
-          })}
+          {/* ── Background ── */}
+          <rect width={VW} height={VH} fill="url(#bg-radial)"/>
 
-          {/* Child nodes */}
-          {positions.map((pos, i) => {
-            const child = children[i];
-            const color = resolveColor(child, [...ancestors, centerNode]);
-            const leaf = isLeafNode(child);
-            return (
-              <g key={child.id} className="animated" style={{ animationDelay: `${i * 35}ms` }}>
-                <TreeNode
-                  x={pos.x}
-                  y={pos.y}
-                  radius={leaf ? LEAF_R : NODE_R}
-                  label={t(child.labelKey)}
-                  color={color}
-                  isLeaf={leaf}
-                  onClick={leaf ? undefined : () => navigateTo(child)}
-                />
-              </g>
-            );
-          })}
+          {/* Stars */}
+          {STARS.map((s, i) => (
+            <circle key={i} cx={s.x} cy={s.y} r={s.r} fill="#fff" opacity={s.opacity}/>
+          ))}
 
-          {/* Center node */}
-          <g className="animated">
-            <TreeNode
-              x={CX}
-              y={CY}
-              radius={ROOT_R}
-              label={t(centerNode.labelKey)}
-              color={centerColor}
-              isCenter
-            />
+          {/* Ambient viewport rings */}
+          <g opacity={0.06} style={{ pointerEvents: 'none' }}>
+            {[55, 115, 200, 310, 440].map(r => (
+              <circle key={r} cx={VW / 2} cy={VH / 2} r={r}
+                fill="none" stroke="#7dd3fc" strokeWidth={0.5}/>
+            ))}
           </g>
+
+          {/* ── Graph group (pans on click) ── */}
+          <g style={{
+            transform: `translate(${panX}px, ${panY}px)`,
+            transition: 'transform 0.55s cubic-bezier(0.25, 0.46, 0.45, 0.94)',
+          }}>
+            {/* Edges */}
+            {edges.map((e, i) => {
+              const { stroke } = PALETTE[e.colorKey];
+              const lit = e.parentId === focusedId || e.childId === focusedId;
+              return (
+                <line key={i}
+                  x1={e.x1} y1={e.y1} x2={e.x2} y2={e.y2}
+                  stroke={stroke}
+                  strokeWidth={lit ? 1.8 : 0.8}
+                  strokeOpacity={lit ? 0.65 : 0.18}
+                  style={{ transition: 'stroke-opacity 0.35s ease, stroke-width 0.35s ease' }}
+                />
+              );
+            })}
+
+            {/* Nodes */}
+            {nodes.map(n => (
+              <SkillNodeEl key={n.id} node={n}
+                isFocused={n.id === focusedId}
+                isConnected={connectedIds.has(n.id)}
+                onClick={() => handleNodeClick(n)}
+                label={t(n.labelKey)}
+              />
+            ))}
+          </g>
+
+          {/* CSS animations */}
+          <style>{`
+            @keyframes skill-pulse {
+              0%, 100% { opacity: 0.3; transform: scale(1); }
+              50%       { opacity: 0;   transform: scale(1.55); }
+            }
+            .skill-pulse {
+              transform-box: fill-box;
+              transform-origin: center;
+              animation: skill-pulse 2.8s ease-in-out infinite;
+            }
+          `}</style>
         </svg>
       </Box>
 
       {/* Legend */}
-      {centerNode.id === 'root' && (
-        <Box sx={{ display: 'flex', gap: 2, mt: 2, flexWrap: 'wrap' }}>
-          {(centerNode.children ?? []).map((cat) => (
-            <Box key={cat.id} sx={{ display: 'flex', alignItems: 'center', gap: 0.75 }}>
-              <Box sx={{ width: 12, height: 12, borderRadius: '50%', bgcolor: CATEGORY_COLORS[cat.id] }} />
-              <Typography variant="caption">{t(cat.labelKey)}</Typography>
+      <Box sx={{ display: 'flex', gap: 2, mt: 1.5, flexWrap: 'wrap', alignItems: 'center' }}>
+        {(skillTreeRoot.children ?? []).map(cat => {
+          const ck = (CAT_KEYS[cat.id] ?? 'default') as PKey;
+          const color = PALETTE[ck].stroke;
+          const isFocusedCat = focusedId === cat.id || connectedIds.has(cat.id);
+          return (
+            <Box key={cat.id}
+              onClick={() => { const n = nodeMap.get(cat.id); if (n) handleNodeClick(n); }}
+              sx={{ display: 'flex', alignItems: 'center', gap: 0.75, cursor: 'pointer',
+                opacity: isFocusedCat ? 1 : 0.55,
+                transition: 'opacity 0.3s ease',
+                '&:hover': { opacity: 1 } }}>
+              <Box sx={{ width: 10, height: 10, borderRadius: '50%', bgcolor: color,
+                boxShadow: `0 0 6px ${color}` }}/>
+              <Typography variant="caption" sx={{ color, fontWeight: 600, fontSize: '0.7rem', letterSpacing: 0.5 }}>
+                {t(cat.labelKey)}
+              </Typography>
             </Box>
-          ))}
-        </Box>
-      )}
+          );
+        })}
+      </Box>
 
       {/* ── Maturity Matrix section ─────────────────────────────────────── */}
       <Divider sx={{ my: 5 }} />

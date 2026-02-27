@@ -86,7 +86,7 @@ export const en = {
     skills: {
       title: 'Skills',
       back: 'Back',
-      hint: 'Click a node to explore'
+      hint: 'Click any node to centre the view — the full tree is always visible'
     },
     skillTree: {
       root: 'Skills',
