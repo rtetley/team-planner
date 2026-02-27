@@ -66,7 +66,7 @@ function AppContent() {
         serviceTitle="Team Planning Tool"
         homeLinkProps={{
           to: '/',
-          title: 'Accueil - Team Planner'
+          title: 'Accueil - TeamTree'
         }}
         navigation={navigation}
         quickAccessItems={[

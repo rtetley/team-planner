@@ -1,4 +1,4 @@
-# Team Planner
+# TeamTree
 
 A comprehensive team planning and management tool built with React, TypeScript, MUI, and the French Design System (DSFR).
 

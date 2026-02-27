@@ -30,7 +30,7 @@ export const mockTeamMembers: TeamMember[] = [
 export const mockProjects: Project[] = [
   {
     id: '1',
-    name: 'Team Planner',
+    name: 'TeamTree',
     techStack: ['React', 'TypeScript', 'MUI', 'DSFR'],
     startDate: '2026-01-15',
     endDate: '2026-04-30',
@@ -109,8 +109,8 @@ export const mockTeamMatrix: TeamMatrix = {
 export const mockObjectives: Objective[] = [
   {
     id: '1',
-    title: 'Deliver Team Planner MVP',
-    description: `Ship the first usable version of the Team Planner tool.\n\n- All 5 pages functional\n- DSFR compliant UI\n- Deployed to production`,
+    title: 'Deliver TeamTree MVP',
+    description: `Ship the first usable version of the TeamTree tool.\n\n- All 5 pages functional\n- DSFR compliant UI\n- Deployed to production`,
     kpi: '100% of planned features shipped by end of Q1',
     kpiProgress: 85,
     quarters: ['T1'],

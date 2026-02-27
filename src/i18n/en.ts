@@ -151,9 +151,9 @@ export const en = {
       license: 'Unless otherwise stated, all content on this site is under',
       licenseLink: 'etalab-2.0 license',
       accessibility: 'fully compliant',
-      contentDescription: 'Team Planner is a comprehensive tool for managing software development teams, projects, and tasks. Built with React, TypeScript, MUI, and the French Design System (DSFR).',
+      contentDescription: 'TeamTree is a comprehensive tool for managing software development teams, projects, and tasks. Built with React, TypeScript, MUI, and the French Design System (DSFR).',
       licenseText: 'License',
-      homeTitle: 'Home - Team Planner'
+      homeTitle: 'Home - TeamTree'
     }
   }
 };

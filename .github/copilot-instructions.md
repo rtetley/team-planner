@@ -1,4 +1,4 @@
-# Team Planner Project Setup
+# TeamTree Project Setup
 
 ## Project Overview
 React + TypeScript application using Vite, Yarn, MUI, and DSFR (French Design System) for team planning and management.

@@ -151,9 +151,9 @@ export const fr = {
       license: 'Sauf mention contraire, tous les contenus de ce site sont sous',
       licenseLink: 'licence etalab-2.0',
       accessibility: 'entièrement conforme',
-      contentDescription: 'Team Planner est un outil complet pour gérer les équipes de développement logiciel, les projets et les tâches. Construit avec React, TypeScript, MUI et le Système de Design de l\'État (DSFR).',
+      contentDescription: 'TeamTree est un outil complet pour gérer les équipes de développement logiciel, les projets et les tâches. Construit avec React, TypeScript, MUI et le Système de Design de l\'État (DSFR).',
       licenseText: 'Licence',
-      homeTitle: 'Accueil - Team Planner'
+      homeTitle: 'Accueil - TeamTree'
     }
   }
 };
