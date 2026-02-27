@@ -154,7 +154,7 @@ export const fr = {
       contentDescription: 'TeamTree est un outil complet pour gérer les équipes de développement logiciel, les projets et les tâches. Construit avec React, TypeScript, MUI et le Système de Design de l\'État (DSFR).',
       licenseText: 'Licence',
       homeTitle: 'Accueil - TeamTree',
-      serviceTitle: 'La gestion des compétences déquipe simplifiée'
+      serviceTitle: "La gestion des compétences d'équipe simplifiée"
     }
   }
 };
