@@ -1,3 +1,4 @@
+import { useState, useEffect } from 'react';
 import {
   Container,
   Typography,
@@ -7,12 +8,28 @@ import {
   Chip,
   Box,
 } from '@mui/material';
-import { mockTasks, mockTeamMembers, mockProjects } from '../data/mockData';
+import { tasksApi, teamMembersApi, projectsApi } from '../api';
+import { Task, TeamMember, Project } from '../types';
 import { useTranslation } from 'react-i18next';
 
 export default function Tasks() {
   const { t } = useTranslation();
-  
+  const [tasks, setTasks] = useState<Task[]>([]);
+  const [teamMembers, setTeamMembers] = useState<TeamMember[]>([]);
+  const [projects, setProjects] = useState<Project[]>([]);
+
+  useEffect(() => {
+    Promise.all([
+      tasksApi.getAll(),
+      teamMembersApi.getAll(),
+      projectsApi.getAll(),
+    ]).then(([ts, members, projs]) => {
+      setTasks(ts);
+      setTeamMembers(members);
+      setProjects(projs);
+    }).catch(console.error);
+  }, []);
+
   const getStatusColor = (status: string) => {
     switch (status) {
       case 'done':
@@ -26,12 +43,12 @@ export default function Tasks() {
 
   const getMemberName = (id?: string) => {
     if (!id) return 'Unassigned';
-    return mockTeamMembers.find((m) => m.id === id)?.name || 'Unknown';
+    return teamMembers.find((m) => m.id === id)?.name || 'Unknown';
   };
 
   const getProjectName = (id?: string) => {
     if (!id) return 'No project';
-    return mockProjects.find((p) => p.id === id)?.name || 'Unknown';
+    return projects.find((p) => p.id === id)?.name || 'Unknown';
   };
 
   return (
@@ -41,7 +58,7 @@ export default function Tasks() {
       </Typography>
 
       <Grid container spacing={3}>
-        {mockTasks.map((task) => (
+        {tasks.map((task) => (
           <Grid item xs={12} md={6} key={task.id}>
             <Card>
               <CardContent>

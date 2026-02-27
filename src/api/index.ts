@@ -1,0 +1,97 @@
+import type {
+  TeamMember,
+  Project,
+  Task,
+  MaturityLevel,
+  MatrixCell,
+  SkillCell,
+  Objective,
+} from '../types';
+
+const BASE = '/api';
+
+async function req<T>(path: string, init?: RequestInit): Promise<T> {
+  const res = await fetch(`${BASE}${path}`, {
+    headers: { 'Content-Type': 'application/json' },
+    ...init,
+  });
+  if (!res.ok) throw new Error(`API ${res.status}: ${res.statusText}`);
+  if (res.status === 204) return undefined as unknown as T;
+  return res.json() as Promise<T>;
+}
+
+// ── Team Members ──────────────────────────────────────────────────────────────
+
+export const teamMembersApi = {
+  getAll: () => req<TeamMember[]>('/team-members'),
+  create: (data: Omit<TeamMember, 'id'>) =>
+    req<TeamMember>('/team-members', { method: 'POST', body: JSON.stringify(data) }),
+  update: (member: TeamMember) =>
+    req<TeamMember>(`/team-members/${member.id}`, { method: 'PUT', body: JSON.stringify(member) }),
+  remove: (id: string) =>
+    req<void>(`/team-members/${id}`, { method: 'DELETE' }),
+};
+
+// ── Projects ──────────────────────────────────────────────────────────────────
+
+export const projectsApi = {
+  getAll: () => req<Project[]>('/projects'),
+  create: (data: Omit<Project, 'id'>) =>
+    req<Project>('/projects', { method: 'POST', body: JSON.stringify(data) }),
+  update: (project: Project) =>
+    req<Project>(`/projects/${project.id}`, { method: 'PUT', body: JSON.stringify(project) }),
+  remove: (id: string) =>
+    req<void>(`/projects/${id}`, { method: 'DELETE' }),
+};
+
+// ── Tasks ─────────────────────────────────────────────────────────────────────
+
+export const tasksApi = {
+  getAll: () => req<Task[]>('/tasks'),
+  create: (data: Omit<Task, 'id'>) =>
+    req<Task>('/tasks', { method: 'POST', body: JSON.stringify(data) }),
+  update: (task: Task) =>
+    req<Task>(`/tasks/${task.id}`, { method: 'PUT', body: JSON.stringify(task) }),
+  remove: (id: string) =>
+    req<void>(`/tasks/${id}`, { method: 'DELETE' }),
+};
+
+// ── Objectives ────────────────────────────────────────────────────────────────
+
+export const objectivesApi = {
+  getAll: () => req<Objective[]>('/objectives'),
+  create: (data: Omit<Objective, 'id'>) =>
+    req<Objective>('/objectives', { method: 'POST', body: JSON.stringify(data) }),
+  update: (objective: Objective) =>
+    req<Objective>(`/objectives/${objective.id}`, { method: 'PUT', body: JSON.stringify(objective) }),
+  remove: (id: string) =>
+    req<void>(`/objectives/${id}`, { method: 'DELETE' }),
+};
+
+// ── Task Matrix ───────────────────────────────────────────────────────────────
+
+export const matrixApi = {
+  getAll: () => req<MatrixCell[]>('/matrix'),
+  upsert: (teamMemberId: string, taskId: string, maturityLevel: MaturityLevel) =>
+    req<MatrixCell>(`/matrix/${teamMemberId}/${taskId}`, {
+      method: 'PUT',
+      body: JSON.stringify({ maturityLevel }),
+    }),
+  remove: (teamMemberId: string, taskId: string) =>
+    req<void>(`/matrix/${teamMemberId}/${taskId}`, { method: 'DELETE' }),
+};
+
+// ── Skill Matrix ──────────────────────────────────────────────────────────────
+
+export const skillMatrixApi = {
+  getAll: () => req<SkillCell[]>('/skill-matrix'),
+  upsert: (teamMemberId: string, skillId: string, maturityLevel: MaturityLevel) =>
+    req<SkillCell>(`/skill-matrix/${encodeURIComponent(teamMemberId)}/${encodeURIComponent(skillId)}`, {
+      method: 'PUT',
+      body: JSON.stringify({ maturityLevel }),
+    }),
+  remove: (teamMemberId: string, skillId: string) =>
+    req<void>(`/skill-matrix/${encodeURIComponent(teamMemberId)}/${encodeURIComponent(skillId)}`, {
+      method: 'DELETE',
+    }),
+};

@@ -1,3 +1,4 @@
+import { useState, useEffect } from 'react';
 import {
   Container,
   Typography,
@@ -7,11 +8,17 @@ import {
   Chip,
   Box,
 } from '@mui/material';
-import { mockTeamMembers } from '../data/mockData';
+import { teamMembersApi } from '../api';
+import { TeamMember } from '../types';
 import { useTranslation } from 'react-i18next';
 
 export default function Team() {
   const { t } = useTranslation();
+  const [teamMembers, setTeamMembers] = useState<TeamMember[]>([]);
+
+  useEffect(() => {
+    teamMembersApi.getAll().then(setTeamMembers).catch(console.error);
+  }, []);
   
   return (
     <Container maxWidth="lg" sx={{ mt: 4, mb: 4 }}>
@@ -20,7 +27,7 @@ export default function Team() {
       </Typography>
 
       <Grid container spacing={3}>
-        {mockTeamMembers.map((member) => (
+        {teamMembers.map((member) => (
           <Grid item xs={12} sm={6} md={4} key={member.id}>
             <Card>
               <CardContent>

@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import {
   Container,
   Typography,
@@ -21,14 +21,28 @@ import {
   Button,
 } from '@mui/material';
 import InfoIcon from '@mui/icons-material/Info';
-import { mockTeamMembers, mockTasks, mockTeamMatrix } from '../data/mockData';
-import { MaturityLevel } from '../types';
+import { teamMembersApi, tasksApi, matrixApi } from '../api';
+import { TeamMember, Task, MatrixCell, MaturityLevel } from '../types';
 import { useTranslation } from 'react-i18next';
 
 export default function TeamMatrix() {
   const { t } = useTranslation();
-  const [matrixCells, setMatrixCells] = useState(mockTeamMatrix.cells);
+  const [teamMembers, setTeamMembers] = useState<TeamMember[]>([]);
+  const [tasks, setTasks] = useState<Task[]>([]);
+  const [matrixCells, setMatrixCells] = useState<MatrixCell[]>([]);
   const [modalOpen, setModalOpen] = useState(false);
+
+  useEffect(() => {
+    Promise.all([
+      teamMembersApi.getAll(),
+      tasksApi.getAll(),
+      matrixApi.getAll(),
+    ]).then(([members, ts, cells]) => {
+      setTeamMembers(members);
+      setTasks(ts);
+      setMatrixCells(cells);
+    }).catch(console.error);
+  }, []);
 
   const getMaturityLevel = (teamMemberId: string, taskId: string): MaturityLevel | null => {
     const cell = matrixCells.find(
@@ -50,17 +64,17 @@ export default function TeamMatrix() {
       );
 
       if (value === '') {
-        // Remove cell if empty value selected
+        matrixApi.remove(teamMemberId, taskId).catch(console.error);
         return prev.filter((_, index) => index !== existingIndex);
       }
 
+      matrixApi.upsert(teamMemberId, taskId, value).catch(console.error);
+
       if (existingIndex >= 0) {
-        // Update existing cell
         const newCells = [...prev];
         newCells[existingIndex] = { teamMemberId, taskId, maturityLevel: value };
         return newCells;
       } else {
-        // Add new cell
         return [...prev, { teamMemberId, taskId, maturityLevel: value }];
       }
     });
@@ -308,7 +322,7 @@ export default function TeamMatrix() {
           <TableHead>
             <TableRow>
               <TableCell sx={{ fontWeight: 'bold', minWidth: 150 }}>{t('matrix.teamMember')}</TableCell>
-              {mockTasks.map((task) => (
+              {tasks.map((task) => (
                 <TableCell key={task.id} align="center" sx={{ fontWeight: 'bold', minWidth: 120 }}>
                   {task.title}
                 </TableCell>
@@ -316,7 +330,7 @@ export default function TeamMatrix() {
             </TableRow>
           </TableHead>
           <TableBody>
-            {mockTeamMembers.map((member) => (
+            {teamMembers.map((member) => (
               <TableRow key={member.id}>
                 <TableCell component="th" scope="row">
                   <Box>
@@ -328,7 +342,7 @@ export default function TeamMatrix() {
                     </Typography>
                   </Box>
                 </TableCell>
-                {mockTasks.map((task) => (
+                {tasks.map((task) => (
                   <TableCell 
                     key={task.id} 
                     align="center"

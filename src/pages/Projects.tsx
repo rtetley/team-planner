@@ -1,3 +1,4 @@
+import { useState, useEffect } from 'react';
 import {
   Container,
   Typography,
@@ -7,11 +8,17 @@ import {
   Chip,
   Box,
 } from '@mui/material';
-import { mockProjects } from '../data/mockData';
+import { projectsApi } from '../api';
+import { Project } from '../types';
 import { useTranslation } from 'react-i18next';
 
 export default function Projects() {
   const { t } = useTranslation();
+  const [projects, setProjects] = useState<Project[]>([]);
+
+  useEffect(() => {
+    projectsApi.getAll().then(setProjects).catch(console.error);
+  }, []);
   
   return (
     <Container maxWidth="lg" sx={{ mt: 4, mb: 4 }}>
@@ -20,7 +27,7 @@ export default function Projects() {
       </Typography>
 
       <Grid container spacing={3}>
-        {mockProjects.map((project) => (
+        {projects.map((project) => (
           <Grid item xs={12} md={6} key={project.id}>
             <Card>
               <CardContent>

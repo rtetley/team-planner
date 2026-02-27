@@ -1,4 +1,4 @@
-import { useState, useCallback, useMemo } from 'react';
+import { useState, useCallback, useMemo, useEffect } from 'react';
 import {
   Container,
   Typography,
@@ -24,10 +24,8 @@ import {
 import InfoIcon from '@mui/icons-material/Info';
 import { useTranslation } from 'react-i18next';
 import { skillTreeRoot, SkillNode } from '../data/skillTree';
-import { mockTeamMembers } from '../data/mockData';
-import { MaturityLevel } from '../types';
-
-interface SkillCell { teamMemberId: string; skillId: string; maturityLevel: MaturityLevel; }
+import { teamMembersApi, skillMatrixApi } from '../api';
+import { MaturityLevel, SkillCell, TeamMember } from '../types';
 
 // ── Flat Anthracite Palette ──────────────────────────────────────────────────
 type PKey = 'root' | 'development' | 'research' | 'communication' | 'organisation' | 'default';
@@ -220,8 +218,19 @@ export default function Skills() {
   }, [edges, nodeMap, focusedId]);
 
   // ── matrix state ────────────────────────────────────────────────────────
+  const [teamMembers, setTeamMembers] = useState<TeamMember[]>([]);
   const [skillCells, setSkillCells] = useState<SkillCell[]>([]);
   const [modalOpen, setModalOpen] = useState(false);
+
+  useEffect(() => {
+    Promise.all([
+      teamMembersApi.getAll(),
+      skillMatrixApi.getAll(),
+    ]).then(([members, cells]) => {
+      setTeamMembers(members);
+      setSkillCells(cells);
+    }).catch(console.error);
+  }, []);
 
   // Focused node (needed by matrixSkills and the breadcrumb display)
   const focusedNode = nodeMap.get(focusedId);
@@ -243,7 +252,11 @@ export default function Skills() {
     const value = event.target.value as MaturityLevel | '';
     setSkillCells(prev => {
       const idx = prev.findIndex(c => c.teamMemberId === teamMemberId && c.skillId === skillId);
-      if (value === '') return prev.filter((_, i) => i !== idx);
+      if (value === '') {
+        skillMatrixApi.remove(teamMemberId, skillId).catch(console.error);
+        return prev.filter((_, i) => i !== idx);
+      }
+      skillMatrixApi.upsert(teamMemberId, skillId, value).catch(console.error);
       if (idx >= 0) {
         const next = [...prev];
         next[idx] = { teamMemberId, skillId, maturityLevel: value };
@@ -475,7 +488,7 @@ export default function Skills() {
             </TableRow>
           </TableHead>
           <TableBody>
-            {mockTeamMembers.map((member) => (
+            {teamMembers.map((member) => (
               <TableRow key={member.id}>
                 <TableCell component="th" scope="row">
                   <Box>

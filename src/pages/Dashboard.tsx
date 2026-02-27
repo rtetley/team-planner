@@ -1,11 +1,29 @@
+import { useState, useEffect } from 'react';
 import { Container, Typography, Grid, Card, CardContent, Box } from '@mui/material';
-import { mockTeamMembers, mockProjects, mockTasks } from '../data/mockData';
+import { teamMembersApi, projectsApi, tasksApi } from '../api';
+import { TeamMember, Project, Task } from '../types';
 import { useTranslation } from 'react-i18next';
 
 export default function Dashboard() {
   const { t } = useTranslation();
-  const tasksInProgress = mockTasks.filter((t) => t.status === 'in-progress').length;
-  const tasksDone = mockTasks.filter((t) => t.status === 'done').length;
+  const [teamMembers, setTeamMembers] = useState<TeamMember[]>([]);
+  const [projects, setProjects] = useState<Project[]>([]);
+  const [tasks, setTasks] = useState<Task[]>([]);
+
+  useEffect(() => {
+    Promise.all([
+      teamMembersApi.getAll(),
+      projectsApi.getAll(),
+      tasksApi.getAll(),
+    ]).then(([members, projs, ts]) => {
+      setTeamMembers(members);
+      setProjects(projs);
+      setTasks(ts);
+    }).catch(console.error);
+  }, []);
+
+  const tasksInProgress = tasks.filter((task) => task.status === 'in-progress').length;
+  const tasksDone = tasks.filter((task) => task.status === 'done').length;
 
   return (
     <Container maxWidth="lg" sx={{ mt: 4, mb: 4 }}>
@@ -21,7 +39,7 @@ export default function Dashboard() {
                 {t('dashboard.teamMembers')}
               </Typography>
               <Typography variant="h4">
-                {mockTeamMembers.length}
+                {teamMembers.length}
               </Typography>
             </CardContent>
           </Card>
@@ -34,7 +52,7 @@ export default function Dashboard() {
                 {t('dashboard.activeProjects')}
               </Typography>
               <Typography variant="h4">
-                {mockProjects.length}
+                {projects.length}
               </Typography>
             </CardContent>
           </Card>
@@ -72,7 +90,7 @@ export default function Dashboard() {
               <Typography variant="h6" gutterBottom>
                 Recent Projects
               </Typography>
-              {mockProjects.slice(0, 3).map((project) => (
+              {projects.slice(0, 3).map((project) => (
                 <Box key={project.id} sx={{ mb: 2 }}>
                   <Typography variant="subtitle1" fontWeight="bold">
                     {project.name}
@@ -92,7 +110,7 @@ export default function Dashboard() {
               <Typography variant="h6" gutterBottom>
                 Team Overview
               </Typography>
-              {mockTeamMembers.slice(0, 4).map((member) => (
+              {teamMembers.slice(0, 4).map((member) => (
                 <Box key={member.id} sx={{ mb: 2 }}>
                   <Typography variant="subtitle1" fontWeight="bold">
                     {member.name}

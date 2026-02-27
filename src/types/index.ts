@@ -30,6 +30,12 @@ export interface MatrixCell {
   maturityLevel: MaturityLevel | null;
 }
 
+export interface SkillCell {
+  teamMemberId: string;
+  skillId: string;
+  maturityLevel: MaturityLevel;
+}
+
 export interface TeamMatrix {
   id: string;
   name: string;
