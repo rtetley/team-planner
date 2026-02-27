@@ -27,16 +27,16 @@ import { skillTreeRoot, SkillNode } from '../data/skillTree';
 import { mockTeamMembers, mockTasks, mockTeamMatrix } from '../data/mockData';
 import { MaturityLevel } from '../types';
 
-// ── RPG Palette ──────────────────────────────────────────────────────────────
+// ── Flat Anthracite Palette ──────────────────────────────────────────────────
 type PKey = 'root' | 'development' | 'research' | 'communication' | 'organisation' | 'default';
 
-const PALETTE: Record<PKey, { stroke: string; fill: string }> = {
-  root:          { stroke: '#fbbf24', fill: '#1a1100' },
-  development:   { stroke: '#22d3ee', fill: '#001519' },
-  research:      { stroke: '#b975f5', fill: '#0e0019' },
-  communication: { stroke: '#fb923c', fill: '#1a0900' },
-  organisation:  { stroke: '#34d399', fill: '#001510' },
-  default:       { stroke: '#7c8fa6', fill: '#0f1520' },
+const PALETTE: Record<PKey, { stroke: string; fill: string; text: string }> = {
+  root:          { stroke: '#e2b714', fill: '#3d3519', text: '#f5e6a3' },
+  development:   { stroke: '#38bdf8', fill: '#1a3040', text: '#bae6fd' },
+  research:      { stroke: '#a78bfa', fill: '#2a1f40', text: '#ddd6fe' },
+  communication: { stroke: '#fb923c', fill: '#3d2210', text: '#fed7aa' },
+  organisation:  { stroke: '#4ade80', fill: '#1a3326', text: '#bbf7d0' },
+  default:       { stroke: '#94a3b8', fill: '#232b35', text: '#cbd5e1' },
 };
 
 const CAT_KEYS: Record<string, PKey> = {
@@ -44,7 +44,7 @@ const CAT_KEYS: Record<string, PKey> = {
   communication: 'communication', organisation: 'organisation',
 };
 
-const TREE_BG = '#060b18';
+const TREE_BG = '#1e2229';
 
 // ── Geometry ─────────────────────────────────────────────────────────────────
 const D1 = 225;                    // root → category
@@ -56,14 +56,6 @@ const BASE_R: Record<number, number> = { 0: 50, 1: 40, 2: 31, 3: 22 };
 const FOCUS_SCALE = 1.5;
 const VW = 800;
 const VH = 600;
-
-// ── Star field (deterministic) ───────────────────────────────────────────────
-const STARS = Array.from({ length: 45 }, (_, i) => ({
-  x: ((i * 127 + 23) % 770) + 15,
-  y: ((i * 193 + 61) % 560) + 15,
-  r: i % 5 === 0 ? 1.2 : i % 3 === 0 ? 0.7 : 0.35,
-  opacity: 0.2 + (i % 4) * 0.08,
-}));
 
 // ── Types ─────────────────────────────────────────────────────────────────────
 interface NodeDatum {
@@ -139,12 +131,12 @@ interface SkillNodeElProps {
 
 function SkillNodeEl({ node, isFocused, isConnected, onClick, label }: SkillNodeElProps) {
   const [hovered, setHovered] = useState(false);
-  const { stroke, fill } = PALETTE[node.colorKey];
+  const { stroke, fill, text } = PALETTE[node.colorKey];
   const r  = BASE_R[node.depth] ?? 22;
   const lines = wrapText(label);
   const fs = [12, 11, 9.5, 8.5][node.depth] ?? 8.5;
-  const scale = isFocused ? FOCUS_SCALE : hovered ? 1.15 : 1;
-  const lit   = isFocused || isConnected;
+  const scale = isFocused ? FOCUS_SCALE : hovered ? 1.1 : 1;
+  const sw = isFocused ? 2.5 : isConnected ? 1.5 : hovered ? 1.5 : 1;
 
   return (
     <g
@@ -157,7 +149,7 @@ function SkillNodeEl({ node, isFocused, isConnected, onClick, label }: SkillNode
       {/* Pulsing ring (focused only) */}
       {isFocused && (
         <circle r={r * 1.7} fill="none" stroke={stroke} strokeWidth={1}
-          opacity={0.3} className="skill-pulse" />
+          opacity={0.35} className="skill-pulse" />
       )}
 
       {/* Scale group */}
@@ -166,21 +158,15 @@ function SkillNodeEl({ node, isFocused, isConnected, onClick, label }: SkillNode
         transform: `scale(${scale})`,
         transition: 'transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1)',
       }}>
-        {/* Outer glow ring */}
-        <circle r={r + 5} fill="none" stroke={stroke}
-          strokeWidth={lit ? 1 : 0.5}
-          opacity={isFocused ? 0.55 : isConnected ? 0.3 : hovered ? 0.25 : 0.1}
-          style={{ transition: 'opacity 0.3s ease' }} />
-        {/* Body */}
+        {/* Body — flat fill, colored border */}
         <circle r={r} fill={fill} stroke={stroke}
-          strokeWidth={isFocused ? 2.5 : 1.5}
-          filter={`url(#glow-${isFocused ? 'focus' : 'soft'})`}
-          style={{ transition: 'stroke-width 0.3s ease' }} />
+          strokeWidth={sw}
+          style={{ transition: 'stroke-width 0.2s ease' }} />
         {/* Label */}
         {lines.map((line, i) => (
           <text key={i} textAnchor="middle" dominantBaseline="middle"
             fontSize={fs} fontWeight={isFocused ? 700 : 500}
-            fill={isFocused ? stroke : '#c8d6e8'}
+            fill={isFocused ? text : '#9aa8b8'}
             y={(i - (lines.length - 1) / 2) * (fs + 2.5)}
             style={{ userSelect: 'none', pointerEvents: 'none' }}>
             {line}
@@ -266,7 +252,7 @@ export default function Skills() {
       <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 1 }}>
         <Typography variant="h3">{t('skills.title')}</Typography>
         {focusedNode && focusedNode.id !== 'root' && (
-          <Typography variant="caption" sx={{ color: PALETTE[focusedNode.colorKey].stroke, fontWeight: 600, letterSpacing: 1 }}>
+          <Typography variant="caption" sx={{ color: PALETTE[focusedNode.colorKey].text, fontWeight: 600, letterSpacing: 1 }}>
             ◈ {t(focusedNode.labelKey)}
           </Typography>
         )}
@@ -278,44 +264,15 @@ export default function Skills() {
       {/* SVG tree */}
       <Box sx={{
         width: '100%',
-        borderRadius: 3,
+        borderRadius: 2,
         overflow: 'hidden',
-        border: '1px solid rgba(34,211,238,0.12)',
-        boxShadow: '0 0 60px rgba(6,11,24,0.8), inset 0 0 120px rgba(0,0,0,0.4)',
+        border: '1px solid',
+        borderColor: 'divider',
         bgcolor: TREE_BG,
       }}>
         <svg viewBox={`0 0 ${VW} ${VH}`} style={{ width: '100%', height: 'auto', display: 'block' }}>
-          {/* ── Defs ── */}
-          <defs>
-            <filter id="glow-soft" x="-60%" y="-60%" width="220%" height="220%">
-              <feGaussianBlur in="SourceGraphic" stdDeviation="2.5" result="blur"/>
-              <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
-            </filter>
-            <filter id="glow-focus" x="-80%" y="-80%" width="260%" height="260%">
-              <feGaussianBlur in="SourceGraphic" stdDeviation="6" result="blur"/>
-              <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
-            </filter>
-            <radialGradient id="bg-radial" cx="50%" cy="50%" r="55%">
-              <stop offset="0%" stopColor="#0c1830"/>
-              <stop offset="100%" stopColor={TREE_BG}/>
-            </radialGradient>
-          </defs>
-
           {/* ── Background ── */}
-          <rect width={VW} height={VH} fill="url(#bg-radial)"/>
-
-          {/* Stars */}
-          {STARS.map((s, i) => (
-            <circle key={i} cx={s.x} cy={s.y} r={s.r} fill="#fff" opacity={s.opacity}/>
-          ))}
-
-          {/* Ambient viewport rings */}
-          <g opacity={0.06} style={{ pointerEvents: 'none' }}>
-            {[55, 115, 200, 310, 440].map(r => (
-              <circle key={r} cx={VW / 2} cy={VH / 2} r={r}
-                fill="none" stroke="#7dd3fc" strokeWidth={0.5}/>
-            ))}
-          </g>
+          <rect width={VW} height={VH} fill={TREE_BG}/>
 
           {/* ── Graph group (pans on click) ── */}
           <g style={{
@@ -376,8 +333,7 @@ export default function Skills() {
                 opacity: isFocusedCat ? 1 : 0.55,
                 transition: 'opacity 0.3s ease',
                 '&:hover': { opacity: 1 } }}>
-              <Box sx={{ width: 10, height: 10, borderRadius: '50%', bgcolor: color,
-                boxShadow: `0 0 6px ${color}` }}/>
+              <Box sx={{ width: 10, height: 10, borderRadius: '50%', bgcolor: color }}/>
               <Typography variant="caption" sx={{ color, fontWeight: 600, fontSize: '0.7rem', letterSpacing: 0.5 }}>
                 {t(cat.labelKey)}
               </Typography>
