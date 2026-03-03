@@ -17,4 +17,5 @@ export const KEYS = {
   objectives:  'teamtree:objectives',
   matrix:      'teamtree:matrix',
   skillMatrix: 'teamtree:skill-matrix',
+  skillTree:   'teamtree:skill-tree',
 } as const;

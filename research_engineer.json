@@ -1,0 +1,566 @@
+{
+  "treeId": "dc9583d6-5a7c-400b-a9aa-4ad674a84722",
+  "version": 1,
+  "nodes": [
+    {
+      "id": "accessibility",
+      "label": "Accessibility",
+      "parentId": "frontend",
+      "position": {
+        "x": 508,
+        "y": -161
+      }
+    },
+    {
+      "id": "agile",
+      "label": "Agile",
+      "parentId": "projectMgmt",
+      "position": {
+        "x": -446,
+        "y": -357
+      }
+    },
+    {
+      "id": "apis",
+      "label": "APIs",
+      "parentId": "architecture",
+      "position": {
+        "x": 694,
+        "y": 72
+      }
+    },
+    {
+      "id": "architecture",
+      "label": "Architecture",
+      "parentId": "development",
+      "position": {
+        "x": 503,
+        "y": 106
+      }
+    },
+    {
+      "id": "benchmarking",
+      "label": "Benchmarking",
+      "parentId": "research",
+      "position": {
+        "x": -235,
+        "y": 434
+      }
+    },
+    {
+      "id": "bestPractices",
+      "label": "Best Practices",
+      "parentId": "benchmarking",
+      "position": {
+        "x": -350,
+        "y": 622
+      }
+    },
+    {
+      "id": "cicd",
+      "label": "CI/CD",
+      "parentId": "devops",
+      "position": {
+        "x": 516,
+        "y": 324
+      }
+    },
+    {
+      "id": "cloud",
+      "label": "Cloud",
+      "parentId": "devops",
+      "position": {
+        "x": 373,
+        "y": 399
+      }
+    },
+    {
+      "id": "coaching",
+      "label": "Coaching",
+      "parentId": "leadership",
+      "position": {
+        "x": -286,
+        "y": -606
+      }
+    },
+    {
+      "id": "collaboration",
+      "label": "Collaboration",
+      "parentId": "communication",
+      "position": {
+        "x": -475,
+        "y": -115
+      }
+    },
+    {
+      "id": "communication",
+      "label": "Communication",
+      "parentId": "root",
+      "position": {
+        "x": -258,
+        "y": 29
+      }
+    },
+    {
+      "id": "competitive",
+      "label": "Competitive",
+      "parentId": "benchmarking",
+      "position": {
+        "x": -372,
+        "y": 498
+      }
+    },
+    {
+      "id": "conflictResolution",
+      "label": "Conflict Resolution",
+      "parentId": "collaboration",
+      "position": {
+        "x": -567,
+        "y": -231
+      }
+    },
+    {
+      "id": "custom_1772527451101",
+      "label": "Rust",
+      "parentId": "custom_1772528008545",
+      "colorOverride": "#38bdf8",
+      "position": {
+        "x": 748,
+        "y": -364
+      }
+    },
+    {
+      "id": "custom_1772527992541",
+      "label": "C++",
+      "parentId": "custom_1772528008545",
+      "colorOverride": "#38bdf8",
+      "position": {
+        "x": 753,
+        "y": -215
+      }
+    },
+    {
+      "id": "custom_1772528008545",
+      "label": "Native",
+      "parentId": "languages",
+      "colorOverride": "#38bdf8",
+      "position": {
+        "x": 617,
+        "y": -318
+      }
+    },
+    {
+      "id": "custom_1772528091099",
+      "label": "Web",
+      "parentId": "languages",
+      "colorOverride": "#38bdf8",
+      "position": {
+        "x": 415,
+        "y": -474
+      }
+    },
+    {
+      "id": "custom_1772528111048",
+      "label": "Javascript",
+      "parentId": "custom_1772528091099",
+      "colorOverride": "#38bdf8",
+      "position": {
+        "x": 502,
+        "y": -691
+      }
+    },
+    {
+      "id": "custom_1772528121371",
+      "label": "HTML / CSS",
+      "parentId": "custom_1772528091099",
+      "colorOverride": "#38bdf8",
+      "position": {
+        "x": 524,
+        "y": -568
+      }
+    },
+    {
+      "id": "dataAnalysis",
+      "label": "Data Analysis",
+      "parentId": "research",
+      "position": {
+        "x": -88,
+        "y": 513
+      }
+    },
+    {
+      "id": "dataviz",
+      "label": "Data Viz",
+      "parentId": "dataAnalysis",
+      "position": {
+        "x": -149,
+        "y": 751
+      }
+    },
+    {
+      "id": "decisionMaking",
+      "label": "Decision Making",
+      "parentId": "leadership",
+      "position": {
+        "x": -131,
+        "y": -645
+      }
+    },
+    {
+      "id": "delegation",
+      "label": "Delegation",
+      "parentId": "leadership",
+      "position": {
+        "x": -238,
+        "y": -726
+      }
+    },
+    {
+      "id": "designSystems",
+      "label": "Design Systems",
+      "parentId": "frontend",
+      "position": {
+        "x": 589,
+        "y": -49
+      }
+    },
+    {
+      "id": "development",
+      "label": "Development",
+      "parentId": "root",
+      "position": {
+        "x": 260,
+        "y": 15
+      }
+    },
+    {
+      "id": "devops",
+      "label": "DevOps",
+      "parentId": "development",
+      "position": {
+        "x": 377,
+        "y": 247
+      }
+    },
+    {
+      "id": "docker",
+      "label": "Docker",
+      "parentId": "devops",
+      "position": {
+        "x": 247,
+        "y": 256
+      }
+    },
+    {
+      "id": "documentation",
+      "label": "Documentation",
+      "parentId": "writing",
+      "position": {
+        "x": -456,
+        "y": 350
+      }
+    },
+    {
+      "id": "facilitation",
+      "label": "Facilitation",
+      "parentId": "presenting",
+      "position": {
+        "x": -647,
+        "y": -18
+      }
+    },
+    {
+      "id": "feedbackCulture",
+      "label": "Feedback Culture",
+      "parentId": "collaboration",
+      "position": {
+        "x": -684,
+        "y": -181
+      }
+    },
+    {
+      "id": "frontend",
+      "label": "Frontend",
+      "parentId": "development",
+      "position": {
+        "x": 430,
+        "y": -51
+      }
+    },
+    {
+      "id": "go",
+      "label": "Go",
+      "parentId": "custom_1772528008545",
+      "position": {
+        "x": 861,
+        "y": -316
+      }
+    },
+    {
+      "id": "interviews",
+      "label": "Interviews",
+      "parentId": "userResearch",
+      "position": {
+        "x": 235,
+        "y": 539
+      }
+    },
+    {
+      "id": "java",
+      "label": "Java",
+      "parentId": "custom_1772528008545",
+      "position": {
+        "x": 652,
+        "y": -469
+      }
+    },
+    {
+      "id": "kubernetes",
+      "label": "Kubernetes",
+      "parentId": "devops",
+      "position": {
+        "x": 509,
+        "y": 449
+      }
+    },
+    {
+      "id": "languages",
+      "label": "Languages",
+      "parentId": "development",
+      "position": {
+        "x": 378,
+        "y": -217
+      }
+    },
+    {
+      "id": "leadership",
+      "label": "Leadership",
+      "parentId": "organisation",
+      "position": {
+        "x": -173,
+        "y": -490
+      }
+    },
+    {
+      "id": "microservices",
+      "label": "Microservices",
+      "parentId": "architecture",
+      "position": {
+        "x": 613,
+        "y": 212
+      }
+    },
+    {
+      "id": "ml",
+      "label": "Machine Learning",
+      "parentId": "dataAnalysis",
+      "position": {
+        "x": -184,
+        "y": 623
+      }
+    },
+    {
+      "id": "organisation",
+      "label": "Organisation",
+      "parentId": "root",
+      "position": {
+        "x": -96,
+        "y": -242
+      }
+    },
+    {
+      "id": "planning",
+      "label": "Planning",
+      "parentId": "projectMgmt",
+      "position": {
+        "x": -409,
+        "y": -527
+      }
+    },
+    {
+      "id": "presenting",
+      "label": "Presenting",
+      "parentId": "communication",
+      "position": {
+        "x": -518,
+        "y": 50
+      }
+    },
+    {
+      "id": "prioritisation",
+      "label": "Prioritisation",
+      "parentId": "productivity",
+      "position": {
+        "x": 108,
+        "y": -537
+      }
+    },
+    {
+      "id": "productivity",
+      "label": "Productivity",
+      "parentId": "organisation",
+      "position": {
+        "x": 3,
+        "y": -459
+      }
+    },
+    {
+      "id": "projectMgmt",
+      "label": "Project Mgmt",
+      "parentId": "organisation",
+      "position": {
+        "x": -317,
+        "y": -378
+      }
+    },
+    {
+      "id": "publicSpeaking",
+      "label": "Public Speaking",
+      "parentId": "presenting",
+      "position": {
+        "x": -672,
+        "y": 140
+      }
+    },
+    {
+      "id": "python",
+      "label": "Python",
+      "parentId": "custom_1772528008545",
+      "position": {
+        "x": 792,
+        "y": -488
+      }
+    },
+    {
+      "id": "react",
+      "label": "React",
+      "parentId": "custom_1772528091099",
+      "position": {
+        "x": 306,
+        "y": -538
+      }
+    },
+    {
+      "id": "reporting",
+      "label": "Reporting",
+      "parentId": "writing",
+      "position": {
+        "x": -599,
+        "y": 388
+      }
+    },
+    {
+      "id": "research",
+      "label": "Research",
+      "parentId": "root",
+      "position": {
+        "x": -45,
+        "y": 256
+      }
+    },
+    {
+      "id": "riskMgmt",
+      "label": "Risk Mgmt",
+      "parentId": "projectMgmt",
+      "position": {
+        "x": -525,
+        "y": -479
+      }
+    },
+    {
+      "id": "root",
+      "label": "Research Engineer",
+      "parentId": null
+    },
+    {
+      "id": "security",
+      "label": "Security",
+      "parentId": "architecture",
+      "position": {
+        "x": 735,
+        "y": 205
+      }
+    },
+    {
+      "id": "statistics",
+      "label": "Statistics",
+      "parentId": "dataAnalysis",
+      "position": {
+        "x": -35,
+        "y": 686
+      }
+    },
+    {
+      "id": "storytelling",
+      "label": "Storytelling",
+      "parentId": "presenting",
+      "position": {
+        "x": -763,
+        "y": 47
+      }
+    },
+    {
+      "id": "surveys",
+      "label": "Surveys",
+      "parentId": "userResearch",
+      "position": {
+        "x": 101,
+        "y": 627
+      }
+    },
+    {
+      "id": "techWriting",
+      "label": "Tech Writing",
+      "parentId": "writing",
+      "position": {
+        "x": -592,
+        "y": 260
+      }
+    },
+    {
+      "id": "timeManagement",
+      "label": "Time Mgmt",
+      "parentId": "productivity",
+      "position": {
+        "x": 29,
+        "y": -654
+      }
+    },
+    {
+      "id": "typescript",
+      "label": "TypeScript",
+      "parentId": "custom_1772528091099",
+      "position": {
+        "x": 368,
+        "y": -665
+      }
+    },
+    {
+      "id": "usability",
+      "label": "Usability",
+      "parentId": "userResearch",
+      "position": {
+        "x": 220,
+        "y": 679
+      }
+    },
+    {
+      "id": "userResearch",
+      "label": "User Research",
+      "parentId": "research",
+      "position": {
+        "x": 100,
+        "y": 472
+      }
+    },
+    {
+      "id": "writing",
+      "label": "Writing",
+      "parentId": "communication",
+      "position": {
+        "x": -436,
+        "y": 219
+      }
+    }
+  ]
+}
