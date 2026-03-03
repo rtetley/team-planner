@@ -1,5 +1,7 @@
 # TeamTree
 
+[![License: AGPL v3](https://img.shields.io/badge/License-AGPL%20v3-blue.svg)](LICENSE)
+
 A comprehensive team planning and management tool built with React, TypeScript, MUI, and the French Design System (DSFR).
 
 ## Features
@@ -92,4 +94,7 @@ The Team Maturity Matrix follows the management maturity model:
 
 ## License
 
-Private project
+This project is licensed under the [GNU Affero General Public License v3.0](LICENSE) (AGPL-3.0-only).
+
+In summary: you are free to use, modify, and distribute this software, but any modified version
+deployed over a network must also make its source code available under the same licence.
