@@ -57,6 +57,7 @@ const SPRING_K        = 0.055; // spring stiffness (Hooke)
 const DAMPING         = 0.82;  // velocity damping per tick
 const STEPS_PER_FRAME = 2;     // physics steps per animation frame (×60 fps ≈ 120 steps/s)
 const MAX_ITERS       = 3600;  // 3600 / (2 × 60 fps) ≈ 30 s of animation
+const CONVERGENCE_THRESHOLD = 0.08; // px mean node displacement per frame — stop early below this
 
 // ── Zoom limits ──────────────────────────────────────────────────────────────
 const ZOOM_MIN = 0.18; // ~full-graph overview
@@ -179,7 +180,19 @@ function tickPhysics(nodes: SimNode[], edges: SimEdge[], alpha: number): SimNode
   return next;
 }
 
-// ── Text wrap ─────────────────────────────────────────────────────────────────
+// ── Convergence metric ──────────────────────────────────────────────────────────────
+/** Mean Euclidean displacement of non-pinned nodes between two states. */
+function meanDisplacement(before: SimNode[], after: SimNode[]): number {
+  let sum = 0, count = 0;
+  for (let i = 0; i < before.length; i++) {
+    if (before[i].pinned) continue;
+    const dx = after[i].x - before[i].x;
+    const dy = after[i].y - before[i].y;
+    sum += Math.sqrt(dx * dx + dy * dy);
+    count++;
+  }
+  return count > 0 ? sum / count : 0;
+}
 function wrapText(text: string, maxChars = 10): string[] {
   const words = text.split(' ');
   const lines: string[] = [];
@@ -252,7 +265,15 @@ function SkillNodeEl({ node, isFocused, isChild, onClick, label }: SkillNodeElPr
  * Survives tab changes (component unmount/remount) so the layout is
  * never recomputed for the same tree.
  */
-interface ConvergedLayout { nodes: NodeDatum[]; edges: EdgeDatum[]; }
+interface ConvergedLayout {
+  nodes: NodeDatum[];
+  edges: EdgeDatum[];
+  // View state — persisted so tab switches restore exactly where the user was
+  zoom: number;
+  panX: number;
+  panY: number;
+  focusedId: string;
+}
 const layoutCache = new Map<string, ConvergedLayout>();
 // ── main page ────────────────────────────────────────────────────────────────
 export default function Skills() {
@@ -264,6 +285,23 @@ export default function Skills() {
   // Physics simulation lives in refs — mutable, no re-render on each tick
   const simRef   = useRef<{ nodes: SimNode[]; edges: SimEdge[]; iter: number } | null>(null);
   const frameRef = useRef<number>(0);
+
+  // View state — declared here so the simulation effect can read & restore them
+  const [zoom,      setZoom]      = useState(1);
+  const [panX,      setPanX]      = useState(VW / 2);
+  const [panY,      setPanY]      = useState(VH / 2);
+  const [focusedId, setFocusedId] = useState<string>('root');
+
+  // A ref that always holds the latest view-state values so the
+  // simulation's snapshot() can read them without a stale closure.
+  const viewStateRef = useRef({ zoom, panX, panY, focusedId });
+  useEffect(() => {
+    viewStateRef.current = { zoom, panX, panY, focusedId };
+    // Also keep the in-progress (or already-converged) cache entry up to date
+    if (!skillTree) return;
+    const entry = layoutCache.get(skillTree.treeId);
+    if (entry) layoutCache.set(skillTree.treeId, { ...entry, zoom, panX, panY, focusedId });
+  }, [zoom, panX, panY, focusedId, skillTree]);
 
   // Rendered snapshot — set once per animation frame to trigger a React repaint
   const [nodes, setNodes] = useState<NodeDatum[]>([]);
@@ -279,6 +317,10 @@ export default function Skills() {
     if (cached) {
       setNodes(cached.nodes);
       setEdges(cached.edges);
+      setZoom(cached.zoom);
+      setPanX(cached.panX);
+      setPanY(cached.panY);
+      setFocusedId(cached.focusedId);
       return;
     }
 
@@ -286,27 +328,32 @@ export default function Skills() {
     const { simNodes, simEdges } = flattenTree(skillTree.root);
     simRef.current = { nodes: simNodes, edges: simEdges, iter: 0 };
 
+    // Capture a getter so snapshot always reads the live React state values
+    // (zoom / panX / panY / focusedId) without needing them in the dep array.
+    const getViewState = viewStateRef;
+
     function snapshot(sn: SimNode[], se: SimEdge[]): ConvergedLayout {
       const m = new Map(sn.map(n => [n.id, n]));
+      const vs = getViewState.current;
       const nodes = sn.map(({ id, label, x, y, depth, colorKey }) => ({ id, label, x, y, depth, colorKey }));
       const edges = se.map(e => {
         const src = m.get(e.s)!, tgt = m.get(e.t)!;
         return { x1: src.x, y1: src.y, x2: tgt.x, y2: tgt.y,
           colorKey: e.colorKey, parentId: e.s, childId: e.t };
       });
-      return { nodes, edges };
+      return { nodes, edges, zoom: vs.zoom, panX: vs.panX, panY: vs.panY, focusedId: vs.focusedId };
     }
 
     function animate() {
       const sim = simRef.current;
       if (!sim) return;
       if (sim.iter >= MAX_ITERS) {
-        // Simulation done — persist the converged layout to the module cache
-        const layout = snapshot(sim.nodes, sim.edges);
-        layoutCache.set(treeId, layout);
+        // Time limit reached — persist converged layout
+        layoutCache.set(treeId, snapshot(sim.nodes, sim.edges));
         return;
       }
       const alpha = Math.max(0.02, 1 - sim.iter / MAX_ITERS);
+      const prevNodes = sim.nodes; // capture positions before this frame's steps
       for (let step = 0; step < STEPS_PER_FRAME; step++) {
         sim.nodes = tickPhysics(sim.nodes, sim.edges, alpha);
         sim.iter++;
@@ -314,6 +361,11 @@ export default function Skills() {
       const layout = snapshot(sim.nodes, sim.edges);
       setNodes(layout.nodes);
       setEdges(layout.edges);
+      // Check convergence: stop early if nodes have barely moved
+      if (meanDisplacement(prevNodes, sim.nodes) < CONVERGENCE_THRESHOLD) {
+        layoutCache.set(treeId, layout);
+        return;
+      }
       frameRef.current = requestAnimationFrame(animate);
     }
 
@@ -328,7 +380,6 @@ export default function Skills() {
 
   // ── Zoom ────────────────────────────────────────────────────────────────
   const svgContainerRef = useRef<HTMLDivElement>(null);
-  const [zoom, setZoom] = useState(1);
 
   useEffect(() => {
     const el = svgContainerRef.current;
@@ -341,10 +392,6 @@ export default function Skills() {
     el.addEventListener('wheel', onWheel, { passive: false });
     return () => el.removeEventListener('wheel', onWheel);
   }, []);
-
-  const [focusedId, setFocusedId] = useState<string>('root');
-  const [panX, setPanX] = useState(VW / 2);
-  const [panY, setPanY] = useState(VH / 2);
 
   const handleNodeClick = useCallback((node: NodeDatum) => {
     setFocusedId(node.id);
