@@ -58,6 +58,11 @@ const DAMPING         = 0.82;  // velocity damping per tick
 const STEPS_PER_FRAME = 2;     // physics steps per animation frame (×60 fps ≈ 120 steps/s)
 const MAX_ITERS       = 1200;  // 1200 / (2 × 60 fps) ≈ 10 s of animation
 
+// ── Zoom limits ──────────────────────────────────────────────────────────────
+const ZOOM_MIN = 0.18; // ~full-graph overview
+const ZOOM_MAX = 1.0;  // default viewport (no zoom change)
+const ZOOM_FACTOR = 1.12; // per scroll notch (symmetric: ×1.12 / ÷1.12)
+
 function springLen(sourceDepth: number): number {
   return sourceDepth === 0 ? 165 : sourceDepth === 1 ? 115 : 78;
 }
@@ -293,6 +298,22 @@ export default function Skills() {
 
   const nodeMap = useMemo(() => new Map(nodes.map(n => [n.id, n])), [nodes]);
 
+  // ── Zoom ────────────────────────────────────────────────────────────────
+  const svgContainerRef = useRef<HTMLDivElement>(null);
+  const [zoom, setZoom] = useState(1);
+
+  useEffect(() => {
+    const el = svgContainerRef.current;
+    if (!el) return;
+    const onWheel = (e: WheelEvent) => {
+      e.preventDefault();
+      const factor = e.deltaY < 0 ? ZOOM_FACTOR : 1 / ZOOM_FACTOR;
+      setZoom(z => Math.min(ZOOM_MAX, Math.max(ZOOM_MIN, z * factor)));
+    };
+    el.addEventListener('wheel', onWheel, { passive: false });
+    return () => el.removeEventListener('wheel', onWheel);
+  }, []);
+
   const [focusedId, setFocusedId] = useState<string>('root');
   const [panX, setPanX] = useState(VW / 2);
   const [panY, setPanY] = useState(VH / 2);
@@ -422,19 +443,22 @@ export default function Skills() {
       </Typography>
 
       {/* SVG tree */}
-      <Box sx={{
+      <Box ref={svgContainerRef} sx={{
         width: '100%',
         borderRadius: 2,
         overflow: 'hidden',
         border: '1px solid',
         borderColor: 'divider',
         bgcolor: TREE_BG,
+        cursor: 'default',
       }}>
         <svg viewBox={`0 0 ${VW} ${VH}`} style={{ width: '100%', height: 'auto', display: 'block' }}>
           {/* ── Background ── */}
           <rect width={VW} height={VH} fill={TREE_BG}/>
 
-          {/* ── Graph group (pans on click) ── */}
+          {/* ── Zoom group (scroll wheel) — scales around viewport centre ── */}
+          <g transform={`translate(${VW / 2}, ${VH / 2}) scale(${zoom}) translate(${-VW / 2}, ${-VH / 2})`}>
+          {/* ── Pan group (animates on node click) ── */}
           <g style={{
             transform: `translate(${panX}px, ${panY}px)`,
             transition: 'transform 0.55s cubic-bezier(0.25, 0.46, 0.45, 0.94)',
@@ -466,8 +490,9 @@ export default function Skills() {
                 label={n.label}
               />
             ))}
+          </g>          {/* ── / Pan group ── */}
           </g>
-
+          {/* ── / Zoom group ── */}
           {/* CSS animations */}
           <style>{`
             @keyframes skill-pulse {
