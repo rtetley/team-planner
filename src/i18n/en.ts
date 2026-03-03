@@ -169,6 +169,22 @@ export const en = {
       myTasks: 'My Tasks',
       noTasks: 'No tasks assigned to you.',
       accountSection: 'Account'
+    },
+    userSkills: {
+      title: 'My Skills',
+      hint: 'Click any node to explore and allocate points. Locked nodes (faded) require points in their parent first.',
+      noDescription: 'No description available.',
+      locked: 'Locked',
+      unlocked: 'Unlocked',
+      rootNode: 'Root — explore branches',
+      lockReason: 'Unlock parent first',
+      addPoint: 'Add point',
+      removePoint: 'Remove point',
+      add: 'Add',
+      remove: 'Remove',
+      maxReached: 'Maximum reached (5/5)',
+      radarTitle: 'Skill Distribution',
+      radarHint: 'Points allocated per top-level category'
     }
   }
 };

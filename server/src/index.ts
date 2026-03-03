@@ -10,6 +10,7 @@ import { skillMatrixRoute } from './routes/skillMatrix.js';
 import { skillTreeRoute }   from './routes/skillTree.js';
 import { authRoute } from './routes/auth.js';
 import { requireAuth } from './middleware/auth.js';
+import { skillPointsRoute } from './routes/skillPoints.js';
 
 const app = new Hono();
 
@@ -34,8 +35,8 @@ app.use('/api/tasks',          requireAuth);
 app.use('/api/objectives',     requireAuth);
 app.use('/api/matrix',         requireAuth);
 app.use('/api/skill-matrix',   requireAuth);
-app.use('/api/skill-tree',     requireAuth);
-
+app.use('/api/skill-tree',     requireAuth);app.use('/api/skill-points/*', requireAuth);
+app.use('/api/skill-points',   requireAuth);
 app.route('/api/team-members', teamMembersRoute);
 app.route('/api/projects',     projectsRoute);
 app.route('/api/tasks',        tasksRoute);
@@ -43,6 +44,7 @@ app.route('/api/objectives',   objectivesRoute);
 app.route('/api/matrix',       matrixRoute);
 app.route('/api/skill-matrix', skillMatrixRoute);
 app.route('/api/skill-tree',   skillTreeRoute);
+app.route('/api/skill-points', skillPointsRoute);
 
 const PORT = Number(process.env.PORT ?? 3001);
 serve({ fetch: app.fetch, port: PORT }, () => {

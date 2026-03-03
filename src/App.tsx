@@ -15,6 +15,7 @@ import ObjectiveEdit from './pages/ObjectiveEdit';
 import Skills from './pages/Skills';
 import Login from './pages/Login';
 import UserProfile from './pages/UserProfile';
+import UserSkills from './pages/UserSkills';
 import { ObjectivesProvider } from './context/ObjectivesContext';
 import { AuthProvider, useAuth } from './context/AuthContext';
 import ProtectedRoute from './components/ProtectedRoute';
@@ -38,6 +39,7 @@ function AppContent() {
   const userNav = [
     { text: t('auth.profileTitle'), linkProps: { to: '/profile' }, isActive: location.pathname === '/profile' },
     { text: t('navigation.tasks'),  linkProps: { to: '/tasks' },   isActive: location.pathname === '/tasks' },
+    { text: t('navigation.skills'), linkProps: { to: '/skills' },  isActive: location.pathname === '/skills' },
   ];
 
   const navigation = !user ? [] : user.role === 'manager' ? managerNav : userNav;
@@ -89,7 +91,7 @@ function AppContent() {
           <Route path="/team"       element={<ProtectedRoute requiredRole="manager"><Team /></ProtectedRoute>} />
           <Route path="/projects"   element={<ProtectedRoute requiredRole="manager"><Projects /></ProtectedRoute>} />
           <Route path="/matrix"     element={<ProtectedRoute requiredRole="manager"><TeamMatrix /></ProtectedRoute>} />
-          <Route path="/skills"     element={<ProtectedRoute requiredRole="manager"><Skills /></ProtectedRoute>} />
+          <Route path="/skills"     element={<ProtectedRoute>{user?.role === 'manager' ? <Skills /> : <UserSkills />}</ProtectedRoute>} />
           <Route path="/objectives" element={<ProtectedRoute requiredRole="manager"><Objectives /></ProtectedRoute>} />
           <Route path="/objectives/new" element={<ProtectedRoute requiredRole="manager"><ObjectiveEdit /></ProtectedRoute>} />
           <Route path="/objectives/:id" element={<ProtectedRoute requiredRole="manager"><ObjectiveEdit /></ProtectedRoute>} />

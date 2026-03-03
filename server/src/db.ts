@@ -20,4 +20,5 @@ export const KEYS = {
   skillTree:   'teamtree:skill-tree',
   users:       'teamtree:users',
   sessions:    'teamtree:sessions',
+  skillPoints: 'teamtree:skill-points',
 } as const;

@@ -108,6 +108,17 @@ export const skillTreeApi = {
   get: () => req<SkillTreeDoc>('/skill-tree'),
 };
 
+// ── Skill Points ─────────────────────────────────────────────────────────────
+
+export const skillPointsApi = {
+  getAll: () => req<Record<string, number>>('/skill-points'),
+  update: (nodeId: string, points: number) =>
+    req<Record<string, number>>(`/skill-points/${encodeURIComponent(nodeId)}`, {
+      method: 'PUT',
+      body: JSON.stringify({ points }),
+    }),
+};
+
 // ── Auth ──────────────────────────────────────────────────────────────────────
 
 export const authApi = {

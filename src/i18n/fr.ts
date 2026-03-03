@@ -169,6 +169,22 @@ export const fr = {
       myTasks: 'Mes tâches',
       noTasks: 'Aucune tâche assignée.',
       accountSection: 'Compte'
+    },
+    userSkills: {
+      title: 'Mes compétences',
+      hint: 'Cliquez sur un nœud pour explorer et allouer des points. Les nœuds verrouillés (transparents) nécessitent des points dans leur parent.',
+      noDescription: 'Aucune description disponible.',
+      locked: 'Verrouillé',
+      unlocked: 'Déverrouillé',
+      rootNode: 'Racine — explorez les branches',
+      lockReason: 'Déverrouillez le parent d’abord',
+      addPoint: 'Ajouter un point',
+      removePoint: 'Retirer un point',
+      add: 'Ajouter',
+      remove: 'Retirer',
+      maxReached: 'Maximum atteint (5/5)',
+      radarTitle: 'Répartition des compétences',
+      radarHint: 'Points alloués par catégorie principale'
     }
   }
 };
