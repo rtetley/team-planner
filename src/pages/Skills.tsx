@@ -56,7 +56,7 @@ const REPULSION_K     = 5500;  // node-node repulsion (Coulomb)
 const SPRING_K        = 0.055; // spring stiffness (Hooke)
 const DAMPING         = 0.82;  // velocity damping per tick
 const STEPS_PER_FRAME = 2;     // physics steps per animation frame (×60 fps ≈ 120 steps/s)
-const MAX_ITERS       = 1200;  // 1200 / (2 × 60 fps) ≈ 10 s of animation
+const MAX_ITERS       = 3600;  // 3600 / (2 × 60 fps) ≈ 30 s of animation
 
 // ── Zoom limits ──────────────────────────────────────────────────────────────
 const ZOOM_MIN = 0.18; // ~full-graph overview
@@ -246,7 +246,14 @@ function SkillNodeEl({ node, isFocused, isChild, onClick, label }: SkillNodeElPr
     </g>
   );
 }
-
+// ── Module-level layout cache ───────────────────────────────────────────────────────
+/**
+ * Keyed by treeId. Populated when the simulation finishes.
+ * Survives tab changes (component unmount/remount) so the layout is
+ * never recomputed for the same tree.
+ */
+interface ConvergedLayout { nodes: NodeDatum[]; edges: EdgeDatum[]; }
+const layoutCache = new Map<string, ConvergedLayout>();
 // ── main page ────────────────────────────────────────────────────────────────
 export default function Skills() {
   const { t } = useTranslation();
@@ -266,32 +273,53 @@ export default function Skills() {
   useEffect(() => {
     if (!skillTree) return;
     cancelAnimationFrame(frameRef.current);
+
+    // Use the cached converged layout if available — skip simulation entirely
+    const cached = layoutCache.get(skillTree.treeId);
+    if (cached) {
+      setNodes(cached.nodes);
+      setEdges(cached.edges);
+      return;
+    }
+
+    const treeId = skillTree.treeId;
     const { simNodes, simEdges } = flattenTree(skillTree.root);
     simRef.current = { nodes: simNodes, edges: simEdges, iter: 0 };
 
-    function snapshot(sn: SimNode[], se: SimEdge[]) {
+    function snapshot(sn: SimNode[], se: SimEdge[]): ConvergedLayout {
       const m = new Map(sn.map(n => [n.id, n]));
-      setNodes(sn.map(({ id, label, x, y, depth, colorKey }) => ({ id, label, x, y, depth, colorKey })));
-      setEdges(se.map(e => {
+      const nodes = sn.map(({ id, label, x, y, depth, colorKey }) => ({ id, label, x, y, depth, colorKey }));
+      const edges = se.map(e => {
         const src = m.get(e.s)!, tgt = m.get(e.t)!;
         return { x1: src.x, y1: src.y, x2: tgt.x, y2: tgt.y,
           colorKey: e.colorKey, parentId: e.s, childId: e.t };
-      }));
+      });
+      return { nodes, edges };
     }
 
     function animate() {
       const sim = simRef.current;
-      if (!sim || sim.iter >= MAX_ITERS) return;
+      if (!sim) return;
+      if (sim.iter >= MAX_ITERS) {
+        // Simulation done — persist the converged layout to the module cache
+        const layout = snapshot(sim.nodes, sim.edges);
+        layoutCache.set(treeId, layout);
+        return;
+      }
       const alpha = Math.max(0.02, 1 - sim.iter / MAX_ITERS);
       for (let step = 0; step < STEPS_PER_FRAME; step++) {
         sim.nodes = tickPhysics(sim.nodes, sim.edges, alpha);
         sim.iter++;
       }
-      snapshot(sim.nodes, sim.edges);
+      const layout = snapshot(sim.nodes, sim.edges);
+      setNodes(layout.nodes);
+      setEdges(layout.edges);
       frameRef.current = requestAnimationFrame(animate);
     }
 
-    snapshot(simNodes, simEdges);
+    const initial = snapshot(simNodes, simEdges);
+    setNodes(initial.nodes);
+    setEdges(initial.edges);
     frameRef.current = requestAnimationFrame(animate);
     return () => cancelAnimationFrame(frameRef.current);
   }, [skillTree]);
