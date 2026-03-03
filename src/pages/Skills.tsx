@@ -1,4 +1,4 @@
-import { useState, useCallback, useMemo, useEffect } from 'react';
+import { useState, useCallback, useMemo, useEffect, useRef } from 'react';
 import {
   Container,
   Typography,
@@ -45,16 +45,22 @@ const CAT_KEYS: Record<string, PKey> = {
 
 const TREE_BG = '#1e2229';
 
-// ── Geometry ─────────────────────────────────────────────────────────────────
-const D1 = 225;                    // root → category
-const D2 = 162;                    // category → sub
-const D3 = 108;                    // sub → leaf
-const SPREAD_L2 = Math.PI * 0.65;  // sub angular spread
-const SPREAD_L3 = Math.PI * 0.55;  // leaf angular spread
+// ── Viewport & node sizes ───────────────────────────────────────────────────
 const BASE_R: Record<number, number> = { 0: 50, 1: 40, 2: 31, 3: 22 };
 const FOCUS_SCALE = 1.5;
 const VW = 800;
 const VH = 600;
+
+// ── Spring-layout physics ────────────────────────────────────────────────────
+const REPULSION_K     = 5500;  // node-node repulsion (Coulomb)
+const SPRING_K        = 0.055; // spring stiffness (Hooke)
+const DAMPING         = 0.82;  // velocity damping per tick
+const STEPS_PER_FRAME = 2;     // physics steps per animation frame (×60 fps ≈ 120 steps/s)
+const MAX_ITERS       = 1200;  // 1200 / (2 × 60 fps) ≈ 10 s of animation
+
+function springLen(sourceDepth: number): number {
+  return sourceDepth === 0 ? 165 : sourceDepth === 1 ? 115 : 78;
+}
 
 // ── Types ─────────────────────────────────────────────────────────────────────
 interface NodeDatum {
@@ -66,46 +72,106 @@ interface EdgeDatum {
   x1: number; y1: number; x2: number; y2: number;
   colorKey: PKey; parentId: string; childId: string;
 }
+/** Mutable physics node — lives in a ref, never stored directly in React state */
+interface SimNode extends NodeDatum {
+  vx: number; vy: number;
+  pinned: boolean;
+}
+interface SimEdge {
+  s: string; t: string;
+  srcDepth: number; // depth of source node → picks natural spring length
+  colorKey: PKey;
+}
 
-// ── Full-tree layout ──────────────────────────────────────────────────────────
-function buildLayout(root: SkillTreeNode): { nodes: NodeDatum[]; edges: EdgeDatum[] } {
-  const nodes: NodeDatum[] = [];
-  const edges: EdgeDatum[] = [];
+// ── Flatten tree → initial sim state (radial seed positions) ────────────────
+function flattenTree(root: SkillTreeNode): { simNodes: SimNode[]; simEdges: SimEdge[] } {
+  const simNodes: SimNode[] = [];
+  const simEdges: SimEdge[] = [];
+  const INIT_R = [0, 195, 340, 450];
 
   function walk(
-    node: SkillTreeNode, x: number, y: number, outAngle: number,
-    depth: number, parentPos: { x: number; y: number } | null,
-    parentId: string | null, colorKey: PKey,
+    node: SkillTreeNode, parentId: string | null,
+    depth: number, colorKey: PKey, angle: number,
   ) {
-    nodes.push({ id: node.id, label: node.label, x, y, depth, colorKey });
-    if (parentId !== null && parentPos !== null)
-      edges.push({ x1: parentPos.x, y1: parentPos.y, x2: x, y2: y, colorKey, parentId, childId: node.id });
+    const ck: PKey =
+      depth === 0 ? 'root'
+      : depth === 1 ? ((CAT_KEYS[node.id] ?? 'default') as PKey)
+      : colorKey;
+    const r = INIT_R[Math.min(depth, INIT_R.length - 1)];
+    // Small random jitter breaks symmetry so spring forces can act
+    const jitter = depth > 0 ? (Math.random() - 0.5) * 14 : 0;
+    simNodes.push({
+      id: node.id, label: node.label,
+      x: r * Math.cos(angle) + jitter,
+      y: r * Math.sin(angle) + jitter,
+      vx: 0, vy: 0, depth, colorKey: ck, pinned: depth === 0,
+    });
+    if (parentId !== null)
+      simEdges.push({ s: parentId, t: node.id, srcDepth: depth - 1, colorKey: ck });
 
     const children = node.children ?? [];
     if (!children.length) return;
-    const pos = { x, y };
 
     if (depth === 0) {
+      // Root: fan children evenly around the circle
       children.forEach((child, i) => {
-        const angle = (2 * Math.PI * i) / children.length - Math.PI / 2;
-        const ck = (CAT_KEYS[child.id] ?? 'default') as PKey;
-        walk(child, D1 * Math.cos(angle), D1 * Math.sin(angle), angle, 1, pos, node.id, ck);
+        walk(child, node.id, 1, 'root', (2 * Math.PI * i) / children.length - Math.PI / 2);
       });
     } else {
-      const spread = depth === 1 ? SPREAD_L2 : SPREAD_L3;
-      const dist   = depth === 1 ? D2 : D3;
+      // Deeper levels: fan within a cone pointing away from parent
+      const fanHalf = depth === 1 ? Math.PI * 0.38 : Math.PI * 0.28;
       children.forEach((child, i) => {
-        const angle = children.length === 1
-          ? outAngle
-          : outAngle - spread / 2 + (i * spread) / (children.length - 1);
-        walk(child, x + dist * Math.cos(angle), y + dist * Math.sin(angle),
-          angle, depth + 1, pos, node.id, colorKey);
+        const childAngle = children.length === 1
+          ? angle
+          : angle - fanHalf + (i * 2 * fanHalf) / (children.length - 1);
+        walk(child, node.id, depth + 1, ck, childAngle);
       });
     }
   }
 
-  walk(root, 0, 0, -Math.PI / 2, 0, null, null, 'root');
-  return { nodes, edges };
+  walk(root, null, 0, 'root', 0);
+  return { simNodes, simEdges };
+}
+
+// ── One spring-physics tick ──────────────────────────────────────────────────
+function tickPhysics(nodes: SimNode[], edges: SimEdge[], alpha: number): SimNode[] {
+  const next = nodes.map(n => ({ ...n }));
+  const byId = new Map(next.map(n => [n.id, n]));
+
+  // 1. Repulsion between every pair of nodes (Coulomb)
+  for (let i = 0; i < next.length; i++) {
+    for (let j = i + 1; j < next.length; j++) {
+      const a = next[i], b = next[j];
+      const dx = b.x - a.x, dy = b.y - a.y;
+      const dist2 = dx * dx + dy * dy || 1;
+      const inv   = 1 / Math.sqrt(dist2);
+      const f  = (REPULSION_K * alpha) / dist2;
+      const fx = f * dx * inv, fy = f * dy * inv;
+      if (!a.pinned) { a.vx -= fx; a.vy -= fy; }
+      if (!b.pinned) { b.vx += fx; b.vy += fy; }
+    }
+  }
+
+  // 2. Spring attraction along edges (Hooke)
+  for (const e of edges) {
+    const a = byId.get(e.s), b = byId.get(e.t);
+    if (!a || !b) continue;
+    const dx = b.x - a.x, dy = b.y - a.y;
+    const dist = Math.sqrt(dx * dx + dy * dy) || 1;
+    const f    = SPRING_K * (dist - springLen(e.srcDepth)) * alpha;
+    const fx = f * dx / dist, fy = f * dy / dist;
+    if (!a.pinned) { a.vx += fx; a.vy += fy; }
+    if (!b.pinned) { b.vx -= fx; b.vy -= fy; }
+  }
+
+  // 3. Integrate: damp velocities, then move
+  for (const n of next) {
+    if (n.pinned) continue;
+    n.vx *= DAMPING; n.vy *= DAMPING;
+    n.x  += n.vx;   n.y  += n.vy;
+  }
+
+  return next;
 }
 
 // ── Text wrap ─────────────────────────────────────────────────────────────────
@@ -182,10 +248,49 @@ export default function Skills() {
 
   // ── skill tree state ────────────────────────────────────────────────────
   const [skillTree, setSkillTree] = useState<SkillTreeDoc | null>(null);
-  const { nodes, edges } = useMemo(
-    () => skillTree ? buildLayout(skillTree.root) : { nodes: [], edges: [] },
-    [skillTree],
-  );
+
+  // Physics simulation lives in refs — mutable, no re-render on each tick
+  const simRef   = useRef<{ nodes: SimNode[]; edges: SimEdge[]; iter: number } | null>(null);
+  const frameRef = useRef<number>(0);
+
+  // Rendered snapshot — set once per animation frame to trigger a React repaint
+  const [nodes, setNodes] = useState<NodeDatum[]>([]);
+  const [edges, setEdges] = useState<EdgeDatum[]>([]);
+
+  // Start / restart simulation whenever the tree is (re)loaded
+  useEffect(() => {
+    if (!skillTree) return;
+    cancelAnimationFrame(frameRef.current);
+    const { simNodes, simEdges } = flattenTree(skillTree.root);
+    simRef.current = { nodes: simNodes, edges: simEdges, iter: 0 };
+
+    function snapshot(sn: SimNode[], se: SimEdge[]) {
+      const m = new Map(sn.map(n => [n.id, n]));
+      setNodes(sn.map(({ id, label, x, y, depth, colorKey }) => ({ id, label, x, y, depth, colorKey })));
+      setEdges(se.map(e => {
+        const src = m.get(e.s)!, tgt = m.get(e.t)!;
+        return { x1: src.x, y1: src.y, x2: tgt.x, y2: tgt.y,
+          colorKey: e.colorKey, parentId: e.s, childId: e.t };
+      }));
+    }
+
+    function animate() {
+      const sim = simRef.current;
+      if (!sim || sim.iter >= MAX_ITERS) return;
+      const alpha = Math.max(0.02, 1 - sim.iter / MAX_ITERS);
+      for (let step = 0; step < STEPS_PER_FRAME; step++) {
+        sim.nodes = tickPhysics(sim.nodes, sim.edges, alpha);
+        sim.iter++;
+      }
+      snapshot(sim.nodes, sim.edges);
+      frameRef.current = requestAnimationFrame(animate);
+    }
+
+    snapshot(simNodes, simEdges);
+    frameRef.current = requestAnimationFrame(animate);
+    return () => cancelAnimationFrame(frameRef.current);
+  }, [skillTree]);
+
   const nodeMap = useMemo(() => new Map(nodes.map(n => [n.id, n])), [nodes]);
 
   const [focusedId, setFocusedId] = useState<string>('root');
