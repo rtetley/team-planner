@@ -6,7 +6,8 @@
     "dev": "tsx watch src/index.ts",
     "build": "tsc",
     "start": "node dist/index.js",
-    "seed": "tsx src/seed.ts"
+    "seed": "tsx src/seed.ts",
+    "update-skill-tree": "tsx src/updateSkillTree.ts"
   },
   "dependencies": {
     "@hono/node-server": "^1.13.7",

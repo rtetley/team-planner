@@ -7,6 +7,7 @@ import { tasksRoute } from './routes/tasks.js';
 import { objectivesRoute } from './routes/objectives.js';
 import { matrixRoute } from './routes/matrix.js';
 import { skillMatrixRoute } from './routes/skillMatrix.js';
+import { skillTreeRoute }   from './routes/skillTree.js';
 
 const app = new Hono();
 
@@ -18,6 +19,7 @@ app.route('/api/tasks',        tasksRoute);
 app.route('/api/objectives',   objectivesRoute);
 app.route('/api/matrix',       matrixRoute);
 app.route('/api/skill-matrix', skillMatrixRoute);
+app.route('/api/skill-tree',   skillTreeRoute);
 
 app.get('/api/health', (c) => c.json({ status: 'ok' }));
 
