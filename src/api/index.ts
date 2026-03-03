@@ -6,6 +6,7 @@ import type {
   MatrixCell,
   SkillCell,
   Objective,
+  SkillTreeDoc,
 } from '../types';
 
 const BASE = '/api';
@@ -94,4 +95,10 @@ export const skillMatrixApi = {
     req<void>(`/skill-matrix/${encodeURIComponent(teamMemberId)}/${encodeURIComponent(skillId)}`, {
       method: 'DELETE',
     }),
+};
+
+// ── Skill Tree ────────────────────────────────────────────────────────────────
+
+export const skillTreeApi = {
+  get: () => req<SkillTreeDoc>('/skill-tree'),
 };

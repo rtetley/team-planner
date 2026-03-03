@@ -23,9 +23,8 @@ import {
 } from '@mui/material';
 import InfoIcon from '@mui/icons-material/Info';
 import { useTranslation } from 'react-i18next';
-import { skillTreeRoot, SkillNode } from '../data/skillTree';
-import { teamMembersApi, skillMatrixApi } from '../api';
-import { MaturityLevel, SkillCell, TeamMember } from '../types';
+import { teamMembersApi, skillMatrixApi, skillTreeApi } from '../api';
+import { MaturityLevel, SkillCell, SkillTreeDoc, SkillTreeNode, TeamMember } from '../types';
 
 // ── Flat Anthracite Palette ──────────────────────────────────────────────────
 type PKey = 'root' | 'development' | 'research' | 'communication' | 'organisation' | 'default';
@@ -59,7 +58,7 @@ const VH = 600;
 
 // ── Types ─────────────────────────────────────────────────────────────────────
 interface NodeDatum {
-  id: string; labelKey: string;
+  id: string; label: string;
   x: number; y: number;
   depth: number; colorKey: PKey;
 }
@@ -69,16 +68,16 @@ interface EdgeDatum {
 }
 
 // ── Full-tree layout ──────────────────────────────────────────────────────────
-function buildLayout(root: SkillNode): { nodes: NodeDatum[]; edges: EdgeDatum[] } {
+function buildLayout(root: SkillTreeNode): { nodes: NodeDatum[]; edges: EdgeDatum[] } {
   const nodes: NodeDatum[] = [];
   const edges: EdgeDatum[] = [];
 
   function walk(
-    node: SkillNode, x: number, y: number, outAngle: number,
+    node: SkillTreeNode, x: number, y: number, outAngle: number,
     depth: number, parentPos: { x: number; y: number } | null,
     parentId: string | null, colorKey: PKey,
   ) {
-    nodes.push({ id: node.id, labelKey: node.labelKey, x, y, depth, colorKey });
+    nodes.push({ id: node.id, label: node.label, x, y, depth, colorKey });
     if (parentId !== null && parentPos !== null)
       edges.push({ x1: parentPos.x, y1: parentPos.y, x2: x, y2: y, colorKey, parentId, childId: node.id });
 
@@ -182,7 +181,11 @@ export default function Skills() {
   const { t } = useTranslation();
 
   // ── skill tree state ────────────────────────────────────────────────────
-  const { nodes, edges } = useMemo(() => buildLayout(skillTreeRoot), []);
+  const [skillTree, setSkillTree] = useState<SkillTreeDoc | null>(null);
+  const { nodes, edges } = useMemo(
+    () => skillTree ? buildLayout(skillTree.root) : { nodes: [], edges: [] },
+    [skillTree],
+  );
   const nodeMap = useMemo(() => new Map(nodes.map(n => [n.id, n])), [nodes]);
 
   const [focusedId, setFocusedId] = useState<string>('root');
@@ -226,9 +229,11 @@ export default function Skills() {
     Promise.all([
       teamMembersApi.getAll(),
       skillMatrixApi.getAll(),
-    ]).then(([members, cells]) => {
+      skillTreeApi.get(),
+    ]).then(([members, cells, tree]) => {
       setTeamMembers(members);
       setSkillCells(cells);
+      setSkillTree(tree);
     }).catch(console.error);
   }, []);
 
@@ -291,7 +296,7 @@ export default function Skills() {
                 onClick={() => { const n = nodeMap.get(ancestor.id); if (n) handleNodeClick(n); }}
                 sx={{ cursor: 'pointer', color: 'text.secondary', transition: 'color 0.2s', '&:hover': { color, textDecoration: 'underline' } }}
               >
-                {t(ancestor.labelKey)}
+                {ancestor.label}
               </Typography>
               <Typography variant="caption" color="text.disabled">/</Typography>
             </Box>
@@ -302,7 +307,7 @@ export default function Skills() {
             color: PALETTE[focusedNode.colorKey].stroke,
             fontWeight: 700,
           }}>
-            {t(focusedNode.labelKey)}
+            {focusedNode.label}
           </Typography>
         )}
       </Box>
@@ -353,7 +358,7 @@ export default function Skills() {
                 isFocused={n.id === focusedId}
                 isChild={childrenIds.has(n.id)}
                 onClick={() => handleNodeClick(n)}
-                label={t(n.labelKey)}
+                label={n.label}
               />
             ))}
           </g>
@@ -375,7 +380,7 @@ export default function Skills() {
 
       {/* Legend */}
       <Box sx={{ display: 'flex', gap: 2, mt: 1.5, flexWrap: 'wrap', alignItems: 'center' }}>
-        {(skillTreeRoot.children ?? []).map(cat => {
+        {(skillTree?.root.children ?? []).map(cat => {
           const ck = (CAT_KEYS[cat.id] ?? 'default') as PKey;
           const color = PALETTE[ck].stroke;
           const isFocusedCat = focusedId === cat.id || childrenIds.has(cat.id);
@@ -388,7 +393,7 @@ export default function Skills() {
                 '&:hover': { opacity: 1 } }}>
               <Box sx={{ width: 10, height: 10, borderRadius: '50%', bgcolor: color }}/>
               <Typography variant="caption" sx={{ color, fontWeight: 600, fontSize: '0.7rem', letterSpacing: 0.5 }}>
-                {t(cat.labelKey)}
+                {cat.label}
               </Typography>
             </Box>
           );
@@ -412,13 +417,13 @@ export default function Skills() {
           <Typography variant="body2" color="text.secondary">{t('matrix.showing')}</Typography>
           {ancestorPath.map(a => (
             <Box key={a.id} sx={{ display: 'inline-flex', alignItems: 'center', gap: 0.5 }}>
-              <Typography variant="body2" color="text.disabled">{t(a.labelKey)}</Typography>
+              <Typography variant="body2" color="text.disabled">{a.label}</Typography>
               <Typography variant="body2" color="text.disabled">/</Typography>
             </Box>
           ))}
           <Typography variant="body2"
             sx={{ fontWeight: 700, color: PALETTE[focusedNode.colorKey].stroke }}>
-            {t(focusedNode.labelKey)}
+            {focusedNode.label}
           </Typography>
         </Box>
       )}
@@ -482,7 +487,7 @@ export default function Skills() {
               {matrixSkills.map((skill) => (
                 <TableCell key={skill.id} align="center"
                   sx={{ fontWeight: 'bold', minWidth: 120, color: PALETTE[skill.colorKey].stroke }}>
-                  {t(skill.labelKey)}
+                  {skill.label}
                 </TableCell>
               ))}
             </TableRow>

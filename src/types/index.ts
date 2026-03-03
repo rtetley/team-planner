@@ -42,6 +42,20 @@ export interface TeamMatrix {
   cells: MatrixCell[];
 }
 
+export interface SkillTreeNode {
+  id: string;
+  label: string;
+  colorOverride?: string;
+  position?: { x: number; y: number };
+  children?: SkillTreeNode[];
+}
+
+export interface SkillTreeDoc {
+  treeId: string;
+  version: number;
+  root: SkillTreeNode;
+}
+
 export type Quarter = 'T1' | 'T2' | 'T3' | 'T4';
 
 export interface Objective {
