@@ -66,3 +66,15 @@ export interface Objective {
   kpiProgress: number;
   quarters: Quarter[];
 }
+
+// ── Auth ─────────────────────────────────────────────────────────────────────
+
+export type UserRole = 'manager' | 'user';
+
+export interface AuthUser {
+  id: string;
+  username: string;
+  role: UserRole;
+  /** Only present for 'user' role accounts */
+  teamMemberId?: string;
+}

@@ -155,6 +155,20 @@ export const en = {
       licenseText: 'License',
       homeTitle: 'Home - TeamTree',
       serviceTitle: 'Team Skill management made easy'
+    },
+    auth: {
+      loginTitle: 'Sign in',
+      usernameLabel: 'Username',
+      passwordLabel: 'Password',
+      loginButton: 'Sign in',
+      loggingIn: 'Signing in…',
+      logoutButton: 'Sign out',
+      errorInvalid: 'Invalid username or password.',
+      errorGeneric: 'An error occurred. Please try again.',
+      profileTitle: 'My Profile',
+      myTasks: 'My Tasks',
+      noTasks: 'No tasks assigned to you.',
+      accountSection: 'Account'
     }
   }
 };

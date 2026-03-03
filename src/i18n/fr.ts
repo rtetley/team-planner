@@ -155,6 +155,20 @@ export const fr = {
       licenseText: 'Licence',
       homeTitle: 'Accueil - TeamTree',
       serviceTitle: "La gestion des compétences d'équipe simplifiée"
+    },
+    auth: {
+      loginTitle: 'Connexion',
+      usernameLabel: 'Identifiant',
+      passwordLabel: 'Mot de passe',
+      loginButton: 'Se connecter',
+      loggingIn: 'Connexion…',
+      logoutButton: 'Se déconnecter',
+      errorInvalid: 'Identifiant ou mot de passe incorrect.',
+      errorGeneric: 'Une erreur est survenue. Veuillez réessayer.',
+      profileTitle: 'Mon profil',
+      myTasks: 'Mes tâches',
+      noTasks: 'Aucune tâche assignée.',
+      accountSection: 'Compte'
     }
   }
 };

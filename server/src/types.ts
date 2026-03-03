@@ -46,3 +46,24 @@ export interface Objective {
   kpiProgress: number;
   quarters: Quarter[];
 }
+
+// ── Auth ─────────────────────────────────────────────────────────────────────
+
+export type UserRole = 'manager' | 'user';
+
+export interface User {
+  id: string;
+  username: string;
+  passwordHash: string;
+  role: UserRole;
+  /** Links a 'user' account to a TeamMember */
+  teamMemberId?: string;
+}
+
+/** Shape returned to the client (no password hash) */
+export interface PublicUser {
+  id: string;
+  username: string;
+  role: UserRole;
+  teamMemberId?: string;
+}

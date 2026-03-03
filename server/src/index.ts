@@ -8,10 +8,33 @@ import { objectivesRoute } from './routes/objectives.js';
 import { matrixRoute } from './routes/matrix.js';
 import { skillMatrixRoute } from './routes/skillMatrix.js';
 import { skillTreeRoute }   from './routes/skillTree.js';
+import { authRoute } from './routes/auth.js';
+import { requireAuth } from './middleware/auth.js';
 
 const app = new Hono();
 
 app.use('*', cors({ origin: '*' }));
+
+// ── Public routes ─────────────────────────────────────────────────────────────
+app.route('/api/auth', authRoute);
+app.get('/api/health', (c) => c.json({ status: 'ok' }));
+
+// ── Protected routes (require valid session) ──────────────────────────────────
+app.use('/api/team-members/*', requireAuth);
+app.use('/api/projects/*',     requireAuth);
+app.use('/api/tasks/*',        requireAuth);
+app.use('/api/objectives/*',   requireAuth);
+app.use('/api/matrix/*',       requireAuth);
+app.use('/api/skill-matrix/*', requireAuth);
+app.use('/api/skill-tree/*',   requireAuth);
+// Also protect the root collection paths (no trailing slash)
+app.use('/api/team-members',   requireAuth);
+app.use('/api/projects',       requireAuth);
+app.use('/api/tasks',          requireAuth);
+app.use('/api/objectives',     requireAuth);
+app.use('/api/matrix',         requireAuth);
+app.use('/api/skill-matrix',   requireAuth);
+app.use('/api/skill-tree',     requireAuth);
 
 app.route('/api/team-members', teamMembersRoute);
 app.route('/api/projects',     projectsRoute);
@@ -21,9 +44,8 @@ app.route('/api/matrix',       matrixRoute);
 app.route('/api/skill-matrix', skillMatrixRoute);
 app.route('/api/skill-tree',   skillTreeRoute);
 
-app.get('/api/health', (c) => c.json({ status: 'ok' }));
-
 const PORT = Number(process.env.PORT ?? 3001);
 serve({ fetch: app.fetch, port: PORT }, () => {
   console.log(`[TeamTree Server] Listening on http://localhost:${PORT}`);
 });
+

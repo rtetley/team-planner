@@ -1,5 +1,7 @@
 import { db, KEYS } from './db.js';
 import type { TeamMember, Project, Task, MatrixCell, Objective } from './types.js';
+import type { User } from './types.js';
+import { hashPassword } from './routes/auth.js';
 
 // ── Seed data (mirrors mockData.ts) ─────────────────────────────────────────
 
@@ -64,8 +66,25 @@ async function seed() {
     console.log('[Seed] Data already present, skipping. Use FLUSH_BEFORE_SEED=1 to force re-seed.');
     if (process.env.FLUSH_BEFORE_SEED !== '1') { await db.quit(); return; }
     console.log('[Seed] Flushing existing data…');
-    await db.del(KEYS.members, KEYS.projects, KEYS.tasks, KEYS.objectives, KEYS.matrix, KEYS.skillMatrix);
+    await db.del(KEYS.members, KEYS.projects, KEYS.tasks, KEYS.objectives, KEYS.matrix, KEYS.skillMatrix, KEYS.users);
   }
+
+  // ── Hash passwords ─────────────────────────────────────────────────────────
+  const [managerHash, aliceHash, bobHash, claireHash, davidHash] = await Promise.all([
+    hashPassword('manager123'),
+    hashPassword('alice123'),
+    hashPassword('bob123'),
+    hashPassword('claire123'),
+    hashPassword('david123'),
+  ]);
+
+  const users: User[] = [
+    { id: 'u0', username: 'manager',       passwordHash: managerHash, role: 'manager' },
+    { id: 'u1', username: 'alice.dupont',  passwordHash: aliceHash,   role: 'user', teamMemberId: '1' },
+    { id: 'u2', username: 'bob.martin',    passwordHash: bobHash,     role: 'user', teamMemberId: '2' },
+    { id: 'u3', username: 'claire.bernard',passwordHash: claireHash,  role: 'user', teamMemberId: '3' },
+    { id: 'u4', username: 'david.leroy',   passwordHash: davidHash,   role: 'user', teamMemberId: '4' },
+  ];
 
   const pipeline = db.pipeline();
   members.forEach(m  => pipeline.hset(KEYS.members,    m.id,  JSON.stringify(m)));
@@ -73,9 +92,16 @@ async function seed() {
   tasks.forEach(t    => pipeline.hset(KEYS.tasks,      t.id,  JSON.stringify(t)));
   objectives.forEach(o => pipeline.hset(KEYS.objectives, o.id, JSON.stringify(o)));
   matrixCells.forEach(c => pipeline.hset(KEYS.matrix, `${c.teamMemberId}:${c.taskId}`, c.maturityLevel));
+  users.forEach(u => pipeline.hset(KEYS.users, u.id, JSON.stringify(u)));
   await pipeline.exec();
 
-  console.log(`[Seed] Done — ${members.length} members, ${projects.length} projects, ${tasks.length} tasks, ${objectives.length} objectives, ${matrixCells.length} matrix cells.`);
+  console.log(`[Seed] Done — ${members.length} members, ${projects.length} projects, ${tasks.length} tasks, ${objectives.length} objectives, ${matrixCells.length} matrix cells, ${users.length} users.`);
+  console.log('[Seed] Demo credentials:');
+  console.log('  manager / manager123  (role: manager)');
+  console.log('  alice.dupont / alice123  (role: user → Alice Dupont)');
+  console.log('  bob.martin / bob123  (role: user → Bob Martin)');
+  console.log('  claire.bernard / claire123  (role: user → Claire Bernard)');
+  console.log('  david.leroy / david123  (role: user → David Leroy)');
   await db.quit();
 }
 

@@ -7,15 +7,20 @@ import type {
   SkillCell,
   Objective,
   SkillTreeDoc,
+  AuthUser,
 } from '../types';
 
 const BASE = '/api';
 
+function getToken(): string | null {
+  return localStorage.getItem('teamtree_token');
+}
+
 async function req<T>(path: string, init?: RequestInit): Promise<T> {
-  const res = await fetch(`${BASE}${path}`, {
-    headers: { 'Content-Type': 'application/json' },
-    ...init,
-  });
+  const token = getToken();
+  const headers: Record<string, string> = { 'Content-Type': 'application/json' };
+  if (token) headers['Authorization'] = `Bearer ${token}`;
+  const res = await fetch(`${BASE}${path}`, { headers, ...init });
   if (!res.ok) throw new Error(`API ${res.status}: ${res.statusText}`);
   if (res.status === 204) return undefined as unknown as T;
   return res.json() as Promise<T>;
@@ -101,4 +106,18 @@ export const skillMatrixApi = {
 
 export const skillTreeApi = {
   get: () => req<SkillTreeDoc>('/skill-tree'),
+};
+
+// ── Auth ──────────────────────────────────────────────────────────────────────
+
+export const authApi = {
+  login: (username: string, password: string) =>
+    req<{ token: string; user: AuthUser }>('/auth/login', {
+      method: 'POST',
+      body: JSON.stringify({ username, password }),
+    }),
+  logout: () =>
+    req<{ ok: boolean }>('/auth/logout', { method: 'POST' }),
+  me: () =>
+    req<{ user: AuthUser }>('/auth/me'),
 };
