@@ -13,13 +13,15 @@ server/
 │   ├── db.ts             # ioredis client + hash key constants
 │   ├── types.ts          # Shared TypeScript interfaces
 │   ├── seed.ts           # One-shot seed script (populates Valkey from mock data)
+│   ├── updateSkillTree.ts  # Migration script – loads a skill tree JSON into Valkey
 │   └── routes/
 │       ├── teamMembers.ts  # GET / POST / PUT /:id / DELETE /:id
 │       ├── projects.ts
 │       ├── tasks.ts
 │       ├── objectives.ts
 │       ├── matrix.ts       # Task maturity matrix  – PUT/DELETE /:teamMemberId/:taskId
-│       └── skillMatrix.ts  # Skill maturity matrix – PUT/DELETE /:teamMemberId/:skillId
+│       ├── skillMatrix.ts  # Skill maturity matrix – PUT/DELETE /:teamMemberId/:skillId
+│       └── skillTree.ts    # Skill tree definition  – GET /
 ├── package.json
 └── tsconfig.json
 ```
@@ -46,6 +48,7 @@ Each collection is stored as a **Redis Hash** in Valkey:
 | `teamtree:objectives`     | `<id>`                     | JSON-serialised object    |
 | `teamtree:matrix`         | `<teamMemberId>:<taskId>`  | MaturityLevel (`M1`–`M4`) |
 | `teamtree:skill-matrix`   | `<teamMemberId>:<skillId>` | MaturityLevel (`M1`–`M4`) |
+| `teamtree:skill-tree`     | *(string key)*             | JSON-serialised `SkillTreeDoc` (treeId, version, root) |
 
 IDs for new records are generated server-side with `crypto.randomUUID()`.
 
@@ -93,7 +96,41 @@ To wipe existing data and re-seed from scratch:
 FLUSH_BEFORE_SEED=1 yarn seed
 ```
 
-### 3. Start the dev server
+### 3. Load (or update) the skill tree
+
+The Skills tab reads its tree structure from Valkey. The tree is defined in a JSON file at the **project root** (`research_engineer.json`) and must be loaded into the database at least once before the Skills page will work.
+
+Run the migration script from the `server/` directory:
+
+```bash
+yarn update-skill-tree
+```
+
+The script will:
+1. Read the JSON file from `../research_engineer.json` (relative to `server/`)
+2. Convert the flat `nodes` array into a nested tree
+3. Write the result to Valkey under the key `teamtree:skill-tree`
+
+The script is **idempotent** — if the same `treeId` and `version` are already stored it will skip the write. To force an overwrite (e.g. after editing node labels or positions):
+
+```bash
+FORCE=1 yarn update-skill-tree
+```
+
+#### Updating the tree later
+
+To swap in a different skill tree (or update the existing one):
+
+1. Replace or edit `research_engineer.json` at the project root, then bump the `version` field (e.g. `1` → `2`).
+2. Re-run the script — the version bump is enough to trigger an update without `FORCE=1`:
+
+```bash
+yarn update-skill-tree
+```
+
+3. The running server picks up the new tree immediately on the next request (no restart needed).
+
+### 4. Start the dev server
 
 ```bash
 yarn dev
@@ -106,7 +143,7 @@ The server starts with `tsx watch`, so it hot-reloads on any file change. You sh
 [TeamTree Server] Listening on http://localhost:3001
 ```
 
-### 4. Verify
+### 5. Verify
 
 ```bash
 curl http://localhost:3001/api/health
@@ -124,6 +161,7 @@ curl http://localhost:3001/api/team-members
 | `VALKEY_URL`      | `redis://127.0.0.1:6379`     | Connection URL for Valkey / Redis     |
 | `PORT`            | `3001`                       | Port the HTTP server listens on       |
 | `FLUSH_BEFORE_SEED` | *(unset)*                  | Set to `1` to force a full re-seed   |
+| `FORCE`           | *(unset)*                    | Set to `1` to overwrite an existing skill tree even if `treeId` + `version` match |
 
 ---
 
@@ -185,9 +223,31 @@ All routes are prefixed with `/api`.
 
 Valid `maturityLevel` values: `M1` · `M2` · `M3` · `M4`
 
----
+### Skill tree — `/api/skill-tree`
 
-## Running the full stack
+| Method | Path | Body | Description |
+|--------|------|------|-------------|
+| GET    | `/`  | —    | Returns the full `SkillTreeDoc` (`{ treeId, version, root }`) stored by `update-skill-tree`. Returns `404` if the script has not been run yet. |
+
+The `root` field is a nested `SkillTreeNode` tree:
+
+```jsonc
+{
+  "treeId": "dc9583d6-...",
+  "version": 1,
+  "root": {
+    "id": "root",
+    "label": "Research Engineer",
+    "children": [
+      {
+        "id": "development",
+        "label": "Development",
+        "children": [ ... ]
+      }
+    ]
+  }
+}
+```
 
 From the **monorepo root**, open two terminals:
 
