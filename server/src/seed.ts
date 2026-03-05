@@ -13,9 +13,9 @@ const members: TeamMember[] = [
 ];
 
 const projects: Project[] = [
-  { id: '1', name: 'TeamTree',              techStack: ['React', 'TypeScript', 'MUI', 'DSFR'], startDate: '2026-01-15', endDate: '2026-04-30' },
-  { id: '2', name: 'E-Commerce Platform',   techStack: ['React', 'Node.js', 'MongoDB'],         startDate: '2026-02-01', endDate: '2026-06-30' },
-  { id: '3', name: 'Documentation Portal',  techStack: ['Next.js', 'MDX', 'Tailwind'],           startDate: '2026-03-01', endDate: '2026-05-15' },
+  { id: '1', name: 'TeamTree',             description: 'Internal team planning and skill management tool.', techStack: ['React', 'TypeScript', 'MUI', 'DSFR'], startDate: '2026-01-15', endDate: '2026-04-30' },
+  { id: '2', name: 'E-Commerce Platform',  description: 'Full-stack e-commerce platform with product catalog and checkout.', techStack: ['React', 'Node.js', 'MongoDB'], startDate: '2026-02-01', endDate: '2026-06-30' },
+  { id: '3', name: 'Documentation Portal', description: 'Developer documentation portal with MDX-powered content.', techStack: ['Next.js', 'MDX', 'Tailwind'], startDate: '2026-03-01', endDate: '2026-05-15' },
 ];
 
 const tasks: Task[] = [

@@ -8,6 +8,7 @@ export interface TeamMember {
 export interface Project {
   id: string;
   name: string;
+  description: string;
   techStack: string[];
   startDate: string;
   endDate: string;
