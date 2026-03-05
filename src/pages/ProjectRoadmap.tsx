@@ -21,8 +21,9 @@ const WP_COLORS = [
   '#38bdf8', '#a78bfa', '#fb923c', '#4ade80', '#f472b6', '#facc15', '#34d399',
 ];
 
-// ── Module-level DSFR modal ───────────────────────────────────────────────────
-const wpModal = createModal({ isOpenedByDefault: false, id: 'roadmap-wp-form' });
+// ── Module-level DSFR modals ─────────────────────────────────────────────────
+const wpModal     = createModal({ isOpenedByDefault: false, id: 'roadmap-wp-form' });
+const deleteModal = createModal({ isOpenedByDefault: false, id: 'roadmap-wp-delete' });
 
 // ── Date helpers ──────────────────────────────────────────────────────────────
 /** Parse a YYYY-MM-DD string as a local date (avoids UTC timezone shifts). */
@@ -75,6 +76,7 @@ export default function ProjectRoadmap({ project, onUpdate, isManager }: Project
   const [formColor,        setFormColor]        = useState(WP_COLORS[0]);
   const [formSubmitted,    setFormSubmitted]    = useState(false);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+  const [deletingWpId,     setDeletingWpId]     = useState<string | null>(null);
 
   const dragRef   = useRef<DragState | null>(null);
   const wpsRef    = useRef(wps);
@@ -250,6 +252,20 @@ export default function ProjectRoadmap({ project, onUpdate, isManager }: Project
     await persist(newWps);
   }, [editingWp, wps, persist]);
 
+  const handleInlineDelete = useCallback((id: string) => {
+    setDeletingWpId(id);
+    deleteModal.open();
+  }, []);
+
+  const handleConfirmDelete = useCallback(async () => {
+    if (!deletingWpId) return;
+    const newWps = wps.filter(w => w.id !== deletingWpId);
+    setDeletingWpId(null);
+    setWps(newWps);
+    deleteModal.close();
+    await persist(newWps);
+  }, [deletingWpId, wps, persist]);
+
   // Compute DSFR modal buttons based on current UI state
   type BtnArr = [ModalProps.ActionAreaButtonProps, ...ModalProps.ActionAreaButtonProps[]];
   const modalButtons: BtnArr = showDeleteConfirm
@@ -412,15 +428,27 @@ export default function ProjectRoadmap({ project, onUpdate, isManager }: Project
                     {wp.title}
                   </Typography>
                   {isManager && (
-                    <Box sx={{ flexShrink: 0, opacity: 0.45, '&:hover': { opacity: 1 }, transition: 'opacity 0.15s' }}>
-                      <Button
-                        title={t('roadmap.editWorkPackage')}
-                        iconId="fr-icon-edit-line"
-                        priority="tertiary no outline"
-                        size="small"
-                        onClick={() => openEdit(wp)}
-                        nativeButtonProps={{ style: { padding: '0.1rem' } }}
-                      />
+                    <Box sx={{ display: 'flex', flexShrink: 0 }}>
+                      <Box sx={{ opacity: 0.45, '&:hover': { opacity: 1 }, transition: 'opacity 0.15s' }}>
+                        <Button
+                          title={t('roadmap.editWorkPackage')}
+                          iconId="fr-icon-edit-line"
+                          priority="tertiary no outline"
+                          size="small"
+                          onClick={() => openEdit(wp)}
+                          nativeButtonProps={{ style: { padding: '0.1rem' } }}
+                        />
+                      </Box>
+                      <Box sx={{ opacity: 0.6, '&:hover': { opacity: 1 }, transition: 'opacity 0.15s' }}>
+                        <Button
+                          title={t('roadmap.delete')}
+                          iconId="fr-icon-delete-bin-line"
+                          priority="tertiary no outline"
+                          size="small"
+                          onClick={() => handleInlineDelete(wp.id)}
+                          nativeButtonProps={{ style: { padding: '0.1rem', color: 'var(--text-default-error)' } }}
+                        />
+                      </Box>
                     </Box>
                   )}
                 </Box>
@@ -587,6 +615,28 @@ export default function ProjectRoadmap({ project, onUpdate, isManager }: Project
           </Box>
         )}
       </wpModal.Component>
+
+      {/* ── DSFR modal: inline row delete confirmation ── */}
+      <deleteModal.Component
+        title={t('roadmap.confirmDeleteTitle')}
+        buttons={[
+          {
+            children: t('roadmap.cancel'),
+            priority: 'secondary',
+            onClick: () => { setDeletingWpId(null); deleteModal.close(); },
+            doClosesModal: false,
+          },
+          {
+            children: t('roadmap.delete'),
+            priority: 'primary',
+            onClick: handleConfirmDelete,
+            doClosesModal: false,
+            nativeButtonProps: { style: { backgroundColor: 'var(--background-action-high-error)', borderColor: 'var(--background-action-high-error)' } },
+          },
+        ]}
+      >
+        <Typography>{t('roadmap.confirmDelete')}</Typography>
+      </deleteModal.Component>
     </Box>
   );
 }
