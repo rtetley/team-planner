@@ -76,8 +76,9 @@ export default function ProjectRoadmap({ project, onUpdate, isManager }: Project
   const [formSubmitted,    setFormSubmitted]    = useState(false);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
 
-  const dragRef = useRef<DragState | null>(null);
-  const wpsRef  = useRef(wps);
+  const dragRef   = useRef<DragState | null>(null);
+  const wpsRef    = useRef(wps);
+  const scrollRef = useRef<HTMLDivElement>(null);
   useEffect(() => { wpsRef.current = wps; }, [wps]);
 
   // Sync from project prop (only when not dragging)
@@ -136,11 +137,20 @@ export default function ProjectRoadmap({ project, onUpdate, isManager }: Project
     return { iso, dayNum: d.getDate(), isWeekend: d.getDay() === 0 || d.getDay() === 6 };
   }), [rangeStart, totalDays]);
 
-  // ── Today line x-position (null if outside range) ───────────────────────
-  const todayX = useMemo(() => {
+  // ── Today line x within the timeline area (no LEFT_W offset) ─────────────
+  const todayColX = useMemo(() => {
     const diff = daysBetween(rangeStart, todayIso);
-    return diff >= 0 && diff < totalDays ? LEFT_W + diff * DAY_W + DAY_W / 2 : null;
+    return diff >= 0 && diff < totalDays ? diff * DAY_W + DAY_W / 2 : null;
   }, [rangeStart, todayIso, totalDays]);
+
+  // ── Scroll to today on mount ──────────────────────────────────────────────
+  useEffect(() => {
+    if (!scrollRef.current || todayColX === null) return;
+    // Centre today in the visible area (subtract half the container width)
+    const el = scrollRef.current;
+    el.scrollLeft = LEFT_W + todayColX - el.clientWidth / 2;
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []); // intentionally runs once on mount
 
   // ── Bar geometry ─────────────────────────────────────────────────────────
   const barGeometry = useCallback((wp: WorkPackage) => {
@@ -296,7 +306,9 @@ export default function ProjectRoadmap({ project, onUpdate, isManager }: Project
 
   // ── Shared style helpers ─────────────────────────────────────────────────
   const rowBorder = { borderBottom: '1px solid', borderColor: 'divider' } as const;
-  const stickyCell = (bg = BG, zIndex = 2) => ({
+  // zIndex must exceed bar handles (3) so the sticky column always paints on top
+  // when timeline content scrolls under it.
+  const stickyCell = (bg = BG, zIndex = 10) => ({
     width: LEFT_W, flexShrink: 0, position: 'sticky' as const, left: 0,
     bgcolor: bg, zIndex, borderRight: '1px solid', borderColor: 'divider',
   });
@@ -312,61 +324,63 @@ export default function ProjectRoadmap({ project, onUpdate, isManager }: Project
         </Typography>
       )}
 
-      <Box sx={{
+      <Box ref={scrollRef} sx={{
         overflowX: 'auto', border: '1px solid', borderColor: 'divider',
-        borderRadius: 1.5, bgcolor: BG, position: 'relative',
+        borderRadius: 1.5, bgcolor: BG,
       }}>
-        {/* ── Today vertical line (spans the full table height) ── */}
-        {todayX !== null && (
-          <Box sx={{
-            position: 'absolute', left: todayX, top: 0, bottom: 0, width: 2,
-            bgcolor: TODAY_COLOR, opacity: 0.45, zIndex: 5, pointerEvents: 'none',
-          }} />
-        )}
-
         <Box sx={{ minWidth: LEFT_W + TLINE_W }}>
 
           {/* ── Month header ── */}
           <Box sx={{ display: 'flex', ...rowBorder, bgcolor: HDR_BG }}>
-            <Box sx={{ ...stickyCell(HDR_BG, 4), height: HDR_H, display: 'flex', alignItems: 'center', px: 1.5 }}>
+            <Box sx={{ ...stickyCell(HDR_BG, 12), height: HDR_H, display: 'flex', alignItems: 'center', px: 1.5 }}>
               <Typography variant="caption" fontWeight={700} color="text.disabled"
                 sx={{ letterSpacing: 0.5, textTransform: 'uppercase', fontSize: '0.62rem' }}>
                 {t('roadmap.workPackageTitle')}
               </Typography>
             </Box>
-            {monthGroups.map((mg, i) => (
-              <Box key={i} sx={{
-                width: mg.days * DAY_W, flexShrink: 0, height: HDR_H,
-                display: 'flex', alignItems: 'center', justifyContent: 'center',
-                borderRight: '1px solid', borderColor: 'divider', overflow: 'hidden',
-              }}>
-                <Typography variant="caption" fontWeight={700}
-                  sx={{ fontSize: '0.68rem', color: 'text.secondary', whiteSpace: 'nowrap', px: 0.5 }}>
-                  {mg.label}
-                </Typography>
-              </Box>
-            ))}
+            <Box sx={{ width: TLINE_W, flexShrink: 0, position: 'relative', display: 'flex', height: HDR_H, overflow: 'hidden' }}>
+              {todayColX !== null && (
+                <Box sx={{ position: 'absolute', left: todayColX, top: 0, height: '100%', width: 2, bgcolor: TODAY_COLOR, opacity: 0.35, zIndex: 1, pointerEvents: 'none' }} />
+              )}
+              {monthGroups.map((mg, i) => (
+                <Box key={i} sx={{
+                  width: mg.days * DAY_W, flexShrink: 0, height: HDR_H,
+                  display: 'flex', alignItems: 'center', justifyContent: 'center',
+                  borderRight: '1px solid', borderColor: 'divider', overflow: 'hidden',
+                }}>
+                  <Typography variant="caption" fontWeight={700}
+                    sx={{ fontSize: '0.68rem', color: 'text.secondary', whiteSpace: 'nowrap', px: 0.5 }}>
+                    {mg.label}
+                  </Typography>
+                </Box>
+              ))}
+            </Box>
           </Box>
 
           {/* ── Day header ── */}
           <Box sx={{ display: 'flex', ...rowBorder, bgcolor: HDR_BG }}>
-            <Box sx={{ ...stickyCell(HDR_BG, 4), height: HDR_H }} />
-            {dayArray.map((day, i) => (
-              <Box key={i} sx={{
-                width: DAY_W, flexShrink: 0, height: HDR_H,
-                display: 'flex', alignItems: 'center', justifyContent: 'center',
-                bgcolor: day.isWeekend ? 'rgba(255,255,255,0.02)' : 'transparent',
-                borderRight: day.dayNum === 1 ? '1px solid' : 'none', borderColor: 'divider',
-              }}>
-                <Typography sx={{
-                  fontSize: '0.58rem', lineHeight: 1,
-                  color: todayIso === day.iso ? TODAY_COLOR : day.isWeekend ? 'text.disabled' : 'text.secondary',
-                  fontWeight: todayIso === day.iso ? 800 : 400,
+            <Box sx={{ ...stickyCell(HDR_BG, 12), height: HDR_H }} />
+            <Box sx={{ width: TLINE_W, flexShrink: 0, position: 'relative', display: 'flex', height: HDR_H, overflow: 'hidden' }}>
+              {todayColX !== null && (
+                <Box sx={{ position: 'absolute', left: todayColX, top: 0, height: '100%', width: 2, bgcolor: TODAY_COLOR, opacity: 0.35, zIndex: 1, pointerEvents: 'none' }} />
+              )}
+              {dayArray.map((day, i) => (
+                <Box key={i} sx={{
+                  width: DAY_W, flexShrink: 0, height: HDR_H,
+                  display: 'flex', alignItems: 'center', justifyContent: 'center',
+                  bgcolor: day.isWeekend ? 'rgba(255,255,255,0.02)' : 'transparent',
+                  borderRight: day.dayNum === 1 ? '1px solid' : 'none', borderColor: 'divider',
                 }}>
-                  {day.dayNum}
-                </Typography>
-              </Box>
-            ))}
+                  <Typography sx={{
+                    fontSize: '0.58rem', lineHeight: 1,
+                    color: todayIso === day.iso ? TODAY_COLOR : day.isWeekend ? 'text.disabled' : 'text.secondary',
+                    fontWeight: todayIso === day.iso ? 800 : 400,
+                  }}>
+                    {day.dayNum}
+                  </Typography>
+                </Box>
+              ))}
+            </Box>
           </Box>
 
           {/* ── Empty state ── */}
@@ -377,7 +391,11 @@ export default function ProjectRoadmap({ project, onUpdate, isManager }: Project
                   {t('roadmap.empty')}
                 </Typography>
               </Box>
-              <Box sx={{ width: TLINE_W, height: ROW_H }} />
+              <Box sx={{ width: TLINE_W, height: ROW_H, position: 'relative', flexShrink: 0, overflow: 'hidden' }}>
+                {todayColX !== null && (
+                  <Box sx={{ position: 'absolute', left: todayColX, top: 0, height: '100%', width: 2, bgcolor: TODAY_COLOR, opacity: 0.45, zIndex: 1, pointerEvents: 'none' }} />
+                )}
+              </Box>
             </Box>
           )}
 
@@ -408,7 +426,10 @@ export default function ProjectRoadmap({ project, onUpdate, isManager }: Project
                 </Box>
 
                 {/* Timeline cell */}
-                <Box sx={{ width: TLINE_W, height: ROW_H, position: 'relative', flexShrink: 0 }}>
+                <Box sx={{ width: TLINE_W, height: ROW_H, position: 'relative', flexShrink: 0, overflow: 'hidden' }}>
+                  {todayColX !== null && (
+                    <Box sx={{ position: 'absolute', left: todayColX, top: 0, height: '100%', width: 2, bgcolor: TODAY_COLOR, opacity: 0.45, zIndex: 1, pointerEvents: 'none' }} />
+                  )}
                   {geo && (
                     <Box sx={{
                       position: 'absolute', left: geo.left, width: geo.width,
