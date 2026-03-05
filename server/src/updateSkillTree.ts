@@ -21,7 +21,7 @@ interface RawNode {
   id: string;
   label: string;
   parentId: string | null;
-  colorOverride?: string;
+  color?: string;
   position?: { x: number; y: number };
 }
 
@@ -36,7 +36,7 @@ interface RawTree {
 export interface SkillTreeNode {
   id: string;
   label: string;
-  colorOverride?: string;
+  color?: string;
   position?: { x: number; y: number };
   children?: SkillTreeNode[];
 }
@@ -57,8 +57,8 @@ function buildTree(nodes: RawNode[]): SkillTreeNode {
     map.set(n.id, {
       id: n.id,
       label: n.label,
-      ...(n.colorOverride ? { colorOverride: n.colorOverride } : {}),
-      ...(n.position      ? { position: n.position }           : {}),
+      ...(n.color    ? { color: n.color }       : {}),
+      ...(n.position ? { position: n.position } : {}),
       _children: [],
     });
   }

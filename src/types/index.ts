@@ -58,7 +58,7 @@ export interface SkillTreeNode {
   id: string;
   label: string;
   description?: string;
-  colorOverride?: string;
+  color?: string;
   position?: { x: number; y: number };
   children?: SkillTreeNode[];
 }

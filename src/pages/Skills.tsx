@@ -73,6 +73,7 @@ interface NodeDatum {
   id: string; label: string;
   x: number; y: number;
   depth: number; colorKey: PKey;
+  color?: string;
 }
 interface EdgeDatum {
   x1: number; y1: number; x2: number; y2: number;
@@ -111,6 +112,7 @@ function flattenTree(root: SkillTreeNode): { simNodes: SimNode[]; simEdges: SimE
       x: r * Math.cos(angle) + jitter,
       y: r * Math.sin(angle) + jitter,
       vx: 0, vy: 0, depth, colorKey: ck, pinned: depth === 0,
+      color: node.color,
     });
     if (parentId !== null)
       simEdges.push({ s: parentId, t: node.id, srcDepth: depth - 1, colorKey: ck });
@@ -214,7 +216,10 @@ interface SkillNodeElProps {
 
 function SkillNodeEl({ node, isFocused, isChild, onClick, label }: SkillNodeElProps) {
   const [hovered, setHovered] = useState(false);
-  const { stroke, fill, text } = PALETTE[node.colorKey];
+  const base = PALETTE[node.colorKey];
+  const stroke = node.color ?? base.stroke;
+  const fill   = base.fill;
+  const text   = node.color ?? base.text;
   const r  = BASE_R[node.depth] ?? 22;
   const lines = wrapText(label);
   const fs = [12, 11, 9.5, 8.5][node.depth] ?? 8.5;
@@ -335,7 +340,7 @@ export default function Skills() {
     function snapshot(sn: SimNode[], se: SimEdge[]): ConvergedLayout {
       const m = new Map(sn.map(n => [n.id, n]));
       const vs = getViewState.current;
-      const nodes = sn.map(({ id, label, x, y, depth, colorKey }) => ({ id, label, x, y, depth, colorKey }));
+      const nodes = sn.map(({ id, label, x, y, depth, colorKey, color }) => ({ id, label, x, y, depth, colorKey, color }));
       const edges = se.map(e => {
         const src = m.get(e.s)!, tgt = m.get(e.t)!;
         return { x1: src.x, y1: src.y, x2: tgt.x, y2: tgt.y,

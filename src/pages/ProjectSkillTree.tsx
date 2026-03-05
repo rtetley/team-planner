@@ -38,7 +38,7 @@ const ZOOM_MIN = 0.18; const ZOOM_MAX = 1.0; const ZOOM_FACTOR = 1.12;
 function springLen(srcDepth: number) { return srcDepth === 0 ? 165 : srcDepth === 1 ? 115 : 78; }
 
 // ── Types ─────────────────────────────────────────────────────────────────────
-interface NodeDatum { id: string; label: string; description?: string; x: number; y: number; depth: number; colorKey: PKey; }
+interface NodeDatum { id: string; label: string; description?: string; x: number; y: number; depth: number; colorKey: PKey; color?: string; }
 interface EdgeDatum { x1: number; y1: number; x2: number; y2: number; colorKey: PKey; parentId: string; childId: string; }
 interface SimNode extends NodeDatum { vx: number; vy: number; pinned: boolean; }
 interface SimEdge { s: string; t: string; srcDepth: number; colorKey: PKey; }
@@ -52,7 +52,7 @@ function flattenTree(root: SkillTreeNode): { simNodes: SimNode[]; simEdges: SimE
     const ck: PKey = depth === 0 ? 'root' : depth === 1 ? ((CAT_KEYS[node.id] ?? 'default') as PKey) : colorKey;
     const r = INIT_R[Math.min(depth, INIT_R.length - 1)];
     const jitter = depth > 0 ? (Math.random() - 0.5) * 14 : 0;
-    simNodes.push({ id: node.id, label: node.label, description: node.description, x: r * Math.cos(angle) + jitter, y: r * Math.sin(angle) + jitter, vx: 0, vy: 0, depth, colorKey: ck, pinned: depth === 0 });
+    simNodes.push({ id: node.id, label: node.label, description: node.description, x: r * Math.cos(angle) + jitter, y: r * Math.sin(angle) + jitter, vx: 0, vy: 0, depth, colorKey: ck, pinned: depth === 0, color: node.color });
     if (parentId !== null) simEdges.push({ s: parentId, t: node.id, srcDepth: depth - 1, colorKey: ck });
     const children = node.children ?? [];
     if (!children.length) return;
@@ -137,7 +137,10 @@ interface ProjectSkillNodeElProps {
 
 function ProjectSkillNodeEl({ node, isFocused, isChild, isRequired, isAvailable, isLocked, onClick }: ProjectSkillNodeElProps) {
   const [hovered, setHovered] = useState(false);
-  const { stroke, fill, text } = PALETTE[node.colorKey];
+  const base = PALETTE[node.colorKey];
+  const stroke = node.color ?? base.stroke;
+  const fill   = base.fill;
+  const text   = node.color ?? base.text;
   const r = BASE_R[node.depth] ?? 22;
   const lines = wrapText(node.label);
   const fs = [12, 11, 9.5, 8.5][node.depth] ?? 8.5;
@@ -248,7 +251,7 @@ export default function ProjectSkillTree({ project, onUpdate, isManager }: Proje
     function snapshot(sn: SimNode[], se: SimEdge[]): ConvergedLayout {
       const m = new Map(sn.map(nd => [nd.id, nd]));
       const vs = getViewState.current;
-      const layoutNodes = sn.map(({ id, label, description, x, y, depth, colorKey }) => ({ id, label, description, x, y, depth, colorKey }));
+      const layoutNodes = sn.map(({ id, label, description, x, y, depth, colorKey, color }) => ({ id, label, description, x, y, depth, colorKey, color }));
       const layoutEdges = se.map(ed => {
         const src = m.get(ed.s)!, tgt = m.get(ed.t)!;
         return { x1: src.x, y1: src.y, x2: tgt.x, y2: tgt.y, colorKey: ed.colorKey, parentId: ed.s, childId: ed.t };
