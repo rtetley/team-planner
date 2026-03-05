@@ -1,565 +1,1857 @@
 {
-  "treeId": "dc9583d6-5a7c-400b-a9aa-4ad674a84722",
+  "treeId": "b7e12f0a-3c41-4d8e-a9b5-6f2831c0d795",
   "version": 1,
   "nodes": [
     {
-      "id": "accessibility",
-      "label": "Accessibility",
-      "parentId": "frontend",
+      "id": "agile",
+      "label": "Agile",
+      "parentId": "projectManagement",
+      "labels": {
+        "en": "Agile",
+        "fr": "Agile"
+      },
+      "description": "Applying agile methodologies such as Scrum or Kanban to manage iterative research and software development cycles, enabling rapid feedback loops and incremental delivery.",
+      "descriptions": {
+        "en": "Applying agile methodologies such as Scrum or Kanban to manage iterative research and software development cycles, enabling rapid feedback loops and incremental delivery.",
+        "fr": "Application des méthodologies agiles telles que Scrum ou Kanban pour gérer les cycles itératifs de recherche et de développement logiciel, permettant des boucles de rétroaction rapides et une livraison incrémentale."
+      },
       "position": {
-        "x": 508,
-        "y": -161
+        "x": 504,
+        "y": -387
       }
     },
     {
-      "id": "agile",
-      "label": "Agile",
-      "parentId": "projectMgmt",
+      "id": "algorithmicsCryptology",
+      "label": "Algorithmics & Cryptology",
+      "parentId": "algorithmicsSoftware",
+      "labels": {
+        "en": "Algorithmics & Cryptology",
+        "fr": "Algorithmique & Cryptologie"
+      },
+      "description": "Design and analysis of efficient algorithms, computer algebra systems, and cryptographic protocols — including symbolic computation, algebraic geometry algorithms (AROMATH), and provably secure constructions.",
+      "descriptions": {
+        "en": "Design and analysis of efficient algorithms, computer algebra systems, and cryptographic protocols — including symbolic computation, algebraic geometry algorithms (AROMATH), and provably secure constructions.",
+        "fr": "Conception et analyse d'algorithmes efficaces, de systèmes de calcul formel et de protocoles cryptographiques — incluant le calcul symbolique, les algorithmes de géométrie algébrique (AROMATH) et les constructions prouvablement sûres."
+      },
       "position": {
-        "x": -446,
-        "y": -357
+        "x": -435,
+        "y": -493
+      }
+    },
+    {
+      "id": "algorithmicsSoftware",
+      "label": "Algorithmics & Software",
+      "parentId": "research",
+      "labels": {
+        "en": "Algorithmics & Software",
+        "fr": "Algorithmique & Logiciel"
+      },
+      "description": "Research in algorithmics, programming languages, software architectures, proofs, verification, data and knowledge representation — covering teams such as AROMATH, BOREAL, DATASHAPE, KAIROS, MAASAI, MARIANNE, and OLAS at Inria UCA.",
+      "descriptions": {
+        "en": "Research in algorithmics, programming languages, software architectures, proofs, verification, data and knowledge representation — covering teams such as AROMATH, BOREAL, DATASHAPE, KAIROS, MAASAI, MARIANNE, and OLAS at Inria UCA.",
+        "fr": "Recherche en algorithmique, langages de programmation, architectures logicielles, preuves, vérification, représentation des données et des connaissances — couvrant les équipes AROMATH, BOREAL, DATASHAPE, KAIROS, MAASAI, MARIANNE et OLAS au centre Inria UCA."
+      },
+      "position": {
+        "x": -394,
+        "y": -339
+      }
+    },
+    {
+      "id": "apiDocs",
+      "label": "API Docs",
+      "parentId": "softwareDocumentation",
+      "labels": {
+        "en": "API Docs",
+        "fr": "Docs API"
+      },
+      "description": "Generating and maintaining structured API references (e.g., with Sphinx, Doxygen, or MkDocs) directly from source code, inline docstrings, and type annotations.",
+      "descriptions": {
+        "en": "Generating and maintaining structured API references (e.g., with Sphinx, Doxygen, or MkDocs) directly from source code, inline docstrings, and type annotations.",
+        "fr": "Génération et maintenance de références API structurées (par exemple avec Sphinx, Doxygen ou MkDocs) directement depuis le code source, les docstrings et les annotations de types."
+      },
+      "position": {
+        "x": 144,
+        "y": 51
       }
     },
     {
       "id": "apis",
       "label": "APIs",
       "parentId": "architecture",
+      "labels": {
+        "en": "APIs",
+        "fr": "APIs"
+      },
+      "description": "Designing and consuming clean, versioned, and well-documented application programming interfaces — REST, GraphQL, or library APIs — to expose research software capabilities to other tools and users.",
+      "descriptions": {
+        "en": "Designing and consuming clean, versioned, and well-documented application programming interfaces — REST, GraphQL, or library APIs — to expose research software capabilities to other tools and users.",
+        "fr": "Conception et consommation d'interfaces de programmation d'applications propres, versionnées et bien documentées — REST, GraphQL ou APIs de bibliothèque — pour exposer les capacités des logiciels de recherche."
+      },
       "position": {
-        "x": 694,
-        "y": 72
+        "x": 26,
+        "y": 648
+      }
+    },
+    {
+      "id": "appliedMathsComputation",
+      "label": "Applied Maths & Simulation",
+      "parentId": "research",
+      "labels": {
+        "en": "Applied Maths & Simulation",
+        "fr": "Maths appliquées & Simulation"
+      },
+      "description": "Research in applied mathematics, numerical analysis, and scientific computing — including PDE solvers, optimal control, stochastic modelling, and functional analysis for engineering sciences, as pursued by teams ACUMES, ANGUS, ATLANTIS, CALISTO, CASTOR, and FACTAS at Inria UCA.",
+      "descriptions": {
+        "en": "Research in applied mathematics, numerical analysis, and scientific computing — including PDE solvers, optimal control, stochastic modelling, and functional analysis for engineering sciences, as pursued by teams ACUMES, ANGUS, ATLANTIS, CALISTO, CASTOR, and FACTAS at Inria UCA.",
+        "fr": "Recherche en mathématiques appliquées, analyse numérique et calcul scientifique — incluant les solveurs d'EDP, le contrôle optimal, la modélisation stochastique et l'analyse fonctionnelle pour les sciences de l'ingénieur, telle que menée par les équipes ACUMES, ANGUS, ATLANTIS, CALISTO, CASTOR et FACTAS au centre Inria UCA."
+      },
+      "position": {
+        "x": -170,
+        "y": -432
       }
     },
     {
       "id": "architecture",
       "label": "Architecture",
-      "parentId": "development",
+      "parentId": "softwareEngineering",
+      "labels": {
+        "en": "Architecture",
+        "fr": "Architecture"
+      },
+      "description": "Design principles, structural patterns, and quality attributes that guide the organisation of research software for long-term maintainability, extensibility, and correctness.",
+      "descriptions": {
+        "en": "Design principles, structural patterns, and quality attributes that guide the organisation of research software for long-term maintainability, extensibility, and correctness.",
+        "fr": "Principes de conception, patrons structurels et attributs de qualité qui guident l'organisation des logiciels de recherche pour leur maintenabilité, extensibilité et correction à long terme."
+      },
       "position": {
-        "x": 503,
-        "y": 106
+        "x": -18,
+        "y": 517
       }
     },
     {
-      "id": "benchmarking",
-      "label": "Benchmarking",
-      "parentId": "research",
+      "id": "bash",
+      "label": "Bash / Shell",
+      "parentId": "langScripting",
+      "labels": {
+        "en": "Bash / Shell",
+        "fr": "Bash / Shell"
+      },
+      "description": "Shell scripting (Bash, Zsh) for task automation, pipeline orchestration, build systems, and day-to-day work in Unix/Linux HPC and cloud environments.",
+      "descriptions": {
+        "en": "Shell scripting (Bash, Zsh) for task automation, pipeline orchestration, build systems, and day-to-day work in Unix/Linux HPC and cloud environments.",
+        "fr": "Scripts shell (Bash, Zsh) pour l'automatisation de tâches, l'orchestration de pipelines, les systèmes de build et le travail quotidien dans les environnements Unix/Linux HPC et cloud."
+      },
       "position": {
-        "x": -235,
-        "y": 434
+        "x": 457,
+        "y": 244
       }
     },
     {
-      "id": "bestPractices",
-      "label": "Best Practices",
-      "parentId": "benchmarking",
+      "id": "blogging",
+      "label": "Blogging",
+      "parentId": "writing",
+      "labels": {
+        "en": "Blogging",
+        "fr": "Articles de blog"
+      },
+      "description": "Writing accessible blog posts and technical articles for developer communities, fellow researchers, or the general public to build visibility and explain research findings in plain language.",
+      "descriptions": {
+        "en": "Writing accessible blog posts and technical articles for developer communities, fellow researchers, or the general public to build visibility and explain research findings in plain language.",
+        "fr": "Rédaction d'articles de blog accessibles et d'articles techniques pour les communautés de développeurs, les chercheurs ou le grand public afin de donner de la visibilité aux travaux de recherche."
+      },
       "position": {
-        "x": -350,
-        "y": 622
+        "x": -11,
+        "y": -618
+      }
+    },
+    {
+      "id": "c",
+      "label": "C",
+      "parentId": "langNative",
+      "labels": {
+        "en": "C",
+        "fr": "C"
+      },
+      "description": "The C language for portable, efficient system-level and embedded programming — widely used in HPC runtimes, operating system kernels, and as the lingua franca for cross-language interoperability via C-ABI.",
+      "descriptions": {
+        "en": "The C language for portable, efficient system-level and embedded programming — widely used in HPC runtimes, operating system kernels, and as the lingua franca for cross-language interoperability via C-ABI.",
+        "fr": "Le langage C pour la programmation système portable et efficace — largement utilisé dans les runtimes HPC, les noyaux de systèmes d'exploitation et comme lingua franca pour l'interopérabilité inter-langages via la C-ABI."
+      },
+      "position": {
+        "x": 569,
+        "y": 524
       }
     },
     {
       "id": "cicd",
       "label": "CI/CD",
       "parentId": "devops",
+      "labels": {
+        "en": "CI/CD",
+        "fr": "CI/CD"
+      },
+      "description": "Setting up and maintaining continuous integration and continuous deployment pipelines (e.g., GitHub Actions, GitLab CI/CD) to automate building, testing, and releasing research software.",
+      "descriptions": {
+        "en": "Setting up and maintaining continuous integration and continuous deployment pipelines (e.g., GitHub Actions, GitLab CI/CD) to automate building, testing, and releasing research software.",
+        "fr": "Mise en place et maintenance de pipelines d'intégration et de déploiement continus (par exemple GitHub Actions, GitLab CI/CD) pour automatiser la construction, les tests et la publication des logiciels de recherche."
+      },
       "position": {
-        "x": 516,
-        "y": 324
-      }
-    },
-    {
-      "id": "cloud",
-      "label": "Cloud",
-      "parentId": "devops",
-      "position": {
-        "x": 373,
-        "y": 399
+        "x": -241,
+        "y": 702
       }
     },
     {
       "id": "coaching",
       "label": "Coaching",
       "parentId": "leadership",
+      "labels": {
+        "en": "Coaching",
+        "fr": "Coaching"
+      },
+      "description": "Supporting the professional and technical growth of team members, students, and collaborators through regular one-on-ones, constructive feedback, and career guidance.",
+      "descriptions": {
+        "en": "Supporting the professional and technical growth of team members, students, and collaborators through regular one-on-ones, constructive feedback, and career guidance.",
+        "fr": "Soutien à la croissance professionnelle et technique des membres de l'équipe, des étudiants et des collaborateurs par des entretiens réguliers, des retours constructifs et une orientation de carrière."
+      },
       "position": {
-        "x": -286,
-        "y": -606
+        "x": 732,
+        "y": -258
       }
     },
     {
       "id": "collaboration",
       "label": "Collaboration",
       "parentId": "communication",
+      "labels": {
+        "en": "Collaboration",
+        "fr": "Collaboration"
+      },
+      "description": "Working effectively with colleagues, partners, and external stakeholders across research teams and institutions, fostering a constructive team culture built on trust and shared goals.",
+      "descriptions": {
+        "en": "Working effectively with colleagues, partners, and external stakeholders across research teams and institutions, fostering a constructive team culture built on trust and shared goals.",
+        "fr": "Travailler efficacement avec des collègues, des partenaires et des parties prenantes externes au sein d'équipes de recherche et d'institutions, en favorisant une culture d'équipe constructive basée sur la confiance et des objectifs partagés."
+      },
       "position": {
-        "x": -475,
-        "y": -115
+        "x": 302,
+        "y": -410
       }
     },
     {
       "id": "communication",
       "label": "Communication",
       "parentId": "root",
+      "labels": {
+        "en": "Communication",
+        "fr": "Communication"
+      },
+      "description": "Sharing research findings, technical knowledge, and ideas with diverse audiences — from fellow researchers to the general public — through writing, presentations, and collaborative practices.",
+      "descriptions": {
+        "en": "Sharing research findings, technical knowledge, and ideas with diverse audiences — from fellow researchers to the general public — through writing, presentations, and collaborative practices.",
+        "fr": "Partage des résultats de recherche, des connaissances techniques et des idées avec des publics variés — des chercheurs pairs au grand public — par la rédaction, les présentations et les pratiques collaboratives."
+      },
       "position": {
-        "x": -258,
-        "y": 29
+        "x": 109,
+        "y": -236
       }
     },
     {
-      "id": "competitive",
-      "label": "Competitive",
-      "parentId": "benchmarking",
+      "id": "communityBuilding",
+      "label": "Community Building",
+      "parentId": "openSource",
+      "labels": {
+        "en": "Community Building",
+        "fr": "Animation de communauté"
+      },
+      "description": "Fostering and growing an active user and contributor community around research software projects through clear governance, welcoming documentation, and regular engagement.",
+      "descriptions": {
+        "en": "Fostering and growing an active user and contributor community around research software projects through clear governance, welcoming documentation, and regular engagement.",
+        "fr": "Fédérer et développer une communauté active d'utilisateurs et de contributeurs autour des projets de logiciels de recherche grâce à une gouvernance claire, une documentation accueillante et un engagement régulier."
+      },
       "position": {
-        "x": -372,
-        "y": 498
+        "x": -564,
+        "y": 347
       }
     },
     {
-      "id": "conflictResolution",
-      "label": "Conflict Resolution",
+      "id": "communityEngagement",
+      "label": "Community",
       "parentId": "collaboration",
+      "labels": {
+        "en": "Community",
+        "fr": "Communauté"
+      },
+      "description": "Participating in and contributing to research communities, open-source ecosystems, and professional networks such as RSE associations, working groups, and standardisation bodies.",
+      "descriptions": {
+        "en": "Participating in and contributing to research communities, open-source ecosystems, and professional networks such as RSE associations, working groups, and standardisation bodies.",
+        "fr": "Participation aux communautés de recherche, aux écosystèmes open source et aux réseaux professionnels tels que les associations d'ingénieurs logiciels de recherche, les groupes de travail et les organismes de normalisation."
+      },
       "position": {
-        "x": -567,
-        "y": -231
+        "x": 525,
+        "y": -543
       }
     },
     {
-      "id": "custom_1772527451101",
-      "label": "Rust",
-      "parentId": "custom_1772528008545",
-      "colorOverride": "#38bdf8",
+      "id": "computationalBiology",
+      "label": "Computational Biology",
+      "parentId": "healthBioEarth",
+      "labels": {
+        "en": "Computational Biology",
+        "fr": "Biologie computationnelle"
+      },
+      "description": "Algorithmic and structural approaches to biological data — including protein structure analysis and prediction (ABS), modelling and control of biological and ecological systems (MACBES), and computational pharmacology applied to oncology (COMPO) at Inria UCA.",
+      "descriptions": {
+        "en": "Algorithmic and structural approaches to biological data — including protein structure analysis and prediction (ABS), modelling and control of biological and ecological systems (MACBES), and computational pharmacology applied to oncology (COMPO) at Inria UCA.",
+        "fr": "Approches algorithmiques et structurales des données biologiques — incluant l'analyse et la prédiction de structures de protéines (ABS), la modélisation et le contrôle de systèmes biologiques et écologiques (MACBES) et la pharmacologie computationnelle appliquée à l'oncologie (COMPO) au centre Inria UCA."
+      },
       "position": {
-        "x": 748,
-        "y": -364
+        "x": -377,
+        "y": -422
       }
     },
     {
-      "id": "custom_1772527992541",
-      "label": "C++",
-      "parentId": "custom_1772528008545",
-      "colorOverride": "#38bdf8",
+      "id": "computationalMedicine",
+      "label": "Computational Medicine",
+      "parentId": "healthBioEarth",
+      "labels": {
+        "en": "Computational Medicine",
+        "fr": "Médecine computationnelle"
+      },
+      "description": "Patient-centred digital medicine combining medical imaging, personalised modelling, and AI — including the e-patient paradigm (EPIONE), image-guided surgical planning, and predictive models of disease progression for personalised therapy.",
+      "descriptions": {
+        "en": "Patient-centred digital medicine combining medical imaging, personalised modelling, and AI — including the e-patient paradigm (EPIONE), image-guided surgical planning, and predictive models of disease progression for personalised therapy.",
+        "fr": "Médecine numérique centrée sur le patient combinant l'imagerie médicale, la modélisation personnalisée et l'IA — incluant le paradigme e-patient (EPIONE), la planification chirurgicale guidée par l'image et les modèles prédictifs de progression des maladies pour une thérapie personnalisée."
+      },
       "position": {
-        "x": 753,
-        "y": -215
+        "x": -345,
+        "y": -670
       }
     },
     {
-      "id": "custom_1772528008545",
-      "label": "Native",
-      "parentId": "languages",
-      "colorOverride": "#38bdf8",
+      "id": "computationalNeuroscience",
+      "label": "Computational Neuroscience",
+      "parentId": "healthBioEarth",
+      "labels": {
+        "en": "Computational Neuroscience",
+        "fr": "Neurosciences computationnelles"
+      },
+      "description": "Mathematical and computational modelling of brain dynamics, neural circuits, and cognitive processes — including multi-scale dynamics (MATHNEURO), estimation of brain connectivity (CRONOS), and development of brain-computer interfaces and neuroprosthetics (CAMIN) at Inria UCA.",
+      "descriptions": {
+        "en": "Mathematical and computational modelling of brain dynamics, neural circuits, and cognitive processes — including multi-scale dynamics (MATHNEURO), estimation of brain connectivity (CRONOS), and development of brain-computer interfaces and neuroprosthetics (CAMIN) at Inria UCA.",
+        "fr": "Modélisation mathématique et computationnelle de la dynamique cérébrale, des circuits neuronaux et des processus cognitifs — incluant la dynamique multi-échelle (MATHNEURO), l'estimation de la connectivité cérébrale (CRONOS) et le développement d'interfaces cerveau-ordinateur et de neuroprothèses (CAMIN) au centre Inria UCA."
+      },
       "position": {
-        "x": 617,
-        "y": -318
+        "x": -260,
+        "y": -492
       }
     },
     {
-      "id": "custom_1772528091099",
-      "label": "Web",
-      "parentId": "languages",
-      "colorOverride": "#38bdf8",
+      "id": "computerVision",
+      "label": "Computer Vision",
+      "parentId": "perceptionCognition",
+      "labels": {
+        "en": "Computer Vision",
+        "fr": "Vision par ordinateur"
+      },
+      "description": "Computational models and algorithms for image and video understanding — including biologically plausible models of the visual system (BIOVISION), graphics and heterogeneous content creation (GRAPHDECO), and machine perception for autonomous systems.",
+      "descriptions": {
+        "en": "Computational models and algorithms for image and video understanding — including biologically plausible models of the visual system (BIOVISION), graphics and heterogeneous content creation (GRAPHDECO), and machine perception for autonomous systems.",
+        "fr": "Modèles computationnels et algorithmes pour la compréhension des images et vidéos — incluant des modèles biologiquement plausibles du système visuel (BIOVISION), la création de contenu graphique hétérogène (GRAPHDECO) et la perception machine pour les systèmes autonomes."
+      },
       "position": {
-        "x": 415,
+        "x": -705,
+        "y": -271
+      }
+    },
+    {
+      "id": "conferences",
+      "label": "Conferences",
+      "parentId": "presenting",
+      "labels": {
+        "en": "Conferences",
+        "fr": "Conférences"
+      },
+      "description": "Presenting research at national and international conferences, symposia, and workshops, including preparing posters, slides, and paper presentations that clearly convey research contributions.",
+      "descriptions": {
+        "en": "Presenting research at national and international conferences, symposia, and workshops, including preparing posters, slides, and paper presentations that clearly convey research contributions.",
+        "fr": "Présentation des recherches lors de conférences, symposiums et ateliers nationaux et internationaux, incluant la préparation de posters, diapositives et présentations de communications scientifiques."
+      },
+      "position": {
+        "x": 257,
+        "y": -605
+      }
+    },
+    {
+      "id": "containers",
+      "label": "Containers",
+      "parentId": "devops",
+      "labels": {
+        "en": "Containers",
+        "fr": "Conteneurs"
+      },
+      "description": "Using container technologies (Docker, Singularity/Apptainer) to package computational environments so that experiments can be reproduced portably across development machines, clusters, and cloud infrastructure.",
+      "descriptions": {
+        "en": "Using container technologies (Docker, Singularity/Apptainer) to package computational environments so that experiments can be reproduced portably across development machines, clusters, and cloud infrastructure.",
+        "fr": "Utilisation des technologies de conteneurisation (Docker, Singularity/Apptainer) pour empaqueter les environnements de calcul afin que les expériences puissent être reproduites de manière portable sur des machines de développement, des clusters et des infrastructures cloud."
+      },
+      "position": {
+        "x": -290,
+        "y": 505
+      }
+    },
+    {
+      "id": "contributions",
+      "label": "Contributions",
+      "parentId": "openSource",
+      "labels": {
+        "en": "Contributions",
+        "fr": "Contributions"
+      },
+      "description": "Contributing to third-party open-source projects through bug reports, patches, code reviews, documentation improvements, and community discussions to improve the research software ecosystem.",
+      "descriptions": {
+        "en": "Contributing to third-party open-source projects through bug reports, patches, code reviews, documentation improvements, and community discussions to improve the research software ecosystem.",
+        "fr": "Contribution à des projets open source tiers par des rapports de bugs, des correctifs, des revues de code, des améliorations de documentation et des discussions communautaires pour améliorer l'écosystème des logiciels de recherche."
+      },
+      "position": {
+        "x": -608,
+        "y": 481
+      }
+    },
+    {
+      "id": "coq",
+      "label": "Coq / Rocq",
+      "parentId": "langFormalProof",
+      "labels": {
+        "en": "Coq / Rocq",
+        "fr": "Coq / Rocq"
+      },
+      "description": "Coq (recently renamed Rocq) is an interactive proof assistant developed at Inria — used to write formal proofs of mathematical theorems and to verify the correctness of algorithms and programs, with applications ranging from certified compilers (CompCert) to formalised mathematics.",
+      "descriptions": {
+        "en": "Coq (recently renamed Rocq) is an interactive proof assistant developed at Inria — used to write formal proofs of mathematical theorems and to verify the correctness of algorithms and programs, with applications ranging from certified compilers (CompCert) to formalised mathematics.",
+        "fr": "Coq (récemment renommé Rocq) est un assistant de preuve interactif développé à Inria — utilisé pour écrire des preuves formelles de théorèmes mathématiques et vérifier l'exactitude d'algorithmes et de programmes, avec des applications allant des compilateurs certifiés (CompCert) aux mathématiques formalisées."
+      },
+      "position": {
+        "x": 120,
+        "y": 837
+      }
+    },
+    {
+      "id": "cpp",
+      "label": "C / C++",
+      "parentId": "langNative",
+      "labels": {
+        "en": "C / C++",
+        "fr": "C / C++"
+      },
+      "description": "C and C++ programming for high-performance, numerically intensive, or system-level research applications, including familiarity with the standard library, template metaprogramming, and build systems such as CMake.",
+      "descriptions": {
+        "en": "C and C++ programming for high-performance, numerically intensive, or system-level research applications, including familiarity with the standard library, template metaprogramming, and build systems such as CMake.",
+        "fr": "Programmation C et C++ pour les applications de recherche haute performance, numériquement intensives ou au niveau système, y compris la connaissance de la bibliothèque standard, de la métaprogrammation par templates et des systèmes de build tels que CMake."
+      },
+      "position": {
+        "x": 719,
+        "y": 505
+      }
+    },
+    {
+      "id": "dataKnowledge",
+      "label": "Data & Knowledge",
+      "parentId": "algorithmicsSoftware",
+      "labels": {
+        "en": "Data & Knowledge",
+        "fr": "Données & Connaissances"
+      },
+      "description": "Research on knowledge representation, reasoning on heterogeneous data, and rule-based inference systems — as pursued by team BOREAL (knowledge graphs, ontologies, Datalog-based query reasoning) and the topological data analysis work of DATASHAPE.",
+      "descriptions": {
+        "en": "Research on knowledge representation, reasoning on heterogeneous data, and rule-based inference systems — as pursued by team BOREAL (knowledge graphs, ontologies, Datalog-based query reasoning) and the topological data analysis work of DATASHAPE.",
+        "fr": "Recherche sur la représentation des connaissances, le raisonnement sur des données hétérogènes et les systèmes d'inférence à base de règles — telle que menée par l'équipe BOREAL (graphes de connaissances, ontologies, raisonnement Datalog) et les travaux d'analyse topologique des données de DATASHAPE."
+      },
+      "position": {
+        "x": -616,
         "y": -474
       }
     },
     {
-      "id": "custom_1772528111048",
-      "label": "Javascript",
-      "parentId": "custom_1772528091099",
-      "colorOverride": "#38bdf8",
+      "id": "dataManagement",
+      "label": "Data Management",
+      "parentId": "reproducibility",
+      "labels": {
+        "en": "Data Management",
+        "fr": "Gestion des données"
+      },
+      "description": "Planning, organising, documenting, and publishing research datasets following institutional requirements, data management plans (DMP), and open data practices promoted by funding bodies (ANR, EU Horizon).",
+      "descriptions": {
+        "en": "Planning, organising, documenting, and publishing research datasets following institutional requirements, data management plans (DMP), and open data practices promoted by funding bodies (ANR, EU Horizon).",
+        "fr": "Planification, organisation, documentation et publication des jeux de données de recherche selon les exigences institutionnelles, les plans de gestion des données (PGD) et les pratiques de données ouvertes promues par les organismes de financement (ANR, Horizon Europe)."
+      },
       "position": {
-        "x": 502,
-        "y": -691
-      }
-    },
-    {
-      "id": "custom_1772528121371",
-      "label": "HTML / CSS",
-      "parentId": "custom_1772528091099",
-      "colorOverride": "#38bdf8",
-      "position": {
-        "x": 524,
-        "y": -568
-      }
-    },
-    {
-      "id": "dataAnalysis",
-      "label": "Data Analysis",
-      "parentId": "research",
-      "position": {
-        "x": -88,
-        "y": 513
-      }
-    },
-    {
-      "id": "dataviz",
-      "label": "Data Viz",
-      "parentId": "dataAnalysis",
-      "position": {
-        "x": -149,
-        "y": 751
+        "x": -614,
+        "y": 184
       }
     },
     {
       "id": "decisionMaking",
       "label": "Decision Making",
       "parentId": "leadership",
+      "labels": {
+        "en": "Decision Making",
+        "fr": "Prise de décision"
+      },
+      "description": "Making well-informed, timely decisions under uncertainty — balancing technical trade-offs, resource constraints, and research objectives — especially in complex and ambiguous situations.",
+      "descriptions": {
+        "en": "Making well-informed, timely decisions under uncertainty — balancing technical trade-offs, resource constraints, and research objectives — especially in complex and ambiguous situations.",
+        "fr": "Prise de décisions éclairées et opportunes dans l'incertitude — en équilibrant les compromis techniques, les contraintes de ressources et les objectifs de recherche — notamment dans des situations complexes et ambiguës."
+      },
       "position": {
-        "x": -131,
-        "y": -645
+        "x": 641,
+        "y": -165
       }
     },
     {
       "id": "delegation",
       "label": "Delegation",
       "parentId": "leadership",
+      "labels": {
+        "en": "Delegation",
+        "fr": "Délégation"
+      },
+      "description": "Distributing tasks and responsibilities appropriately across team members, students, and collaborators, matching assignments to individual skills, interests, and development goals.",
+      "descriptions": {
+        "en": "Distributing tasks and responsibilities appropriately across team members, students, and collaborators, matching assignments to individual skills, interests, and development goals.",
+        "fr": "Distribution appropriée des tâches et responsabilités entre les membres de l'équipe, les étudiants et les collaborateurs, en faisant correspondre les missions aux compétences, intérêts et objectifs de développement individuels."
+      },
       "position": {
-        "x": -238,
-        "y": -726
+        "x": 760,
+        "y": -131
       }
     },
     {
-      "id": "designSystems",
-      "label": "Design Systems",
-      "parentId": "frontend",
+      "id": "demos",
+      "label": "Demos",
+      "parentId": "presenting",
+      "labels": {
+        "en": "Demos",
+        "fr": "Démonstrations"
+      },
+      "description": "Designing and delivering compelling live demonstrations of research software prototypes and tools to collaborators, evaluation panels, or at public events — combining technical accuracy with narrative clarity.",
+      "descriptions": {
+        "en": "Designing and delivering compelling live demonstrations of research software prototypes and tools to collaborators, evaluation panels, or at public events — combining technical accuracy with narrative clarity.",
+        "fr": "Conception et réalisation de démonstrations en direct percutantes de prototypes et d'outils logiciels de recherche pour des collaborateurs, des comités d'évaluation ou lors d'événements publics — alliant précision technique et clarté narrative."
+      },
       "position": {
-        "x": 589,
-        "y": -49
+        "x": 344,
+        "y": -698
       }
     },
     {
-      "id": "development",
-      "label": "Development",
-      "parentId": "root",
+      "id": "designPatterns",
+      "label": "Design Patterns",
+      "parentId": "architecture",
+      "labels": {
+        "en": "Design Patterns",
+        "fr": "Patrons de conception"
+      },
+      "description": "Knowledge and application of proven software design patterns (Factory, Observer, Strategy, Visitor, etc.) to solve recurring engineering problems in a way that promotes reuse and clarity.",
+      "descriptions": {
+        "en": "Knowledge and application of proven software design patterns (Factory, Observer, Strategy, Visitor, etc.) to solve recurring engineering problems in a way that promotes reuse and clarity.",
+        "fr": "Connaissance et application des patrons de conception logicielle éprouvés (Factory, Observer, Strategy, Visitor, etc.) pour résoudre les problèmes d'ingénierie récurrents d'une manière qui favorise la réutilisation et la clarté."
+      },
       "position": {
-        "x": 260,
-        "y": 15
+        "x": 94,
+        "y": 536
       }
     },
     {
       "id": "devops",
       "label": "DevOps",
-      "parentId": "development",
+      "parentId": "softwareEngineering",
+      "labels": {
+        "en": "DevOps",
+        "fr": "DevOps"
+      },
+      "description": "Practices and tools that automate and streamline the software delivery pipeline — from source code to a running environment — improving reliability and reproducibility of research software.",
+      "descriptions": {
+        "en": "Practices and tools that automate and streamline the software delivery pipeline — from source code to a running environment — improving reliability and reproducibility of research software.",
+        "fr": "Pratiques et outils qui automatisent et rationalisent le pipeline de livraison logicielle — du code source à un environnement en cours d'exécution — améliorant la fiabilité et la reproductibilité des logiciels de recherche."
+      },
       "position": {
-        "x": 377,
-        "y": 247
+        "x": -149,
+        "y": 459
       }
     },
     {
-      "id": "docker",
-      "label": "Docker",
-      "parentId": "devops",
+      "id": "distributedSystems",
+      "label": "Distributed Systems",
+      "parentId": "networksDistributed",
+      "labels": {
+        "en": "Distributed Systems",
+        "fr": "Systèmes distribués"
+      },
+      "description": "Design, analysis, and implementation of distributed systems, services, and cloud infrastructures — including scalability, consistency, fault tolerance, and resource management at scale.",
+      "descriptions": {
+        "en": "Design, analysis, and implementation of distributed systems, services, and cloud infrastructures — including scalability, consistency, fault tolerance, and resource management at scale.",
+        "fr": "Conception, analyse et implémentation de systèmes distribués, services et infrastructures cloud — incluant la scalabilité, la cohérence, la tolérance aux pannes et la gestion des ressources à grande échelle."
+      },
       "position": {
-        "x": 247,
-        "y": 256
+        "x": -334,
+        "y": -6
       }
     },
     {
-      "id": "documentation",
-      "label": "Documentation",
-      "parentId": "writing",
+      "id": "earthEnvironment",
+      "label": "Earth & Environment",
+      "parentId": "healthBioEarth",
+      "labels": {
+        "en": "Earth & Environment",
+        "fr": "Terre & Environnement"
+      },
+      "description": "Data-driven and model-based approaches to environmental challenges — including littoral and coastal hydrology (LEMON), agro-environmental remote sensing and machine learning (EVERGREEN), microorganism-based green resource generation (GREENOWL), and environmental data science (IROKO) at Inria UCA.",
+      "descriptions": {
+        "en": "Data-driven and model-based approaches to environmental challenges — including littoral and coastal hydrology (LEMON), agro-environmental remote sensing and machine learning (EVERGREEN), microorganism-based green resource generation (GREENOWL), and environmental data science (IROKO) at Inria UCA.",
+        "fr": "Approches pilotées par les données et les modèles pour les défis environnementaux — incluant l'hydrologie littorale et côtière (LEMON), la télédétection agro-environnementale et l'apprentissage automatique (EVERGREEN), la génération de ressources vertes par microorganismes (GREENOWL) et la science des données environnementales (IROKO) au centre Inria UCA."
+      },
       "position": {
-        "x": -456,
-        "y": 350
+        "x": -438,
+        "y": -627
       }
     },
     {
-      "id": "facilitation",
-      "label": "Facilitation",
-      "parentId": "presenting",
+      "id": "embeddedSystems",
+      "label": "Embedded & Real-time",
+      "parentId": "networksDistributed",
+      "labels": {
+        "en": "Embedded & Real-time",
+        "fr": "Embarqué & Temps réel"
+      },
+      "description": "Design and formal verification of embedded and cyber-physical systems with hard real-time constraints — including multiform logical time models, concurrency, and synchronous languages as studied by team KAIROS at Inria UCA.",
+      "descriptions": {
+        "en": "Design and formal verification of embedded and cyber-physical systems with hard real-time constraints — including multiform logical time models, concurrency, and synchronous languages as studied by team KAIROS at Inria UCA.",
+        "fr": "Conception et vérification formelle des systèmes embarqués et cyber-physiques avec des contraintes temps réel strictes — incluant les modèles de temps logique multiforme, la concurrence et les langages synchrones étudiés par l'équipe KAIROS au centre Inria UCA."
+      },
       "position": {
-        "x": -647,
-        "y": -18
+        "x": -581,
+        "y": -97
       }
     },
     {
-      "id": "feedbackCulture",
-      "label": "Feedback Culture",
-      "parentId": "collaboration",
+      "id": "fairPrinciples",
+      "label": "FAIR Principles",
+      "parentId": "reproducibility",
+      "labels": {
+        "en": "FAIR Principles",
+        "fr": "Principes FAIR"
+      },
+      "description": "Applying FAIR (Findable, Accessible, Interoperable, Reusable) principles to research data and software to maximise their long-term value, discoverability, and reuse by the community.",
+      "descriptions": {
+        "en": "Applying FAIR (Findable, Accessible, Interoperable, Reusable) principles to research data and software to maximise their long-term value, discoverability, and reuse by the community.",
+        "fr": "Application des principes FAIR (Trouvable, Accessible, Interopérable, Réutilisable) aux données et logiciels de recherche pour maximiser leur valeur à long terme, leur découvrabilité et leur réutilisation par la communauté."
+      },
       "position": {
-        "x": -684,
-        "y": -181
+        "x": -730,
+        "y": 131
       }
     },
     {
-      "id": "frontend",
-      "label": "Frontend",
-      "parentId": "development",
+      "id": "functionalAnalysis",
+      "label": "Functional Analysis",
+      "parentId": "appliedMathsComputation",
+      "labels": {
+        "en": "Functional Analysis",
+        "fr": "Analyse fonctionnelle"
+      },
+      "description": "Application of functional analysis and spectral theory to the design and certification of dynamical and control systems — as pursued by team FACTAS (Functional Analysis for Conception and Assessment of Systems) at Inria UCA.",
+      "descriptions": {
+        "en": "Application of functional analysis and spectral theory to the design and certification of dynamical and control systems — as pursued by team FACTAS (Functional Analysis for Conception and Assessment of Systems) at Inria UCA.",
+        "fr": "Application de l'analyse fonctionnelle et de la théorie spectrale à la conception et à la certification des systèmes dynamiques et de contrôle — telle que menée par l'équipe FACTAS au centre Inria UCA."
+      },
       "position": {
-        "x": 430,
-        "y": -51
+        "x": -248,
+        "y": -567
       }
     },
     {
       "id": "go",
       "label": "Go",
-      "parentId": "custom_1772528008545",
+      "parentId": "langNative",
+      "labels": {
+        "en": "Go",
+        "fr": "Go"
+      },
+      "description": "Google's Go language for building reliable, concurrent tools and services — valued for its simplicity, fast compilation, and excellent standard library, particularly for CLI tools and networked research infrastructure.",
+      "descriptions": {
+        "en": "Google's Go language for building reliable, concurrent tools and services — valued for its simplicity, fast compilation, and excellent standard library, particularly for CLI tools and networked research infrastructure.",
+        "fr": "Le langage Go de Google pour la construction d'outils et de services fiables et concurrents — apprécié pour sa simplicité, sa compilation rapide et son excellente bibliothèque standard, notamment pour les outils CLI et l'infrastructure de recherche en réseau."
+      },
       "position": {
-        "x": 861,
-        "y": -316
+        "x": 609,
+        "y": 342
       }
     },
     {
-      "id": "interviews",
-      "label": "Interviews",
-      "parentId": "userResearch",
+      "id": "grantWriting",
+      "label": "Grant Writing",
+      "parentId": "valorisation",
+      "labels": {
+        "en": "Grant Writing",
+        "fr": "Réponse à appels à projets"
+      },
+      "description": "Participating in the preparation and writing of competitive research grant proposals (ANR, EU Horizon Europe, ERC, bilateral contracts) including technical descriptions, work packages, and budgets.",
+      "descriptions": {
+        "en": "Participating in the preparation and writing of competitive research grant proposals (ANR, EU Horizon Europe, ERC, bilateral contracts) including technical descriptions, work packages, and budgets.",
+        "fr": "Participation à la préparation et à la rédaction de propositions de projets de recherche compétitifs (ANR, Horizon Europe, ERC, contrats bilatéraux) incluant les descriptions techniques, les lots de travail et les budgets."
+      },
       "position": {
-        "x": 235,
-        "y": 539
+        "x": -457,
+        "y": 384
       }
     },
     {
-      "id": "java",
-      "label": "Java",
-      "parentId": "custom_1772528008545",
+      "id": "haskell",
+      "label": "Haskell",
+      "parentId": "langFunctional",
+      "labels": {
+        "en": "Haskell",
+        "fr": "Haskell"
+      },
+      "description": "A purely functional, lazily evaluated language with a powerful type system including type classes and monads — used in research on programming language theory, formal semantics, and as a prototyping language for type-theoretic ideas.",
+      "descriptions": {
+        "en": "A purely functional, lazily evaluated language with a powerful type system including type classes and monads — used in research on programming language theory, formal semantics, and as a prototyping language for type-theoretic ideas.",
+        "fr": "Un langage purement fonctionnel à évaluation paresseuse avec un système de types puissant incluant les classes de types et les monades — utilisé en recherche sur la théorie des langages de programmation, la sémantique formelle et comme langage de prototypage pour les idées théoriques des types."
+      },
       "position": {
-        "x": 652,
-        "y": -469
+        "x": 503,
+        "y": 778
       }
     },
     {
-      "id": "kubernetes",
-      "label": "Kubernetes",
+      "id": "hci",
+      "label": "Human-Computer Interaction",
+      "parentId": "perceptionCognition",
+      "labels": {
+        "en": "Human-Computer Interaction",
+        "fr": "Interaction Humain-Machine"
+      },
+      "description": "Study and design of interfaces between humans and computational systems — encompassing interaction and visualisation (GRAPHDECO), assistive technologies, haptic feedback, and the evaluation of user experience in research software contexts.",
+      "descriptions": {
+        "en": "Study and design of interfaces between humans and computational systems — encompassing interaction and visualisation (GRAPHDECO), assistive technologies, haptic feedback, and the evaluation of user experience in research software contexts.",
+        "fr": "Étude et conception des interfaces entre les humains et les systèmes computationnels — englobant l'interaction et la visualisation (GRAPHDECO), les technologies d'assistance, le retour haptique et l'évaluation de l'expérience utilisateur dans les contextes de logiciels de recherche."
+      },
+      "position": {
+        "x": -704,
+        "y": -170
+      }
+    },
+    {
+      "id": "healthBioEarth",
+      "label": "Health, Biology & Earth",
+      "parentId": "research",
+      "labels": {
+        "en": "Health, Biology & Earth",
+        "fr": "Santé, Biologie & Terre"
+      },
+      "description": "Research at the intersection of digital technology with medicine, neuroscience, computational biology, ecology, and environmental sciences — the largest research domain at Inria UCA, encompassing 14 teams including ABS, CAMIN, COMPO, CRONOS, EPIONE, EVERGREEN, GRAPHDECO, GREENOWL, IROKO, LEMON, MACBES, and MATHNEURO.",
+      "descriptions": {
+        "en": "Research at the intersection of digital technology with medicine, neuroscience, computational biology, ecology, and environmental sciences — the largest research domain at Inria UCA, encompassing 14 teams including ABS, CAMIN, COMPO, CRONOS, EPIONE, EVERGREEN, GRAPHDECO, GREENOWL, IROKO, LEMON, MACBES, and MATHNEURO.",
+        "fr": "Recherche à l'intersection des technologies numériques avec la médecine, les neurosciences, la biologie computationnelle, l'écologie et les sciences de l'environnement — le plus grand domaine de recherche au centre Inria UCA, regroupant 14 équipes dont ABS, CAMIN, COMPO, CRONOS, EPIONE, EVERGREEN, GRAPHDECO, GREENOWL, IROKO, LEMON, MACBES et MATHNEURO."
+      },
+      "position": {
+        "x": -285,
+        "y": -417
+      }
+    },
+    {
+      "id": "hpc",
+      "label": "HPC",
       "parentId": "devops",
+      "labels": {
+        "en": "HPC",
+        "fr": "Calcul haute performance"
+      },
+      "description": "Using high-performance computing clusters (via job schedulers like SLURM, PBS) and parallel programming paradigms (MPI, OpenMP, CUDA) to run large-scale computational research experiments.",
+      "descriptions": {
+        "en": "Using high-performance computing clusters (via job schedulers like SLURM, PBS) and parallel programming paradigms (MPI, OpenMP, CUDA) to run large-scale computational research experiments.",
+        "fr": "Utilisation de clusters de calcul haute performance (via des ordonnanceurs de jobs comme SLURM, PBS) et de paradigmes de programmation parallèle (MPI, OpenMP, CUDA) pour exécuter des expériences de recherche computationnelle à grande échelle."
+      },
       "position": {
-        "x": 509,
-        "y": 449
+        "x": -336,
+        "y": 640
+      }
+    },
+    {
+      "id": "isabelle",
+      "label": "Isabelle",
+      "parentId": "langFormalProof",
+      "labels": {
+        "en": "Isabelle",
+        "fr": "Isabelle"
+      },
+      "description": "Isabelle is a generic interactive theorem prover supporting multiple logics (HOL, ZF, etc.) — used for large-scale formal verification projects and the formalisation of mathematical libraries.",
+      "descriptions": {
+        "en": "Isabelle is a generic interactive theorem prover supporting multiple logics (HOL, ZF, etc.) — used for large-scale formal verification projects and the formalisation of mathematical libraries.",
+        "fr": "Isabelle est un prouveur de théorèmes interactif générique supportant plusieurs logiques (HOL, ZF, etc.) — utilisé pour des projets de vérification formelle à grande échelle et la formalisation de bibliothèques mathématiques."
+      },
+      "position": {
+        "x": 192,
+        "y": 836
+      }
+    },
+    {
+      "id": "javascript",
+      "label": "JavaScript",
+      "parentId": "langWeb",
+      "labels": {
+        "en": "JavaScript",
+        "fr": "JavaScript"
+      },
+      "description": "JavaScript for browser-side scripting, interactive data visualisations (D3.js, Observable Plot), and lightweight research web applications and dashboards.",
+      "descriptions": {
+        "en": "JavaScript for browser-side scripting, interactive data visualisations (D3.js, Observable Plot), and lightweight research web applications and dashboards.",
+        "fr": "JavaScript pour les scripts côté navigateur, les visualisations de données interactives (D3.js, Observable Plot) et les applications et tableaux de bord web légers pour la recherche."
+      },
+      "position": {
+        "x": 258,
+        "y": 893
+      }
+    },
+    {
+      "id": "julia",
+      "label": "Julia",
+      "parentId": "langScientific",
+      "labels": {
+        "en": "Julia",
+        "fr": "Julia"
+      },
+      "description": "The Julia language for high-performance numerical and scientific computing, combining syntax close to mathematical notation with JIT compilation speeds approaching C/C++.",
+      "descriptions": {
+        "en": "The Julia language for high-performance numerical and scientific computing, combining syntax close to mathematical notation with JIT compilation speeds approaching C/C++.",
+        "fr": "Le langage Julia pour le calcul numérique et scientifique haute performance, combinant une syntaxe proche de la notation mathématique avec des vitesses de compilation JIT proches du C/C++."
+      },
+      "position": {
+        "x": 608,
+        "y": 762
+      }
+    },
+    {
+      "id": "langFormalProof",
+      "label": "Formal Proof",
+      "parentId": "languages",
+      "labels": {
+        "en": "Formal Proof",
+        "fr": "Preuve formelle"
+      },
+      "description": "Interactive theorem provers and proof assistants used to write machine-checked mathematical proofs and formally verify software or hardware properties — a core research tool at Inria for teams working on proofs, verification, and certified systems.",
+      "descriptions": {
+        "en": "Interactive theorem provers and proof assistants used to write machine-checked mathematical proofs and formally verify software or hardware properties — a core research tool at Inria for teams working on proofs, verification, and certified systems.",
+        "fr": "Prouveurs de théorèmes interactifs et assistants de preuve utilisés pour écrire des preuves mathématiques vérifiées par machine et vérifier formellement les propriétés des logiciels ou matériels — un outil de recherche central à Inria pour les équipes travaillant sur les preuves, la vérification et les systèmes certifiés."
+      },
+      "position": {
+        "x": 148,
+        "y": 687
+      }
+    },
+    {
+      "id": "langFunctional",
+      "label": "Functional",
+      "parentId": "languages",
+      "labels": {
+        "en": "Functional",
+        "fr": "Fonctionnel"
+      },
+      "description": "Purely or primarily functional programming languages that emphasise immutability, algebraic data types, and strong type systems — widely used at Inria for compiler development, proof assistants, program analysis, and certified software.",
+      "descriptions": {
+        "en": "Purely or primarily functional programming languages that emphasise immutability, algebraic data types, and strong type systems — widely used at Inria for compiler development, proof assistants, program analysis, and certified software.",
+        "fr": "Langages de programmation purement ou principalement fonctionnels qui mettent l'accent sur l'immuabilité, les types de données algébriques et les systèmes de types forts — largement utilisés à Inria pour le développement de compilateurs, les assistants de preuve, l'analyse de programmes et les logiciels certifiés."
+      },
+      "position": {
+        "x": 358,
+        "y": 647
+      }
+    },
+    {
+      "id": "langNative",
+      "label": "Native / System",
+      "parentId": "languages",
+      "labels": {
+        "en": "Native / System",
+        "fr": "Natif / Système"
+      },
+      "description": "Compiled, low-level languages that give direct control over hardware and memory, used for high-performance kernels, systems software, and numerically intensive research code.",
+      "descriptions": {
+        "en": "Compiled, low-level languages that give direct control over hardware and memory, used for high-performance kernels, systems software, and numerically intensive research code.",
+        "fr": "Langages compilés de bas niveau qui donnent un contrôle direct sur le matériel et la mémoire, utilisés pour les noyaux haute performance, les logiciels système et le code de recherche numériquement intensif."
+      },
+      "position": {
+        "x": 470,
+        "y": 431
+      }
+    },
+    {
+      "id": "langScientific",
+      "label": "Scientific Computing",
+      "parentId": "languages",
+      "labels": {
+        "en": "Scientific Computing",
+        "fr": "Calcul scientifique"
+      },
+      "description": "High-productivity languages designed or widely adopted for numerical computation, data analysis, machine learning, and mathematical modelling in research contexts.",
+      "descriptions": {
+        "en": "High-productivity languages designed or widely adopted for numerical computation, data analysis, machine learning, and mathematical modelling in research contexts.",
+        "fr": "Langages à haute productivité conçus ou largement adoptés pour le calcul numérique, l'analyse de données, l'apprentissage automatique et la modélisation mathématique dans les contextes de recherche."
+      },
+      "position": {
+        "x": 429,
+        "y": 574
+      }
+    },
+    {
+      "id": "langScripting",
+      "label": "Scripting & Build",
+      "parentId": "languages",
+      "labels": {
+        "en": "Scripting & Build",
+        "fr": "Scripting & Build"
+      },
+      "description": "Lightweight languages and build-system tools used to automate workflows, orchestrate pipelines, manage build configurations, and glue together heterogeneous research software components.",
+      "descriptions": {
+        "en": "Lightweight languages and build-system tools used to automate workflows, orchestrate pipelines, manage build configurations, and glue together heterogeneous research software components.",
+        "fr": "Langages légers et outils de systèmes de build utilisés pour automatiser les flux de travail, orchestrer les pipelines, gérer les configurations de build et assembler des composants logiciels de recherche hétérogènes."
+      },
+      "position": {
+        "x": 336,
+        "y": 323
       }
     },
     {
       "id": "languages",
       "label": "Languages",
-      "parentId": "development",
+      "parentId": "softwareEngineering",
+      "labels": {
+        "en": "Languages",
+        "fr": "Langages"
+      },
+      "description": "Proficiency in programming languages commonly used in research software engineering, organised by paradigm: system/native, scientific computing, functional, web, formal proof, and scripting.",
+      "descriptions": {
+        "en": "Proficiency in programming languages commonly used in research software engineering, organised by paradigm: system/native, scientific computing, functional, web, formal proof, and scripting.",
+        "fr": "Maîtrise des langages de programmation couramment utilisés en ingénierie logicielle de recherche, organisés par paradigme : système/natif, calcul scientifique, fonctionnel, web, preuve formelle et scripting."
+      },
       "position": {
-        "x": 378,
-        "y": -217
+        "x": 210,
+        "y": 434
+      }
+    },
+    {
+      "id": "langWeb",
+      "label": "Web",
+      "parentId": "languages",
+      "labels": {
+        "en": "Web",
+        "fr": "Web"
+      },
+      "description": "Languages and frameworks used to build research software user interfaces, interactive visualisations, and web-based tools and dashboards accessible to non-specialist users.",
+      "descriptions": {
+        "en": "Languages and frameworks used to build research software user interfaces, interactive visualisations, and web-based tools and dashboards accessible to non-specialist users.",
+        "fr": "Langages et frameworks utilisés pour construire des interfaces utilisateur de logiciels de recherche, des visualisations interactives et des outils et tableaux de bord web accessibles aux utilisateurs non spécialistes."
+      },
+      "position": {
+        "x": 265,
+        "y": 688
       }
     },
     {
       "id": "leadership",
       "label": "Leadership",
       "parentId": "organisation",
+      "labels": {
+        "en": "Leadership",
+        "fr": "Leadership"
+      },
+      "description": "Inspiring, guiding, and enabling team members, students, and collaborators to achieve shared scientific and engineering goals — even without formal hierarchical authority.",
+      "descriptions": {
+        "en": "Inspiring, guiding, and enabling team members, students, and collaborators to achieve shared scientific and engineering goals — even without formal hierarchical authority.",
+        "fr": "Inspirer, guider et permettre aux membres de l'équipe, aux étudiants et aux collaborateurs d'atteindre des objectifs scientifiques et techniques communs — même sans autorité hiérarchique formelle."
+      },
       "position": {
-        "x": -173,
-        "y": -490
+        "x": 500,
+        "y": -140
       }
     },
     {
-      "id": "microservices",
-      "label": "Microservices",
-      "parentId": "architecture",
+      "id": "lean",
+      "label": "Lean",
+      "parentId": "langFormalProof",
+      "labels": {
+        "en": "Lean",
+        "fr": "Lean"
+      },
+      "description": "Lean 4 is a modern proof assistant and functional programming language gaining rapid adoption in formalised mathematics (Mathlib) and verified software, combining dependent types with metaprogramming and a fast kernel.",
+      "descriptions": {
+        "en": "Lean 4 is a modern proof assistant and functional programming language gaining rapid adoption in formalised mathematics (Mathlib) and verified software, combining dependent types with metaprogramming and a fast kernel.",
+        "fr": "Lean 4 est un assistant de preuve et langage de programmation fonctionnel moderne qui gagne rapidement en adoption dans les mathématiques formalisées (Mathlib) et les logiciels vérifiés, combinant des types dépendants avec la métaprogrammation et un noyau rapide."
+      },
       "position": {
-        "x": 613,
-        "y": 212
+        "x": 39,
+        "y": 812
       }
     },
     {
-      "id": "ml",
-      "label": "Machine Learning",
-      "parentId": "dataAnalysis",
+      "id": "licensing",
+      "label": "Licensing",
+      "parentId": "openSource",
+      "labels": {
+        "en": "Licensing",
+        "fr": "Licences"
+      },
+      "description": "Understanding open-source licenses (MIT, GPL, Apache, CeCILL, EUPL, etc.) and applying them correctly to research outputs, while navigating institutional IP policies and third-party dependency constraints.",
+      "descriptions": {
+        "en": "Understanding open-source licenses (MIT, GPL, Apache, CeCILL, EUPL, etc.) and applying them correctly to research outputs, while navigating institutional IP policies and third-party dependency constraints.",
+        "fr": "Compréhension des licences open source (MIT, GPL, Apache, CeCILL, EUPL, etc.) et application correcte à des résultats de recherche, tout en naviguant dans les politiques de propriété intellectuelle institutionnelles et les contraintes de dépendances tierces."
+      },
       "position": {
-        "x": -184,
-        "y": 623
+        "x": -674,
+        "y": 384
+      }
+    },
+    {
+      "id": "makecmake",
+      "label": "Make / CMake",
+      "parentId": "langScripting",
+      "labels": {
+        "en": "Make / CMake",
+        "fr": "Make / CMake"
+      },
+      "description": "Make and CMake for managing the build process of C, C++, and Fortran research software — defining compilation rules, dependency graphs, and cross-platform build configurations essential for reproducible HPC and systems research.",
+      "descriptions": {
+        "en": "Make and CMake for managing the build process of C, C++, and Fortran research software — defining compilation rules, dependency graphs, and cross-platform build configurations essential for reproducible HPC and systems research.",
+        "fr": "Make et CMake pour gérer le processus de build des logiciels de recherche en C, C++ et Fortran — définissant les règles de compilation, les graphes de dépendances et les configurations de build multiplateformes essentielles pour la recherche HPC et système reproductible."
+      },
+      "position": {
+        "x": 455,
+        "y": 348
+      }
+    },
+    {
+      "id": "mentoring",
+      "label": "Mentoring",
+      "parentId": "collaboration",
+      "labels": {
+        "en": "Mentoring",
+        "fr": "Mentorat"
+      },
+      "description": "Guiding and supporting junior researchers, PhD students, master's interns, and new team members in their technical, scientific, and professional development over time.",
+      "descriptions": {
+        "en": "Guiding and supporting junior researchers, PhD students, master's interns, and new team members in their technical, scientific, and professional development over time.",
+        "fr": "Guider et soutenir les chercheurs juniors, les doctorants, les stagiaires de master et les nouveaux membres de l'équipe dans leur développement technique, scientifique et professionnel."
+      },
+      "position": {
+        "x": 447,
+        "y": -626
+      }
+    },
+    {
+      "id": "mlOptimization",
+      "label": "ML & Optimization",
+      "parentId": "algorithmicsSoftware",
+      "labels": {
+        "en": "ML & Optimization",
+        "fr": "Apprentissage & Optimisation"
+      },
+      "description": "Models and algorithms for machine learning, statistical inference, and combinatorial or continuous optimisation — as studied by teams MAASAI (AI algorithms), MARIANNE (NLP and argumentation), and NEO (operations research and network science).",
+      "descriptions": {
+        "en": "Models and algorithms for machine learning, statistical inference, and combinatorial or continuous optimisation — as studied by teams MAASAI (AI algorithms), MARIANNE (NLP and argumentation), and NEO (operations research and network science).",
+        "fr": "Modèles et algorithmes pour l'apprentissage automatique, l'inférence statistique et l'optimisation combinatoire ou continue — tels qu'étudiés par les équipes MAASAI (algorithmes IA), MARIANNE (NLP et argumentation) et NEO (recherche opérationnelle et science des réseaux)."
+      },
+      "position": {
+        "x": -527,
+        "y": -399
+      }
+    },
+    {
+      "id": "networkArchitectures",
+      "label": "Network Architectures",
+      "parentId": "networksDistributed",
+      "labels": {
+        "en": "Network Architectures",
+        "fr": "Architectures réseau"
+      },
+      "description": "Research on designing, analysing, and operating communication network architectures — including software-defined networking, network function virtualisation, and the intersection of operations research and network science (DIANA, NEO) at Inria UCA.",
+      "descriptions": {
+        "en": "Research on designing, analysing, and operating communication network architectures — including software-defined networking, network function virtualisation, and the intersection of operations research and network science (DIANA, NEO) at Inria UCA.",
+        "fr": "Recherche sur la conception, l'analyse et l'exploitation des architectures de réseaux de communication — incluant les réseaux définis par logiciel, la virtualisation des fonctions réseau et l'intersection de la recherche opérationnelle et de la science des réseaux (DIANA, NEO) au centre Inria UCA."
+      },
+      "position": {
+        "x": -691,
+        "y": -31
+      }
+    },
+    {
+      "id": "networksDistributed",
+      "label": "Networks & Distributed Systems",
+      "parentId": "research",
+      "labels": {
+        "en": "Networks & Distributed Systems",
+        "fr": "Réseaux & Systèmes distribués"
+      },
+      "description": "Research on networking architectures, distributed and embedded computing, and security — including network design and operations (DIANA, NEO), embedded and real-time systems (KAIROS), and security and confidentiality at Inria UCA.",
+      "descriptions": {
+        "en": "Research on networking architectures, distributed and embedded computing, and security — including network design and operations (DIANA, NEO), embedded and real-time systems (KAIROS), and security and confidentiality at Inria UCA.",
+        "fr": "Recherche sur les architectures réseau, l'informatique distribuée et embarquée, et la sécurité — incluant la conception et les opérations réseau (DIANA, NEO), les systèmes embarqués et temps réel (KAIROS) et la sécurité et confidentialité au centre Inria UCA."
+      },
+      "position": {
+        "x": -435,
+        "y": -76
+      }
+    },
+    {
+      "id": "numericalSimulation",
+      "label": "Numerical Simulation",
+      "parentId": "appliedMathsComputation",
+      "labels": {
+        "en": "Numerical Simulation",
+        "fr": "Simulation numérique"
+      },
+      "description": "Design and implementation of numerical schemes to simulate physical phenomena governed by PDEs — including wave propagation at nanoscale (ATLANTIS), coastal and environmental fluid dynamics (LEMON, CALISTO), and plasma physics (CASTOR).",
+      "descriptions": {
+        "en": "Design and implementation of numerical schemes to simulate physical phenomena governed by PDEs — including wave propagation at nanoscale (ATLANTIS), coastal and environmental fluid dynamics (LEMON, CALISTO), and plasma physics (CASTOR).",
+        "fr": "Conception et implémentation de schémas numériques pour simuler des phénomènes physiques gouvernés par des EDP — incluant la propagation d'ondes à l'échelle nanométrique (ATLANTIS), la dynamique des fluides côtiers et environnementaux (LEMON, CALISTO) et la physique des plasmas (CASTOR)."
+      },
+      "position": {
+        "x": -72,
+        "y": -517
+      }
+    },
+    {
+      "id": "ocaml",
+      "label": "OCaml",
+      "parentId": "langFunctional",
+      "labels": {
+        "en": "OCaml",
+        "fr": "OCaml"
+      },
+      "description": "OCaml is a functional language with a powerful module system and type inference, historically developed at Inria and still widely used there for compilers, proof assistants (Coq is written in OCaml), static analysis tools, and verified software.",
+      "descriptions": {
+        "en": "OCaml is a functional language with a powerful module system and type inference, historically developed at Inria and still widely used there for compilers, proof assistants (Coq is written in OCaml), static analysis tools, and verified software.",
+        "fr": "OCaml est un langage fonctionnel avec un puissant système de modules et une inférence de types, historiquement développé à Inria et encore largement utilisé pour les compilateurs, les assistants de preuve (Coq est écrit en OCaml), les outils d'analyse statique et les logiciels vérifiés."
+      },
+      "position": {
+        "x": 396,
+        "y": 798
+      }
+    },
+    {
+      "id": "openScience",
+      "label": "Open Science",
+      "parentId": "root",
+      "labels": {
+        "en": "Open Science",
+        "fr": "Science ouverte"
+      },
+      "description": "Practices that make research outputs — code, data, and publications — freely available, reusable, and verifiable, maximising the societal and scientific return on publicly funded research.",
+      "descriptions": {
+        "en": "Practices that make research outputs — code, data, and publications — freely available, reusable, and verifiable, maximising the societal and scientific return on publicly funded research.",
+        "fr": "Pratiques qui rendent les résultats de recherche — code, données et publications — librement disponibles, réutilisables et vérifiables, maximisant le retour sociétal et scientifique de la recherche financée sur fonds publics."
+      },
+      "colorOverride": "#b7b893",
+      "position": {
+        "x": -213,
+        "y": 148
+      }
+    },
+    {
+      "id": "openSource",
+      "label": "Open Source",
+      "parentId": "openScience",
+      "labels": {
+        "en": "Open Source",
+        "fr": "Logiciel libre"
+      },
+      "description": "Developing and publishing research software under open-source licenses to maximise its reach, impact, and longevity, and to enable the community to audit, extend, and build upon the work.",
+      "descriptions": {
+        "en": "Developing and publishing research software under open-source licenses to maximise its reach, impact, and longevity, and to enable the community to audit, extend, and build upon the work.",
+        "fr": "Développement et publication de logiciels de recherche sous licences open source pour maximiser leur portée, leur impact et leur longévité, et permettre à la communauté d'auditer, d'étendre et de s'appuyer sur les travaux."
+      },
+      "position": {
+        "x": -432,
+        "y": 289
+      }
+    },
+    {
+      "id": "optimizationControl",
+      "label": "Optimisation & Control",
+      "parentId": "appliedMathsComputation",
+      "labels": {
+        "en": "Optimisation & Control",
+        "fr": "Optimisation & Contrôle"
+      },
+      "description": "Mathematical optimisation methods and optimal control theory applied to engineering and life sciences — including analysis and control of unsteady models (ACUMES), model reduction for plasma instabilities (CASTOR), and adaptive modelling (ANGUS).",
+      "descriptions": {
+        "en": "Mathematical optimisation methods and optimal control theory applied to engineering and life sciences — including analysis and control of unsteady models (ACUMES), model reduction for plasma instabilities (CASTOR), and adaptive modelling (ANGUS).",
+        "fr": "Méthodes d'optimisation mathématique et théorie du contrôle optimal appliquées aux sciences de l'ingénieur et aux sciences du vivant — incluant l'analyse et le contrôle de modèles instationnaires (ACUMES), la réduction de modèles pour les instabilités plasma (CASTOR) et la modélisation adaptative (ANGUS)."
+      },
+      "position": {
+        "x": -120,
+        "y": -636
       }
     },
     {
       "id": "organisation",
       "label": "Organisation",
       "parentId": "root",
+      "labels": {
+        "en": "Organisation",
+        "fr": "Organisation"
+      },
+      "description": "Skills related to planning, managing, and optimising personal and collective work within a research team, covering project management, productivity, and leadership.",
+      "descriptions": {
+        "en": "Skills related to planning, managing, and optimising personal and collective work within a research team, covering project management, productivity, and leadership.",
+        "fr": "Compétences liées à la planification, la gestion et l'optimisation du travail personnel et collectif au sein d'une équipe de recherche, couvrant la gestion de projet, la productivité et le leadership."
+      },
       "position": {
-        "x": -96,
-        "y": -242
+        "x": 247,
+        "y": -81
+      }
+    },
+    {
+      "id": "perceptionCognition",
+      "label": "Perception, Cognition & Interaction",
+      "parentId": "research",
+      "labels": {
+        "en": "Perception, Cognition & Interaction",
+        "fr": "Perception, Cognition & Interaction"
+      },
+      "description": "Research on how computational systems perceive, interpret, and interact with the physical and social world — covering computer vision, robotics, HCI, graphics, and speech processing, as studied by teams ACENTAURI, BIOVISION, GRAPHDECO, and HEPHAISTOS at Inria UCA.",
+      "descriptions": {
+        "en": "Research on how computational systems perceive, interpret, and interact with the physical and social world — covering computer vision, robotics, HCI, graphics, and speech processing, as studied by teams ACENTAURI, BIOVISION, GRAPHDECO, and HEPHAISTOS at Inria UCA.",
+        "fr": "Recherche sur la façon dont les systèmes computationnels perçoivent, interprètent et interagissent avec le monde physique et social — couvrant la vision par ordinateur, la robotique, l'IHM, l'infographie et le traitement de la parole, étudiée par les équipes ACENTAURI, BIOVISION, GRAPHDECO et HEPHAISTOS au centre Inria UCA."
+      },
+      "position": {
+        "x": -450,
+        "y": -221
+      }
+    },
+    {
+      "id": "performance",
+      "label": "Performance",
+      "parentId": "architecture",
+      "labels": {
+        "en": "Performance",
+        "fr": "Performance"
+      },
+      "description": "Profiling, optimising, and scaling research software to run efficiently on available hardware — leveraging multi-core CPUs, SIMD vectorisation, GPUs, and memory hierarchy awareness.",
+      "descriptions": {
+        "en": "Profiling, optimising, and scaling research software to run efficiently on available hardware — leveraging multi-core CPUs, SIMD vectorisation, GPUs, and memory hierarchy awareness.",
+        "fr": "Profilage, optimisation et mise à l'échelle des logiciels de recherche pour une exécution efficace sur le matériel disponible — en tirant parti des processeurs multi-cœurs, de la vectorisation SIMD, des GPU et de la connaissance de la hiérarchie mémoire."
+      },
+      "position": {
+        "x": -126,
+        "y": 581
       }
     },
     {
       "id": "planning",
       "label": "Planning",
-      "parentId": "projectMgmt",
+      "parentId": "projectManagement",
+      "labels": {
+        "en": "Planning",
+        "fr": "Planification"
+      },
+      "description": "Breaking down high-level research objectives into actionable tasks and milestones with realistic timelines, resource estimates, and clear dependencies between work items.",
+      "descriptions": {
+        "en": "Breaking down high-level research objectives into actionable tasks and milestones with realistic timelines, resource estimates, and clear dependencies between work items.",
+        "fr": "Décomposition des objectifs de recherche de haut niveau en tâches et jalons exploitables avec des calendriers réalistes, des estimations de ressources et des dépendances claires entre les éléments de travail."
+      },
       "position": {
-        "x": -409,
-        "y": -527
+        "x": 598,
+        "y": -306
       }
     },
     {
       "id": "presenting",
       "label": "Presenting",
       "parentId": "communication",
+      "labels": {
+        "en": "Presenting",
+        "fr": "Présentation"
+      },
+      "description": "Communicating research work and ideas effectively through oral presentations, live demos, and visual materials — adapting content and style to the audience's background and expectations.",
+      "descriptions": {
+        "en": "Communicating research work and ideas effectively through oral presentations, live demos, and visual materials — adapting content and style to the audience's background and expectations.",
+        "fr": "Communication efficace des travaux et idées de recherche par des présentations orales, des démonstrations en direct et des supports visuels — en adaptant le contenu et le style aux connaissances et attentes du public."
+      },
       "position": {
-        "x": -518,
-        "y": 50
+        "x": 206,
+        "y": -477
       }
     },
     {
       "id": "prioritisation",
       "label": "Prioritisation",
       "parentId": "productivity",
+      "labels": {
+        "en": "Prioritisation",
+        "fr": "Priorisation"
+      },
+      "description": "Identifying and focusing on the highest-impact tasks when facing multiple concurrent commitments — research, software development, reporting, teaching — while managing stakeholder expectations.",
+      "descriptions": {
+        "en": "Identifying and focusing on the highest-impact tasks when facing multiple concurrent commitments — research, software development, reporting, teaching — while managing stakeholder expectations.",
+        "fr": "Identification et concentration sur les tâches à plus fort impact face à des engagements concurrents multiples — recherche, développement logiciel, reporting, enseignement — tout en gérant les attentes des parties prenantes."
+      },
       "position": {
-        "x": 108,
-        "y": -537
+        "x": 747,
+        "y": 55
       }
     },
     {
       "id": "productivity",
       "label": "Productivity",
       "parentId": "organisation",
+      "labels": {
+        "en": "Productivity",
+        "fr": "Productivité"
+      },
+      "description": "Personal habits, systems, and tools that help a research engineer sustain deep, focused work — balancing research output quality with the breadth of demands inherent to the role.",
+      "descriptions": {
+        "en": "Personal habits, systems, and tools that help a research engineer sustain deep, focused work — balancing research output quality with the breadth of demands inherent to the role.",
+        "fr": "Habitudes personnelles, systèmes et outils qui aident un ingénieur de recherche à maintenir un travail profond et concentré — en équilibrant la qualité des résultats de recherche avec l'étendue des exigences inhérentes au rôle."
+      },
       "position": {
-        "x": 3,
-        "y": -459
+        "x": 492,
+        "y": 6
       }
     },
     {
-      "id": "projectMgmt",
+      "id": "projectManagement",
       "label": "Project Mgmt",
       "parentId": "organisation",
+      "labels": {
+        "en": "Project Mgmt",
+        "fr": "Gestion de projet"
+      },
+      "description": "Planning, executing, monitoring, and closing research projects — coordinating contributors, deliverables, reporting milestones, and relationships with funding agencies and industrial partners.",
+      "descriptions": {
+        "en": "Planning, executing, monitoring, and closing research projects — coordinating contributors, deliverables, reporting milestones, and relationships with funding agencies and industrial partners.",
+        "fr": "Planification, exécution, suivi et clôture des projets de recherche — coordination des contributeurs, des livrables, des jalons de reporting et des relations avec les agences de financement et les partenaires industriels."
+      },
       "position": {
-        "x": -317,
-        "y": -378
+        "x": 434,
+        "y": -261
       }
     },
     {
-      "id": "publicSpeaking",
-      "label": "Public Speaking",
-      "parentId": "presenting",
+      "id": "proofsVerification",
+      "label": "Proofs & Verification",
+      "parentId": "algorithmicsSoftware",
+      "labels": {
+        "en": "Proofs & Verification",
+        "fr": "Preuves & Vérification"
+      },
+      "description": "Formal methods for software verification, including proof assistants (Coq, Isabelle), abstract interpretation, static analysis, type systems, and logical foundations of programming — as studied by teams KAIROS and OLAS at Inria UCA.",
+      "descriptions": {
+        "en": "Formal methods for software verification, including proof assistants (Coq, Isabelle), abstract interpretation, static analysis, type systems, and logical foundations of programming — as studied by teams KAIROS and OLAS at Inria UCA.",
+        "fr": "Méthodes formelles pour la vérification de logiciels, incluant les assistants de preuve (Coq, Isabelle), l'interprétation abstraite, l'analyse statique, les systèmes de types et les fondements logiques de la programmation — étudiés par les équipes KAIROS et OLAS au centre Inria UCA."
+      },
       "position": {
-        "x": -672,
-        "y": 140
+        "x": -546,
+        "y": -550
       }
     },
     {
       "id": "python",
       "label": "Python",
-      "parentId": "custom_1772528008545",
+      "parentId": "langScientific",
+      "labels": {
+        "en": "Python",
+        "fr": "Python"
+      },
+      "description": "Proficiency in Python for scientific computing, data science, and research tooling — including key libraries such as NumPy, SciPy, Pandas, Matplotlib, PyTorch, and the broader scientific ecosystem.",
+      "descriptions": {
+        "en": "Proficiency in Python for scientific computing, data science, and research tooling — including key libraries such as NumPy, SciPy, Pandas, Matplotlib, PyTorch, and the broader scientific ecosystem.",
+        "fr": "Maîtrise de Python pour le calcul scientifique, la science des données et les outils de recherche — y compris les bibliothèques clés telles que NumPy, SciPy, Pandas, Matplotlib, PyTorch et le plus large écosystème scientifique."
+      },
       "position": {
-        "x": 792,
-        "y": -488
+        "x": 550,
+        "y": 656
       }
     },
     {
-      "id": "react",
-      "label": "React",
-      "parentId": "custom_1772528091099",
+      "id": "r",
+      "label": "R",
+      "parentId": "langScientific",
+      "labels": {
+        "en": "R",
+        "fr": "R"
+      },
+      "description": "The R language and ecosystem for statistical computing, data visualisation, and bioinformatics — particularly relevant for research involving genomics, epidemiology, environmental data, and reproducible analysis (R Markdown, Quarto).",
+      "descriptions": {
+        "en": "The R language and ecosystem for statistical computing, data visualisation, and bioinformatics — particularly relevant for research involving genomics, epidemiology, environmental data, and reproducible analysis (R Markdown, Quarto).",
+        "fr": "Le langage R et son écosystème pour le calcul statistique, la visualisation de données et la bioinformatique — particulièrement pertinent pour la recherche en génomique, épidémiologie, données environnementales et analyse reproductible (R Markdown, Quarto)."
+      },
       "position": {
-        "x": 306,
-        "y": -538
+        "x": 676,
+        "y": 657
       }
     },
     {
-      "id": "reporting",
-      "label": "Reporting",
+      "id": "reports",
+      "label": "Reports",
       "parentId": "writing",
+      "labels": {
+        "en": "Reports",
+        "fr": "Rapports"
+      },
+      "description": "Drafting clear, structured technical and progress reports for project stakeholders, funding agencies, scientific committees, or internal audiences — including activity reports (RADAR at Inria).",
+      "descriptions": {
+        "en": "Drafting clear, structured technical and progress reports for project stakeholders, funding agencies, scientific committees, or internal audiences — including activity reports (RADAR at Inria).",
+        "fr": "Rédaction de rapports techniques et d'avancement clairs et structurés pour les parties prenantes du projet, les agences de financement, les comités scientifiques ou les audiences internes — y compris les rapports d'activité (RADAR chez Inria)."
+      },
       "position": {
-        "x": -599,
-        "y": 388
+        "x": 155,
+        "y": -649
+      }
+    },
+    {
+      "id": "reproducibility",
+      "label": "Reproducibility",
+      "parentId": "openScience",
+      "labels": {
+        "en": "Reproducibility",
+        "fr": "Reproductibilité"
+      },
+      "description": "Ensuring that computational experiments, results, and artefacts can be independently reproduced by others — a cornerstone of scientific integrity and a key quality criterion in research software engineering.",
+      "descriptions": {
+        "en": "Ensuring that computational experiments, results, and artefacts can be independently reproduced by others — a cornerstone of scientific integrity and a key quality criterion in research software engineering.",
+        "fr": "Garantir que les expériences computationnelles, les résultats et les artefacts peuvent être reproduits indépendamment par d'autres — pierre angulaire de l'intégrité scientifique et critère de qualité clé en ingénierie logicielle de recherche."
+      },
+      "position": {
+        "x": -473,
+        "y": 166
       }
     },
     {
       "id": "research",
       "label": "Research",
       "parentId": "root",
+      "labels": {
+        "en": "Research",
+        "fr": "Recherche"
+      },
+      "description": "Scientific research fields studied at the Inria Centre at Université Côte d'Azur, structured around the five official research domains of the centre: Applied Mathematics & Simulation, Algorithmics & Software, Perception/Cognition/Interaction, Digital Health/Biology/Earth, and Networks & Distributed Systems.",
+      "descriptions": {
+        "en": "Scientific research fields studied at the Inria Centre at Université Côte d'Azur, structured around the five official research domains of the centre: Applied Mathematics & Simulation, Algorithmics & Software, Perception/Cognition/Interaction, Digital Health/Biology/Earth, and Networks & Distributed Systems.",
+        "fr": "Domaines de recherche scientifique étudiés au centre Inria d'Université Côte d'Azur, structurés autour des cinq domaines officiels du centre : Mathématiques appliquées & Simulation, Algorithmique & Logiciel, Perception/Cognition/Interaction, Santé/Biologie/Terre numérique, et Réseaux & Systèmes distribués."
+      },
       "position": {
-        "x": -45,
-        "y": 256
+        "x": -194,
+        "y": -173
       }
     },
     {
-      "id": "riskMgmt",
-      "label": "Risk Mgmt",
-      "parentId": "projectMgmt",
+      "id": "researchObjects",
+      "label": "Research Objects",
+      "parentId": "reproducibility",
+      "labels": {
+        "en": "Research Objects",
+        "fr": "Objets de recherche"
+      },
+      "description": "Creating and publishing citable, persistent research objects — Zenodo deposits, Software Heritage archives, Research Compendiums — that bundle code, data, and documentation alongside the corresponding publications.",
+      "descriptions": {
+        "en": "Creating and publishing citable, persistent research objects — Zenodo deposits, Software Heritage archives, Research Compendiums — that bundle code, data, and documentation alongside the corresponding publications.",
+        "fr": "Création et publication d'objets de recherche citables et persistants — dépôts Zenodo, archives Software Heritage, Research Compendium — qui regroupent code, données et documentation aux côtés des publications correspondantes."
+      },
       "position": {
-        "x": -525,
-        "y": -479
+        "x": -718,
+        "y": 252
+      }
+    },
+    {
+      "id": "riskManagement",
+      "label": "Risk Mgmt",
+      "parentId": "projectManagement",
+      "labels": {
+        "en": "Risk Mgmt",
+        "fr": "Gestion des risques"
+      },
+      "description": "Identifying, assessing, and mitigating technical, organisational, and scientific risks in research projects — including dependency risks, schedule slippage, and personnel changes.",
+      "descriptions": {
+        "en": "Identifying, assessing, and mitigating technical, organisational, and scientific risks in research projects — including dependency risks, schedule slippage, and personnel changes.",
+        "fr": "Identification, évaluation et atténuation des risques techniques, organisationnels et scientifiques dans les projets de recherche — y compris les risques liés aux dépendances, les glissements de calendrier et les changements de personnel."
+      },
+      "position": {
+        "x": 641,
+        "y": -420
+      }
+    },
+    {
+      "id": "robotics",
+      "label": "Robotics",
+      "parentId": "perceptionCognition",
+      "labels": {
+        "en": "Robotics",
+        "fr": "Robotique"
+      },
+      "description": "Intelligent, autonomous and collaborative robotic systems for open and dynamic environments — including autonomous mobile robots (ACENTAURI), cable-driven parallel robots for physical assistance (HEPHAISTOS), and motion control for neuroprosthetics (CAMIN) at Inria UCA.",
+      "descriptions": {
+        "en": "Intelligent, autonomous and collaborative robotic systems for open and dynamic environments — including autonomous mobile robots (ACENTAURI), cable-driven parallel robots for physical assistance (HEPHAISTOS), and motion control for neuroprosthetics (CAMIN) at Inria UCA.",
+        "fr": "Systèmes robotiques intelligents, autonomes et collaboratifs pour des environnements ouverts et dynamiques — incluant les robots mobiles autonomes (ACENTAURI), les robots parallèles à câbles pour l'assistance physique (HEPHAISTOS) et le contrôle du mouvement pour les neuroprothèses (CAMIN) au centre Inria UCA."
+      },
+      "position": {
+        "x": -581,
+        "y": -252
       }
     },
     {
       "id": "root",
       "label": "Research Engineer",
-      "parentId": null
-    },
-    {
-      "id": "security",
-      "label": "Security",
-      "parentId": "architecture",
-      "position": {
-        "x": 735,
-        "y": 205
+      "parentId": null,
+      "labels": {
+        "en": "Research Engineer",
+        "fr": "Ingénieur·e de Recherche"
+      },
+      "description": "This skill tree was generated with AI assistance (LLM) from public sources including Inria job descriptions, RSE community resources, and open science guidelines. It maps the full breadth of skills a research engineer may develop while working at Inria, across five domains: Research, Software Engineering, Communication, Organisation, and Open Science. Every node includes bilingual descriptions (English / French).",
+      "descriptions": {
+        "en": "This skill tree was generated with AI assistance (LLM) from public sources including Inria job descriptions, RSE community resources, and open science guidelines. It maps the full breadth of skills a research engineer may develop while working at Inria, across five domains: Research, Software Engineering, Communication, Organisation, and Open Science. Every node includes bilingual descriptions (English / French).\n\nTypically, a Research Engineer at Inria is expected to:\n\n- Design, implement, and maintain high-quality, reproducible software tools and libraries.\n- Conduct and support cutting-edge research in computer science, mathematics, or related fields.\n- Collaborate with scientists, engineers, and external partners on interdisciplinary projects.\n- Publish and co-author scientific articles and contribute to open-source repositories.\n- Participate in grant proposals, project planning, and technical road-mapping.\n- Mentor junior engineers, PhD students, and interns; provide training on best practices.\n- Promote open science: reproducibility, FAIR data, and sustainable software.\n- Contribute to Inria's community activities (workshops, seminars, outreach).",
+        "fr": "Cet arbre de compétences a été généré avec l'assistance d'une IA (LLM) à partir de sources publiques, dont des offres d'emploi Inria, des ressources de la communauté des ingénieurs logiciels de recherche et des guides de science ouverte. Il cartographie l'ensemble des compétences qu'un ingénieur de recherche peut développer en travaillant chez Inria, dans cinq domaines : Recherche, Génie logiciel, Communication, Organisation et Science ouverte. Chaque nœud comprend des descriptions bilingues (anglais / français).\n\nEn règle générale, un ingénieur de recherche chez Inria est attendu à :\n\n- Concevoir, implémenter et maintenir des outils et bibliothèques logiciels de haute qualité et reproductibles.\n- Mener et soutenir des recherches de pointe en informatique, mathématiques ou domaines connexes.\n- Collaborer avec des scientifiques, ingénieurs et partenaires externes sur des projets interdisciplinaires.\n- Publier et co-signer des articles scientifiques et contribuer à des dépôts open source.\n- Participer à la rédaction de propositions de financement, à la planification de projets et à la définition des feuilles de route techniques.\n- Encadrer les ingénieurs juniors, doctorants et stagiaires ; assurer la formation aux bonnes pratiques.\n- Promouvoir la science ouverte : reproductibilité, données FAIR et logiciels durables.\n- Contribuer aux activités communautaires d'Inria (ateliers, séminaires, diffusion des connaissances)."
       }
     },
     {
-      "id": "statistics",
-      "label": "Statistics",
-      "parentId": "dataAnalysis",
+      "id": "rust",
+      "label": "Rust",
+      "parentId": "langNative",
+      "labels": {
+        "en": "Rust",
+        "fr": "Rust"
+      },
+      "description": "The Rust programming language for building safe, high-performance system-level research tools with memory safety guarantees, zero-cost abstractions, and a strong type system.",
+      "descriptions": {
+        "en": "The Rust programming language for building safe, high-performance system-level research tools with memory safety guarantees, zero-cost abstractions, and a strong type system.",
+        "fr": "Le langage de programmation Rust pour la construction d'outils de recherche système sûrs et haute performance avec des garanties de sécurité mémoire, des abstractions sans coût et un système de types robuste."
+      },
       "position": {
-        "x": -35,
-        "y": 686
+        "x": 725,
+        "y": 380
       }
     },
     {
-      "id": "storytelling",
-      "label": "Storytelling",
+      "id": "scientificOutreach",
+      "label": "Scientific Outreach",
+      "parentId": "valorisation",
+      "labels": {
+        "en": "Scientific Outreach",
+        "fr": "Médiation scientifique"
+      },
+      "description": "Making research accessible and engaging for non-specialist audiences through public events, school interventions, media appearances, exhibitions (e.g., Fête de la Science), and educational content.",
+      "descriptions": {
+        "en": "Making research accessible and engaging for non-specialist audiences through public events, school interventions, media appearances, exhibitions (e.g., Fête de la Science), and educational content.",
+        "fr": "Rendre la recherche accessible et engageante pour des publics non spécialistes par des événements publics, des interventions scolaires, des passages dans les médias, des expositions (par ex. Fête de la Science) et des contenus éducatifs."
+      },
+      "position": {
+        "x": -491,
+        "y": 588
+      }
+    },
+    {
+      "id": "scientificPapers",
+      "label": "Scientific Papers",
+      "parentId": "writing",
+      "labels": {
+        "en": "Scientific Papers",
+        "fr": "Articles scientifiques"
+      },
+      "description": "Writing, structuring, revising, and submitting scientific articles and conference papers — mastering academic writing conventions, LaTeX typesetting, and the submission and rebuttal process.",
+      "descriptions": {
+        "en": "Writing, structuring, revising, and submitting scientific articles and conference papers — mastering academic writing conventions, LaTeX typesetting, and the submission and rebuttal process.",
+        "fr": "Rédaction, structuration, révision et soumission d'articles scientifiques et de communications de conférence — maîtrise des conventions de rédaction académique, de la composition LaTeX et du processus de soumission et de rebuttal."
+      },
+      "position": {
+        "x": 62,
+        "y": -679
+      }
+    },
+    {
+      "id": "securityResearch",
+      "label": "Security & Confidentiality",
+      "parentId": "networksDistributed",
+      "labels": {
+        "en": "Security & Confidentiality",
+        "fr": "Sécurité & Confidentialité"
+      },
+      "description": "Research on cryptographic protocols, privacy-preserving computation, formal security proofs, and the design of systems that resist adversarial attacks — underpinning the ubiquitous computing strategic priority at Inria UCA.",
+      "descriptions": {
+        "en": "Research on cryptographic protocols, privacy-preserving computation, formal security proofs, and the design of systems that resist adversarial attacks — underpinning the ubiquitous computing strategic priority at Inria UCA.",
+        "fr": "Recherche sur les protocoles cryptographiques, le calcul préservant la vie privée, les preuves de sécurité formelles et la conception de systèmes résistant aux attaques adversariales — soutenant la priorité stratégique de l'informatique ubiquitaire au centre Inria UCA."
+      },
+      "position": {
+        "x": -543,
+        "y": 22
+      }
+    },
+    {
+      "id": "softwareDocumentation",
+      "label": "Documentation",
+      "parentId": "softwareEngineering",
+      "labels": {
+        "en": "Documentation",
+        "fr": "Documentation"
+      },
+      "description": "Creating and maintaining comprehensive documentation for research software — tutorials, how-to guides, API references, and architectural explanations — to facilitate adoption, contribution, and long-term maintenance.",
+      "descriptions": {
+        "en": "Creating and maintaining comprehensive documentation for research software — tutorials, how-to guides, API references, and architectural explanations — to facilitate adoption, contribution, and long-term maintenance.",
+        "fr": "Création et maintenance d'une documentation complète pour les logiciels de recherche — tutoriels, guides pratiques, références API et explications architecturales — pour faciliter l'adoption, la contribution et la maintenance à long terme."
+      },
+      "position": {
+        "x": 146,
+        "y": 175
+      }
+    },
+    {
+      "id": "softwareEngineering",
+      "label": "Software Engineering",
+      "parentId": "root",
+      "labels": {
+        "en": "Software Engineering",
+        "fr": "Génie logiciel"
+      },
+      "description": "Professional software development skills, practices, and tools applied to the engineering of reliable, efficient, and sustainable research software — from language proficiency to DevOps and documentation.",
+      "descriptions": {
+        "en": "Professional software development skills, practices, and tools applied to the engineering of reliable, efficient, and sustainable research software — from language proficiency to DevOps and documentation.",
+        "fr": "Compétences, pratiques et outils de développement logiciel professionnel appliqués à l'ingénierie de logiciels de recherche fiables, efficaces et durables — de la maîtrise des langages au DevOps et à la documentation."
+      },
+      "colorOverride": "#487cef",
+      "position": {
+        "x": 17,
+        "y": 259
+      }
+    },
+    {
+      "id": "speechLanguageProcessing",
+      "label": "Speech & Language",
+      "parentId": "perceptionCognition",
+      "labels": {
+        "en": "Speech & Language",
+        "fr": "Parole & Langue"
+      },
+      "description": "Automatic speech recognition, natural language processing, and audio analysis — including computational argumentation and NLP for AI (MARIANNE) and speech/audio processing research at Inria UCA.",
+      "descriptions": {
+        "en": "Automatic speech recognition, natural language processing, and audio analysis — including computational argumentation and NLP for AI (MARIANNE) and speech/audio processing research at Inria UCA.",
+        "fr": "Reconnaissance automatique de la parole, traitement du langage naturel et analyse audio — incluant l'argumentation computationnelle et le NLP pour l'IA (MARIANNE) et la recherche en traitement de la parole et de l'audio au centre Inria UCA."
+      },
+      "position": {
+        "x": -669,
+        "y": -361
+      }
+    },
+    {
+      "id": "stochasticMethods",
+      "label": "Stochastic Methods",
+      "parentId": "appliedMathsComputation",
+      "labels": {
+        "en": "Stochastic Methods",
+        "fr": "Méthodes stochastiques"
+      },
+      "description": "Probabilistic and stochastic approaches to model uncertainty and complex random phenomena — including stochastic PDEs, particle dynamics, and turbulence modelling as developed by team CALISTO at Inria UCA.",
+      "descriptions": {
+        "en": "Probabilistic and stochastic approaches to model uncertainty and complex random phenomena — including stochastic PDEs, particle dynamics, and turbulence modelling as developed by team CALISTO at Inria UCA.",
+        "fr": "Approches probabilistes et stochastiques pour modéliser l'incertitude et les phénomènes aléatoires complexes — incluant les EDP stochastiques, la dynamique des particules et la modélisation de la turbulence, développées par l'équipe CALISTO au centre Inria UCA."
+      },
+      "position": {
+        "x": -215,
+        "y": -688
+      }
+    },
+    {
+      "id": "teaching",
+      "label": "Teaching",
       "parentId": "presenting",
+      "labels": {
+        "en": "Teaching",
+        "fr": "Enseignement"
+      },
+      "description": "Teaching and training others through lectures, practical lab sessions, tutorials, MOOCs, or hands-on workshops — sharing technical and scientific expertise with students, colleagues, and the wider community.",
+      "descriptions": {
+        "en": "Teaching and training others through lectures, practical lab sessions, tutorials, MOOCs, or hands-on workshops — sharing technical and scientific expertise with students, colleagues, and the wider community.",
+        "fr": "Enseignement et formation d'autrui par des cours magistraux, des travaux pratiques, des tutoriels, des MOOCs ou des ateliers pratiques — partage de l'expertise technique et scientifique avec les étudiants, les collègues et la communauté."
+      },
       "position": {
-        "x": -763,
-        "y": 47
+        "x": 240,
+        "y": -735
       }
     },
     {
-      "id": "surveys",
-      "label": "Surveys",
-      "parentId": "userResearch",
+      "id": "teamwork",
+      "label": "Teamwork",
+      "parentId": "collaboration",
+      "labels": {
+        "en": "Teamwork",
+        "fr": "Travail en équipe"
+      },
+      "description": "Contributing constructively to team dynamics — sharing knowledge openly, participating in code and design reviews, providing and receiving feedback, and working toward common scientific objectives.",
+      "descriptions": {
+        "en": "Contributing constructively to team dynamics — sharing knowledge openly, participating in code and design reviews, providing and receiving feedback, and working toward common scientific objectives.",
+        "fr": "Contribution constructive à la dynamique d'équipe — partage ouvert des connaissances, participation aux revues de code et de conception, échange de retours et travail vers des objectifs scientifiques communs."
+      },
       "position": {
-        "x": 101,
-        "y": 627
+        "x": 396,
+        "y": -505
+      }
+    },
+    {
+      "id": "technologyTransfer",
+      "label": "Technology Transfer",
+      "parentId": "valorisation",
+      "labels": {
+        "en": "Technology Transfer",
+        "fr": "Transfert technologique"
+      },
+      "description": "Collaborating with industry partners, start-ups, and Inria's technology transfer office (SATT, SED) to transfer research outcomes into products, services, or spin-offs that create real-world impact.",
+      "descriptions": {
+        "en": "Collaborating with industry partners, start-ups, and Inria's technology transfer office (SATT, SED) to transfer research outcomes into products, services, or spin-offs that create real-world impact.",
+        "fr": "Collaboration avec des partenaires industriels, des start-ups et le bureau de transfert technologique d'Inria (SATT, SED) pour transférer les résultats de recherche en produits, services ou start-ups créant un impact dans le monde réel."
+      },
+      "position": {
+        "x": -465,
+        "y": 479
       }
     },
     {
       "id": "techWriting",
       "label": "Tech Writing",
-      "parentId": "writing",
+      "parentId": "softwareDocumentation",
+      "labels": {
+        "en": "Tech Writing",
+        "fr": "Rédaction technique"
+      },
+      "description": "Writing clear, structured technical documentation following the Diátaxis framework (tutorials, how-to guides, explanations, reference) to make research software understandable and usable by its target audience.",
+      "descriptions": {
+        "en": "Writing clear, structured technical documentation following the Diátaxis framework (tutorials, how-to guides, explanations, reference) to make research software understandable and usable by its target audience.",
+        "fr": "Rédaction d'une documentation technique claire et structurée suivant le cadre Diátaxis (tutoriels, guides pratiques, explications, références) pour rendre les logiciels de recherche compréhensibles et utilisables par leur public cible."
+      },
       "position": {
-        "x": -592,
-        "y": 260
+        "x": 279,
+        "y": 135
+      }
+    },
+    {
+      "id": "testing",
+      "label": "Testing",
+      "parentId": "architecture",
+      "labels": {
+        "en": "Testing",
+        "fr": "Tests"
+      },
+      "description": "Writing and maintaining automated test suites — unit, integration, property-based, and regression tests — to ensure software correctness, prevent regressions, and enable safe refactoring over a project's lifetime.",
+      "descriptions": {
+        "en": "Writing and maintaining automated test suites — unit, integration, property-based, and regression tests — to ensure software correctness, prevent regressions, and enable safe refactoring over a project's lifetime.",
+        "fr": "Rédaction et maintenance de suites de tests automatisés — tests unitaires, d'intégration, basés sur des propriétés et de régression — pour assurer l'exactitude des logiciels, prévenir les régressions et permettre un refactoring sûr."
+      },
+      "position": {
+        "x": -81,
+        "y": 660
       }
     },
     {
       "id": "timeManagement",
       "label": "Time Mgmt",
       "parentId": "productivity",
+      "labels": {
+        "en": "Time Mgmt",
+        "fr": "Gestion du temps"
+      },
+      "description": "Allocating and protecting focused time blocks across competing research, development, administrative, and teaching demands — using techniques such as time-boxing, deep work scheduling, and async communication.",
+      "descriptions": {
+        "en": "Allocating and protecting focused time blocks across competing research, development, administrative, and teaching demands — using techniques such as time-boxing, deep work scheduling, and async communication.",
+        "fr": "Allocation et protection de blocs de temps concentrés face aux exigences concurrentes de recherche, développement, administration et enseignement — en utilisant des techniques telles que le time-boxing, la planification du travail profond et la communication asynchrone."
+      },
       "position": {
-        "x": 29,
-        "y": -654
+        "x": 645,
+        "y": -14
+      }
+    },
+    {
+      "id": "tooling",
+      "label": "Tooling",
+      "parentId": "productivity",
+      "labels": {
+        "en": "Tooling",
+        "fr": "Outillage"
+      },
+      "description": "Selecting and configuring productivity tools — IDEs, note-taking systems, task managers, AI coding assistants — to support efficient, sustainable, and high-quality research and development work.",
+      "descriptions": {
+        "en": "Selecting and configuring productivity tools — IDEs, note-taking systems, task managers, AI coding assistants — to support efficient, sustainable, and high-quality research and development work.",
+        "fr": "Sélection et configuration d'outils de productivité — IDEs, systèmes de prise de notes, gestionnaires de tâches, assistants de code IA — pour soutenir un travail de recherche et développement efficace, durable et de haute qualité."
+      },
+      "position": {
+        "x": 623,
+        "y": 117
       }
     },
     {
       "id": "typescript",
       "label": "TypeScript",
-      "parentId": "custom_1772528091099",
+      "parentId": "langWeb",
+      "labels": {
+        "en": "TypeScript",
+        "fr": "TypeScript"
+      },
+      "description": "TypeScript for building robust, type-safe web applications and research tools — providing static type checking on top of JavaScript for larger codebases and team development.",
+      "descriptions": {
+        "en": "TypeScript for building robust, type-safe web applications and research tools — providing static type checking on top of JavaScript for larger codebases and team development.",
+        "fr": "TypeScript pour la construction d'applications web robustes et sûres en termes de types et d'outils de recherche — fournissant une vérification statique des types au-dessus de JavaScript pour les grandes bases de code et le développement en équipe."
+      },
       "position": {
-        "x": 368,
-        "y": -665
+        "x": 349,
+        "y": 880
       }
     },
     {
-      "id": "usability",
-      "label": "Usability",
-      "parentId": "userResearch",
+      "id": "valorisation",
+      "label": "Valorisation",
+      "parentId": "openScience",
+      "labels": {
+        "en": "Valorisation",
+        "fr": "Valorisation"
+      },
+      "description": "Translating research results into broader societal and economic impact through technology transfer, scientific outreach, and competitive grant funding — key missions of Inria as a public research institute.",
+      "descriptions": {
+        "en": "Translating research results into broader societal and economic impact through technology transfer, scientific outreach, and competitive grant funding — key missions of Inria as a public research institute.",
+        "fr": "Traduction des résultats de recherche en impact sociétal et économique plus large grâce au transfert technologique, à la médiation scientifique et aux financements de projets compétitifs — missions clés d'Inria en tant qu'organisme de recherche public."
+      },
       "position": {
-        "x": 220,
-        "y": 679
+        "x": -352,
+        "y": 368
       }
     },
     {
-      "id": "userResearch",
-      "label": "User Research",
-      "parentId": "research",
+      "id": "versionControl",
+      "label": "Version Control",
+      "parentId": "devops",
+      "labels": {
+        "en": "Version Control",
+        "fr": "Gestion de versions"
+      },
+      "description": "Proficiency with Git and collaborative workflows — branching strategies, pull/merge requests, code review, conflict resolution — using platforms such as GitHub or Inria's own GitLab instance.",
+      "descriptions": {
+        "en": "Proficiency with Git and collaborative workflows — branching strategies, pull/merge requests, code review, conflict resolution — using platforms such as GitHub or Inria's own GitLab instance.",
+        "fr": "Maîtrise de Git et des flux de travail collaboratifs — stratégies de branches, pull/merge requests, revue de code, résolution de conflits — en utilisant des plateformes telles que GitHub ou l'instance GitLab d'Inria."
+      },
       "position": {
-        "x": 100,
-        "y": 472
+        "x": -204,
+        "y": 587
       }
     },
     {
       "id": "writing",
       "label": "Writing",
       "parentId": "communication",
+      "labels": {
+        "en": "Writing",
+        "fr": "Rédaction"
+      },
+      "description": "Producing written content that conveys research ideas, methods, and results to scientific and non-scientific audiences — including papers, reports, and accessible blog posts.",
+      "descriptions": {
+        "en": "Producing written content that conveys research ideas, methods, and results to scientific and non-scientific audiences — including papers, reports, and accessible blog posts.",
+        "fr": "Production de contenus écrits qui communiquent les idées, méthodes et résultats de recherche à des publics scientifiques et non scientifiques — incluant des articles, des rapports et des billets de blog accessibles."
+      },
       "position": {
-        "x": -436,
-        "y": 219
+        "x": 80,
+        "y": -494
       }
     }
   ]
