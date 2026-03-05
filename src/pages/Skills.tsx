@@ -378,8 +378,12 @@ export default function Skills() {
 
   const nodeMap = useMemo(() => new Map(nodes.map(n => [n.id, n])), [nodes]);
 
-  // ── Zoom ────────────────────────────────────────────────────────────────
+  // ── Zoom & drag-to-pan ────────────────────────────────────────────────
   const svgContainerRef = useRef<HTMLDivElement>(null);
+  const dragRef = useRef({ active: false, moved: false, lastX: 0, lastY: 0 });
+  const [isDragging, setIsDragging] = useState(false);
+  const zoomRef = useRef(zoom);
+  useEffect(() => { zoomRef.current = zoom; }, [zoom]);
 
   useEffect(() => {
     const el = svgContainerRef.current;
@@ -393,7 +397,33 @@ export default function Skills() {
     return () => el.removeEventListener('wheel', onWheel);
   }, []);
 
+  const handleMouseDown = useCallback((e: React.MouseEvent) => {
+    if (e.button !== 0) return;
+    dragRef.current = { active: true, moved: false, lastX: e.clientX, lastY: e.clientY };
+    setIsDragging(true);
+  }, []);
+
+  const handleMouseMove = useCallback((e: React.MouseEvent) => {
+    if (!dragRef.current.active) return;
+    const dx = e.clientX - dragRef.current.lastX;
+    const dy = e.clientY - dragRef.current.lastY;
+    dragRef.current.lastX = e.clientX;
+    dragRef.current.lastY = e.clientY;
+    if (Math.abs(dx) > 1 || Math.abs(dy) > 1) dragRef.current.moved = true;
+    const rect = svgContainerRef.current?.getBoundingClientRect();
+    if (!rect) return;
+    const ratio = VW / rect.width;
+    setPanX(x => x + dx * ratio / zoomRef.current);
+    setPanY(y => y + dy * ratio / zoomRef.current);
+  }, []);
+
+  const handleMouseUp = useCallback(() => {
+    dragRef.current.active = false;
+    setIsDragging(false);
+  }, []);
+
   const handleNodeClick = useCallback((node: NodeDatum) => {
+    if (dragRef.current.moved) return;
     setFocusedId(node.id);
     setPanX(VW / 2 - node.x);
     setPanY(VH / 2 - node.y);
@@ -518,15 +548,20 @@ export default function Skills() {
       </Typography>
 
       {/* SVG tree */}
-      <Box ref={svgContainerRef} sx={{
-        width: '100%',
-        borderRadius: 2,
-        overflow: 'hidden',
-        border: '1px solid',
-        borderColor: 'divider',
-        bgcolor: TREE_BG,
-        cursor: 'default',
-      }}>
+      <Box ref={svgContainerRef}
+        onMouseDown={handleMouseDown}
+        onMouseMove={handleMouseMove}
+        onMouseUp={handleMouseUp}
+        onMouseLeave={handleMouseUp}
+        sx={{
+          width: '100%',
+          borderRadius: 2,
+          overflow: 'hidden',
+          border: '1px solid',
+          borderColor: 'divider',
+          bgcolor: TREE_BG,
+          cursor: isDragging ? 'grabbing' : 'grab',
+        }}>
         <svg viewBox={`0 0 ${VW} ${VH}`} style={{ width: '100%', height: 'auto', display: 'block' }}>
           {/* ── Background ── */}
           <rect width={VW} height={VH} fill={TREE_BG}/>
@@ -536,7 +571,7 @@ export default function Skills() {
           {/* ── Pan group (animates on node click) ── */}
           <g style={{
             transform: `translate(${panX}px, ${panY}px)`,
-            transition: 'transform 0.55s cubic-bezier(0.25, 0.46, 0.45, 0.94)',
+            transition: isDragging ? 'none' : 'transform 0.55s cubic-bezier(0.25, 0.46, 0.45, 0.94)',
           }}>
             {/* Edges */}
             {edges.map((e, i) => {

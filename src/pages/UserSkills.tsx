@@ -381,8 +381,13 @@ export default function UserSkills() {
 
   const focusedNode = nodeMap.get(focusedId);
 
-  // ── Zoom ──────────────────────────────────────────────────────────────────
+  // ── Zoom & drag-to-pan ────────────────────────────────────────────────────
   const svgContainerRef = useRef<HTMLDivElement>(null);
+  const dragRef = useRef({ active: false, moved: false, lastX: 0, lastY: 0 });
+  const [isDragging, setIsDragging] = useState(false);
+  const zoomRef = useRef(zoom);
+  useEffect(() => { zoomRef.current = zoom; }, [zoom]);
+
   useEffect(() => {
     const el = svgContainerRef.current; if (!el) return;
     const onWheel = (e: WheelEvent) => { e.preventDefault(); const f = e.deltaY < 0 ? ZOOM_FACTOR : 1 / ZOOM_FACTOR; setZoom(z => Math.min(ZOOM_MAX, Math.max(ZOOM_MIN, z * f))); };
@@ -390,8 +395,34 @@ export default function UserSkills() {
     return () => el.removeEventListener('wheel', onWheel);
   }, []);
 
+  const handleMouseDown = useCallback((e: React.MouseEvent) => {
+    if (e.button !== 0) return;
+    dragRef.current = { active: true, moved: false, lastX: e.clientX, lastY: e.clientY };
+    setIsDragging(true);
+  }, []);
+
+  const handleMouseMove = useCallback((e: React.MouseEvent) => {
+    if (!dragRef.current.active) return;
+    const dx = e.clientX - dragRef.current.lastX;
+    const dy = e.clientY - dragRef.current.lastY;
+    dragRef.current.lastX = e.clientX;
+    dragRef.current.lastY = e.clientY;
+    if (Math.abs(dx) > 1 || Math.abs(dy) > 1) dragRef.current.moved = true;
+    const rect = svgContainerRef.current?.getBoundingClientRect();
+    if (!rect) return;
+    const ratio = VW / rect.width;
+    setPanX(x => x + dx * ratio / zoomRef.current);
+    setPanY(y => y + dy * ratio / zoomRef.current);
+  }, []);
+
+  const handleMouseUp = useCallback(() => {
+    dragRef.current.active = false;
+    setIsDragging(false);
+  }, []);
+
   // ── Handlers ──────────────────────────────────────────────────────────────
   const handleNodeClick = useCallback((node: NodeDatum) => {
+    if (dragRef.current.moved) return;
     setFocusedId(node.id);
     setPanX(VW / 2 - node.x);
     setPanY(VH / 2 - node.y);
@@ -459,11 +490,16 @@ export default function UserSkills() {
           </Box>
 
           {/* SVG */}
-          <Box ref={svgContainerRef} sx={{ borderRadius: 2, overflow: 'hidden', border: '1px solid', borderColor: 'divider', bgcolor: TREE_BG }}>
+          <Box ref={svgContainerRef}
+            onMouseDown={handleMouseDown}
+            onMouseMove={handleMouseMove}
+            onMouseUp={handleMouseUp}
+            onMouseLeave={handleMouseUp}
+            sx={{ borderRadius: 2, overflow: 'hidden', border: '1px solid', borderColor: 'divider', bgcolor: TREE_BG, cursor: isDragging ? 'grabbing' : 'grab' }}>
             <svg viewBox={`0 0 ${VW} ${VH}`} style={{ width: '100%', height: 'auto', display: 'block' }}>
               <rect width={VW} height={VH} fill={TREE_BG} />
               <g transform={`translate(${VW / 2}, ${VH / 2}) scale(${zoom}) translate(${-VW / 2}, ${-VH / 2})`}>
-                <g style={{ transform: `translate(${panX}px, ${panY}px)`, transition: 'transform 0.55s cubic-bezier(0.25, 0.46, 0.45, 0.94)' }}>
+                <g style={{ transform: `translate(${panX}px, ${panY}px)`, transition: isDragging ? 'none' : 'transform 0.55s cubic-bezier(0.25, 0.46, 0.45, 0.94)' }}>
                   {/* Edges */}
                   {edges.map((e, i) => {
                     const { stroke } = PALETTE[e.colorKey];
