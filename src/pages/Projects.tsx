@@ -17,7 +17,6 @@ import {
   TextField,
   Tab,
   Tabs,
-  Divider,
 } from '@mui/material';
 import AddIcon from '@mui/icons-material/Add';
 import EditIcon from '@mui/icons-material/Edit';
@@ -322,13 +321,15 @@ export default function Projects() {
           <Grid item xs={12} md={6} key={project.id}>
             <Card sx={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
               <CardContent sx={{ flex: 1 }}>
-                {/* Name + dates */}
-                <Box sx={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: 1 }}>
-                  <Typography variant="h5" gutterBottom>{project.name}</Typography>
+                {/* Title */}
+                <Typography variant="h5" gutterBottom>{project.name}</Typography>
+
+                {/* Tech stack */}
+                <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.75, mb: 2 }}>
+                  {project.techStack.map((tech) => (
+                    <Chip key={tech} label={tech} size="small" color="primary" variant="outlined" />
+                  ))}
                 </Box>
-                <Typography variant="body2" color="text.secondary" sx={{ mb: 1.5 }}>
-                  {fmt(project.startDate)} → {fmt(project.endDate)}
-                </Typography>
 
                 {/* Description */}
                 {project.description?.trim() ? (
@@ -347,12 +348,11 @@ export default function Projects() {
                   </Typography>
                 )}
 
-                {/* Tech stack */}
-                <Divider sx={{ mb: 1.5 }} />
-                <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.75 }}>
-                  {project.techStack.map((tech) => (
-                    <Chip key={tech} label={tech} size="small" color="primary" variant="outlined" />
-                  ))}
+                {/* Dates */}
+                <Box sx={{ borderTop: '1px solid', borderColor: 'divider', mt: 'auto', pt: 1.5 }}>
+                  <Typography variant="body2" color="text.secondary">
+                    {fmt(project.startDate)} → {fmt(project.endDate)}
+                  </Typography>
                 </Box>
               </CardContent>
 
