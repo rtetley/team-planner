@@ -51,7 +51,7 @@ export default function ProjectView() {
   const [loading, setLoading] = useState(true);
   const [notFound, setNotFound] = useState(false);
   const [dialogOpen, setDialogOpen] = useState(false);
-  const [expanded, setExpanded] = useState<string | false>('workPackages');
+  const [expanded, setExpanded] = useState<string | false>('skillTree');
 
   useEffect(() => {
     if (!id) return;
@@ -170,6 +170,28 @@ export default function ProjectView() {
       {/* ── collapsible panels ── */}
       <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1.5 }}>
 
+        {/* Skill Tree */}
+        <Accordion
+          expanded={expanded === 'skillTree'}
+          onChange={handleAccordion('skillTree')}
+          disableGutters
+          sx={{ border: '1px solid', borderColor: 'divider', borderRadius: '8px !important', '&:before': { display: 'none' } }}
+        >
+          <AccordionSummary expandIcon={<ExpandMoreIcon />}>
+            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
+              <HubIcon fontSize="small" color="action" />
+              <Typography fontWeight={600}>{t('projects.panelSkillTree')}</Typography>
+            </Box>
+          </AccordionSummary>
+          <AccordionDetails sx={{ pt: 2 }}>
+            <ProjectSkillTree
+              project={project}
+              onUpdate={p => setProject(p)}
+              isManager={isManager}
+            />
+          </AccordionDetails>
+        </Accordion>
+
         {/* Work Packages */}
         <Accordion
           expanded={expanded === 'workPackages'}
@@ -203,28 +225,6 @@ export default function ProjectView() {
           </AccordionSummary>
           <AccordionDetails>
             <EmptyPanel label={t('projects.panelKanbanEmpty')} />
-          </AccordionDetails>
-        </Accordion>
-
-        {/* Skill Tree */}
-        <Accordion
-          expanded={expanded === 'skillTree'}
-          onChange={handleAccordion('skillTree')}
-          disableGutters
-          sx={{ border: '1px solid', borderColor: 'divider', borderRadius: '8px !important', '&:before': { display: 'none' } }}
-        >
-          <AccordionSummary expandIcon={<ExpandMoreIcon />}>
-            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
-              <HubIcon fontSize="small" color="action" />
-              <Typography fontWeight={600}>{t('projects.panelSkillTree')}</Typography>
-            </Box>
-          </AccordionSummary>
-          <AccordionDetails sx={{ pt: 2 }}>
-            <ProjectSkillTree
-              project={project}
-              onUpdate={p => setProject(p)}
-              isManager={isManager}
-            />
           </AccordionDetails>
         </Accordion>
       </Box>
