@@ -11,10 +11,12 @@ import {
 import { teamMembersApi } from '../api';
 import { TeamMember } from '../types';
 import { useTranslation } from 'react-i18next';
+import { useSkillColorMap } from '../hooks/useSkillColorMap';
 
 export default function Team() {
   const { t } = useTranslation();
   const [teamMembers, setTeamMembers] = useState<TeamMember[]>([]);
+  const { byLabel: skillColors } = useSkillColorMap();
 
   useEffect(() => {
     teamMembersApi.getAll().then(setTeamMembers).catch(console.error);
@@ -42,9 +44,15 @@ export default function Team() {
                     {t('team.skills')}:
                   </Typography>
                   <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1 }}>
-                    {member.skills.map((skill, index) => (
-                      <Chip key={index} label={skill} size="small" />
-                    ))}
+                    {member.skills.map((skill, index) => {
+                      const color = skillColors.get(skill.toLowerCase());
+                      return (
+                        <Chip key={index} label={skill} size="small"
+                          variant="outlined"
+                          sx={color ? { borderColor: color, color } : {}}
+                        />
+                      );
+                    })}
                   </Box>
                 </Box>
               </CardContent>

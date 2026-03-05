@@ -524,13 +524,13 @@ export default function Skills() {
       {/* Breadcrumbs */}
       <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5, mb: 1, flexWrap: 'wrap', minHeight: 24 }}>
         {ancestorPath.map((ancestor) => {
-          const color = PALETTE[ancestor.colorKey].stroke;
+          const color = ancestor.color ?? PALETTE[ancestor.colorKey].stroke;
           return (
             <Box key={ancestor.id} sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
               <Typography
                 variant="caption"
                 onClick={() => { const n = nodeMap.get(ancestor.id); if (n) handleNodeClick(n); }}
-                sx={{ cursor: 'pointer', color: 'text.secondary', transition: 'color 0.2s', '&:hover': { color, textDecoration: 'underline' } }}
+                sx={{ cursor: 'pointer', color: 'text.secondary', transition: 'color 0.2s', '&:hover': { color: ancestor.color ?? color, textDecoration: 'underline' } }}
               >
                 {ancestor.label}
               </Typography>
@@ -540,7 +540,7 @@ export default function Skills() {
         })}
         {focusedNode && (
           <Typography variant="caption" sx={{
-            color: PALETTE[focusedNode.colorKey].stroke,
+            color: focusedNode.color ?? PALETTE[focusedNode.colorKey].stroke,
             fontWeight: 700,
           }}>
             {focusedNode.label}
@@ -667,7 +667,7 @@ export default function Skills() {
             </Box>
           ))}
           <Typography variant="body2"
-            sx={{ fontWeight: 700, color: PALETTE[focusedNode.colorKey].stroke }}>
+            sx={{ fontWeight: 700, color: focusedNode.color ?? PALETTE[focusedNode.colorKey].stroke }}>
             {focusedNode.label}
           </Typography>
         </Box>
@@ -731,7 +731,7 @@ export default function Skills() {
               <TableCell sx={{ fontWeight: 'bold', minWidth: 150 }}>{t('matrix.teamMember')}</TableCell>
               {matrixSkills.map((skill) => (
                 <TableCell key={skill.id} align="center"
-                  sx={{ fontWeight: 'bold', minWidth: 120, color: PALETTE[skill.colorKey].stroke }}>
+                  sx={{ fontWeight: 'bold', minWidth: 120, color: skill.color ?? PALETTE[skill.colorKey].stroke }}>
                   {skill.label}
                 </TableCell>
               ))}

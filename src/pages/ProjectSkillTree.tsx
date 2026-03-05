@@ -321,7 +321,7 @@ export default function ProjectSkillTree({ project, onUpdate, isManager }: Proje
   }, [edges, nodeMap, focusedId]);
 
   const focusedNode         = nodeMap.get(focusedId);
-  const focusedColor        = focusedNode ? PALETTE[focusedNode.colorKey].stroke : '#94a3b8';
+  const focusedColor        = focusedNode ? (focusedNode.color ?? PALETTE[focusedNode.colorKey].stroke) : '#94a3b8';
   const focusedIsRequired   = required.has(focusedId);
   const focusedIsLocked     = focusedNode ? isLocked(focusedId) : false;
   const focusedParentLabel  = focusedNode ? (nodeMap.get(parentMap.get(focusedId) ?? '')?.label ?? '') : '';
@@ -408,7 +408,7 @@ export default function ProjectSkillTree({ project, onUpdate, isManager }: Proje
             <Box key={ancestor.id} sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
               <Typography variant="caption"
                 onClick={() => { const n = nodeMap.get(ancestor.id); if (n) handleNodeClick(n); }}
-                sx={{ cursor: 'pointer', color: 'text.secondary', '&:hover': { color: PALETTE[ancestor.colorKey].stroke, textDecoration: 'underline' } }}>
+                sx={{ cursor: 'pointer', color: 'text.secondary', '&:hover': { color: ancestor.color ?? PALETTE[ancestor.colorKey].stroke, textDecoration: 'underline' } }}>
                 {ancestor.label}
               </Typography>
               <Typography variant="caption" color="text.disabled">/</Typography>
@@ -596,7 +596,7 @@ export default function ProjectSkillTree({ project, onUpdate, isManager }: Proje
               {Array.from(required).map(id => {
                 const n = nodeMap.get(id);
                 if (!n) return null;
-                const color = PALETTE[n.colorKey].stroke;
+                const color = n.color ?? PALETTE[n.colorKey].stroke;
                 return (
                   <Chip
                     key={id}

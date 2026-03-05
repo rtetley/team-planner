@@ -9,6 +9,7 @@ import Alert from '@mui/material/Alert';
 import { useAuth } from '../context/AuthContext';
 import { teamMembersApi, tasksApi, projectsApi } from '../api';
 import type { TeamMember, Task, Project } from '../types';
+import { useSkillColorMap } from '../hooks/useSkillColorMap';
 
 const STATUS_COLORS: Record<Task['status'], 'default' | 'warning' | 'success'> = {
   todo: 'default',
@@ -19,6 +20,7 @@ const STATUS_COLORS: Record<Task['status'], 'default' | 'warning' | 'success'> =
 export default function UserProfile() {
   const { t } = useTranslation();
   const { user } = useAuth();
+  const { byLabel: skillColors } = useSkillColorMap();
 
   const [member, setMember]   = useState<TeamMember | null>(null);
   const [tasks, setTasks]     = useState<Task[]>([]);
@@ -75,9 +77,14 @@ export default function UserProfile() {
             {member.position}
           </Typography>
           <Box sx={{ mt: 1, display: 'flex', flexWrap: 'wrap', gap: 1 }}>
-            {member.skills.map((skill) => (
-              <Chip key={skill} label={skill} size="small" variant="outlined" />
-            ))}
+            {member.skills.map((skill) => {
+              const color = skillColors.get(skill.toLowerCase());
+              return (
+                <Chip key={skill} label={skill} size="small" variant="outlined"
+                  sx={color ? { borderColor: color, color } : {}}
+                />
+              );
+            })}
           </Box>
         </Box>
       ) : (

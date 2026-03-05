@@ -458,7 +458,7 @@ export default function UserSkills() {
   const focusedIsLocked = focusedNode ? isLocked(focusedNode.id) : false;
   const focusedCanAllocate = focusedNode ? canAllocate(focusedNode.id) : false;
   const focusedParentLabel = focusedNode ? (nodeMap.get(parentMap.get(focusedNode.id) ?? '')?.label ?? '') : '';
-  const focusedColor = focusedNode ? PALETTE[focusedNode.colorKey].stroke : '#94a3b8';
+  const focusedColor = focusedNode ? (focusedNode.color ?? PALETTE[focusedNode.colorKey].stroke) : '#94a3b8';
 
   return (
     <Box sx={{ px: { xs: 2, md: 3 }, pt: 3, pb: 4 }}>
@@ -479,7 +479,7 @@ export default function UserSkills() {
               <Box key={ancestor.id} sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
                 <Typography variant="caption"
                   onClick={() => { const n = nodeMap.get(ancestor.id); if (n) handleNodeClick(n); }}
-                  sx={{ cursor: 'pointer', color: 'text.secondary', '&:hover': { color: PALETTE[ancestor.colorKey].stroke, textDecoration: 'underline' } }}>
+                  sx={{ cursor: 'pointer', color: 'text.secondary', '&:hover': { color: ancestor.color ?? PALETTE[ancestor.colorKey].stroke, textDecoration: 'underline' } }}>
                   {ancestor.label}
                 </Typography>
                 <Typography variant="caption" color="text.disabled">/</Typography>
@@ -681,14 +681,16 @@ export default function UserSkills() {
             </Box>
             {/* Legend */}
             <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1, mt: 1.5 }}>
-              {radarCategories.map(cat => (
+              {radarCategories.map(cat => {
+                const catColor = nodeMap.get(cat.id)?.color ?? PALETTE[cat.colorKey].stroke;
+                return (
                 <Box key={cat.id} sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
-                  <Box sx={{ width: 8, height: 8, borderRadius: '50%', bgcolor: PALETTE[cat.colorKey].stroke }} />
-                  <Typography variant="caption" sx={{ color: PALETTE[cat.colorKey].stroke, fontSize: '0.68rem', fontWeight: 600 }}>
+                  <Box sx={{ width: 8, height: 8, borderRadius: '50%', bgcolor: catColor }} />
+                  <Typography variant="caption" sx={{ color: catColor, fontSize: '0.68rem', fontWeight: 600 }}>
                     {cat.label} ({cat.total})
                   </Typography>
                 </Box>
-              ))}
+              );})}
             </Box>
           </Box>
         </Box>
