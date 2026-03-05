@@ -69,6 +69,7 @@
         "en": "Generating and maintaining structured API references (e.g., with Sphinx, Doxygen, or MkDocs) directly from source code, inline docstrings, and type annotations.",
         "fr": "Génération et maintenance de références API structurées (par exemple avec Sphinx, Doxygen ou MkDocs) directement depuis le code source, les docstrings et les annotations de types."
       },
+      "color": "#4663cf",
       "position": {
         "x": 144,
         "y": 51
@@ -87,6 +88,7 @@
         "en": "Designing and consuming clean, versioned, and well-documented application programming interfaces — REST, GraphQL, or library APIs — to expose research software capabilities to other tools and users.",
         "fr": "Conception et consommation d'interfaces de programmation d'applications propres, versionnées et bien documentées — REST, GraphQL ou APIs de bibliothèque — pour exposer les capacités des logiciels de recherche."
       },
+      "color": "#4663cf",
       "position": {
         "x": 26,
         "y": 648
@@ -123,6 +125,7 @@
         "en": "Design principles, structural patterns, and quality attributes that guide the organisation of research software for long-term maintainability, extensibility, and correctness.",
         "fr": "Principes de conception, patrons structurels et attributs de qualité qui guident l'organisation des logiciels de recherche pour leur maintenabilité, extensibilité et correction à long terme."
       },
+      "color": "#4663cf",
       "position": {
         "x": -18,
         "y": 517
@@ -141,6 +144,7 @@
         "en": "Shell scripting (Bash, Zsh) for task automation, pipeline orchestration, build systems, and day-to-day work in Unix/Linux HPC and cloud environments.",
         "fr": "Scripts shell (Bash, Zsh) pour l'automatisation de tâches, l'orchestration de pipelines, les systèmes de build et le travail quotidien dans les environnements Unix/Linux HPC et cloud."
       },
+      "color": "#4663cf",
       "position": {
         "x": 457,
         "y": 244
@@ -177,6 +181,7 @@
         "en": "The C language for portable, efficient system-level and embedded programming — widely used in HPC runtimes, operating system kernels, and as the lingua franca for cross-language interoperability via C-ABI.",
         "fr": "Le langage C pour la programmation système portable et efficace — largement utilisé dans les runtimes HPC, les noyaux de systèmes d'exploitation et comme lingua franca pour l'interopérabilité inter-langages via la C-ABI."
       },
+      "color": "#4663cf",
       "position": {
         "x": 569,
         "y": 524
@@ -195,6 +200,7 @@
         "en": "Setting up and maintaining continuous integration and continuous deployment pipelines (e.g., GitHub Actions, GitLab CI/CD) to automate building, testing, and releasing research software.",
         "fr": "Mise en place et maintenance de pipelines d'intégration et de déploiement continus (par exemple GitHub Actions, GitLab CI/CD) pour automatiser la construction, les tests et la publication des logiciels de recherche."
       },
+      "color": "#4663cf",
       "position": {
         "x": -241,
         "y": 702
@@ -267,6 +273,7 @@
         "en": "Fostering and growing an active user and contributor community around research software projects through clear governance, welcoming documentation, and regular engagement.",
         "fr": "Fédérer et développer une communauté active d'utilisateurs et de contributeurs autour des projets de logiciels de recherche grâce à une gouvernance claire, une documentation accueillante et un engagement régulier."
       },
+      "color": "#d1d96b",
       "position": {
         "x": -564,
         "y": 347
@@ -393,6 +400,7 @@
         "en": "Using container technologies (Docker, Singularity/Apptainer) to package computational environments so that experiments can be reproduced portably across development machines, clusters, and cloud infrastructure.",
         "fr": "Utilisation des technologies de conteneurisation (Docker, Singularity/Apptainer) pour empaqueter les environnements de calcul afin que les expériences puissent être reproduites de manière portable sur des machines de développement, des clusters et des infrastructures cloud."
       },
+      "color": "#4663cf",
       "position": {
         "x": -290,
         "y": 505
@@ -411,6 +419,7 @@
         "en": "Contributing to third-party open-source projects through bug reports, patches, code reviews, documentation improvements, and community discussions to improve the research software ecosystem.",
         "fr": "Contribution à des projets open source tiers par des rapports de bugs, des correctifs, des revues de code, des améliorations de documentation et des discussions communautaires pour améliorer l'écosystème des logiciels de recherche."
       },
+      "color": "#d1d96b",
       "position": {
         "x": -608,
         "y": 481
@@ -429,6 +438,7 @@
         "en": "Coq (recently renamed Rocq) is an interactive proof assistant developed at Inria — used to write formal proofs of mathematical theorems and to verify the correctness of algorithms and programs, with applications ranging from certified compilers (CompCert) to formalised mathematics.",
         "fr": "Coq (récemment renommé Rocq) est un assistant de preuve interactif développé à Inria — utilisé pour écrire des preuves formelles de théorèmes mathématiques et vérifier l'exactitude d'algorithmes et de programmes, avec des applications allant des compilateurs certifiés (CompCert) aux mathématiques formalisées."
       },
+      "color": "#4663cf",
       "position": {
         "x": 120,
         "y": 837
@@ -447,6 +457,7 @@
         "en": "C and C++ programming for high-performance, numerically intensive, or system-level research applications, including familiarity with the standard library, template metaprogramming, and build systems such as CMake.",
         "fr": "Programmation C et C++ pour les applications de recherche haute performance, numériquement intensives ou au niveau système, y compris la connaissance de la bibliothèque standard, de la métaprogrammation par templates et des systèmes de build tels que CMake."
       },
+      "color": "#4663cf",
       "position": {
         "x": 719,
         "y": 505
@@ -483,6 +494,7 @@
         "en": "Planning, organising, documenting, and publishing research datasets following institutional requirements, data management plans (DMP), and open data practices promoted by funding bodies (ANR, EU Horizon).",
         "fr": "Planification, organisation, documentation et publication des jeux de données de recherche selon les exigences institutionnelles, les plans de gestion des données (PGD) et les pratiques de données ouvertes promues par les organismes de financement (ANR, Horizon Europe)."
       },
+      "color": "#d1d96b",
       "position": {
         "x": -614,
         "y": 184
@@ -555,6 +567,7 @@
         "en": "Knowledge and application of proven software design patterns (Factory, Observer, Strategy, Visitor, etc.) to solve recurring engineering problems in a way that promotes reuse and clarity.",
         "fr": "Connaissance et application des patrons de conception logicielle éprouvés (Factory, Observer, Strategy, Visitor, etc.) pour résoudre les problèmes d'ingénierie récurrents d'une manière qui favorise la réutilisation et la clarté."
       },
+      "color": "#4663cf",
       "position": {
         "x": 94,
         "y": 536
@@ -573,6 +586,7 @@
         "en": "Practices and tools that automate and streamline the software delivery pipeline — from source code to a running environment — improving reliability and reproducibility of research software.",
         "fr": "Pratiques et outils qui automatisent et rationalisent le pipeline de livraison logicielle — du code source à un environnement en cours d'exécution — améliorant la fiabilité et la reproductibilité des logiciels de recherche."
       },
+      "color": "#4663cf",
       "position": {
         "x": -149,
         "y": 459
@@ -645,6 +659,7 @@
         "en": "Applying FAIR (Findable, Accessible, Interoperable, Reusable) principles to research data and software to maximise their long-term value, discoverability, and reuse by the community.",
         "fr": "Application des principes FAIR (Trouvable, Accessible, Interopérable, Réutilisable) aux données et logiciels de recherche pour maximiser leur valeur à long terme, leur découvrabilité et leur réutilisation par la communauté."
       },
+      "color": "#d1d96b",
       "position": {
         "x": -730,
         "y": 131
@@ -681,6 +696,7 @@
         "en": "Google's Go language for building reliable, concurrent tools and services — valued for its simplicity, fast compilation, and excellent standard library, particularly for CLI tools and networked research infrastructure.",
         "fr": "Le langage Go de Google pour la construction d'outils et de services fiables et concurrents — apprécié pour sa simplicité, sa compilation rapide et son excellente bibliothèque standard, notamment pour les outils CLI et l'infrastructure de recherche en réseau."
       },
+      "color": "#4663cf",
       "position": {
         "x": 609,
         "y": 342
@@ -699,6 +715,7 @@
         "en": "Participating in the preparation and writing of competitive research grant proposals (ANR, EU Horizon Europe, ERC, bilateral contracts) including technical descriptions, work packages, and budgets.",
         "fr": "Participation à la préparation et à la rédaction de propositions de projets de recherche compétitifs (ANR, Horizon Europe, ERC, contrats bilatéraux) incluant les descriptions techniques, les lots de travail et les budgets."
       },
+      "color": "#d1d96b",
       "position": {
         "x": -457,
         "y": 384
@@ -717,6 +734,7 @@
         "en": "A purely functional, lazily evaluated language with a powerful type system including type classes and monads — used in research on programming language theory, formal semantics, and as a prototyping language for type-theoretic ideas.",
         "fr": "Un langage purement fonctionnel à évaluation paresseuse avec un système de types puissant incluant les classes de types et les monades — utilisé en recherche sur la théorie des langages de programmation, la sémantique formelle et comme langage de prototypage pour les idées théoriques des types."
       },
+      "color": "#4663cf",
       "position": {
         "x": 503,
         "y": 778
@@ -771,6 +789,7 @@
         "en": "Using high-performance computing clusters (via job schedulers like SLURM, PBS) and parallel programming paradigms (MPI, OpenMP, CUDA) to run large-scale computational research experiments.",
         "fr": "Utilisation de clusters de calcul haute performance (via des ordonnanceurs de jobs comme SLURM, PBS) et de paradigmes de programmation parallèle (MPI, OpenMP, CUDA) pour exécuter des expériences de recherche computationnelle à grande échelle."
       },
+      "color": "#4663cf",
       "position": {
         "x": -336,
         "y": 640
@@ -789,6 +808,7 @@
         "en": "Isabelle is a generic interactive theorem prover supporting multiple logics (HOL, ZF, etc.) — used for large-scale formal verification projects and the formalisation of mathematical libraries.",
         "fr": "Isabelle est un prouveur de théorèmes interactif générique supportant plusieurs logiques (HOL, ZF, etc.) — utilisé pour des projets de vérification formelle à grande échelle et la formalisation de bibliothèques mathématiques."
       },
+      "color": "#4663cf",
       "position": {
         "x": 192,
         "y": 836
@@ -807,6 +827,7 @@
         "en": "JavaScript for browser-side scripting, interactive data visualisations (D3.js, Observable Plot), and lightweight research web applications and dashboards.",
         "fr": "JavaScript pour les scripts côté navigateur, les visualisations de données interactives (D3.js, Observable Plot) et les applications et tableaux de bord web légers pour la recherche."
       },
+      "color": "#4663cf",
       "position": {
         "x": 258,
         "y": 893
@@ -825,6 +846,7 @@
         "en": "The Julia language for high-performance numerical and scientific computing, combining syntax close to mathematical notation with JIT compilation speeds approaching C/C++.",
         "fr": "Le langage Julia pour le calcul numérique et scientifique haute performance, combinant une syntaxe proche de la notation mathématique avec des vitesses de compilation JIT proches du C/C++."
       },
+      "color": "#4663cf",
       "position": {
         "x": 608,
         "y": 762
@@ -843,6 +865,7 @@
         "en": "Interactive theorem provers and proof assistants used to write machine-checked mathematical proofs and formally verify software or hardware properties — a core research tool at Inria for teams working on proofs, verification, and certified systems.",
         "fr": "Prouveurs de théorèmes interactifs et assistants de preuve utilisés pour écrire des preuves mathématiques vérifiées par machine et vérifier formellement les propriétés des logiciels ou matériels — un outil de recherche central à Inria pour les équipes travaillant sur les preuves, la vérification et les systèmes certifiés."
       },
+      "color": "#4663cf",
       "position": {
         "x": 148,
         "y": 687
@@ -861,6 +884,7 @@
         "en": "Purely or primarily functional programming languages that emphasise immutability, algebraic data types, and strong type systems — widely used at Inria for compiler development, proof assistants, program analysis, and certified software.",
         "fr": "Langages de programmation purement ou principalement fonctionnels qui mettent l'accent sur l'immuabilité, les types de données algébriques et les systèmes de types forts — largement utilisés à Inria pour le développement de compilateurs, les assistants de preuve, l'analyse de programmes et les logiciels certifiés."
       },
+      "color": "#4663cf",
       "position": {
         "x": 358,
         "y": 647
@@ -879,6 +903,7 @@
         "en": "Compiled, low-level languages that give direct control over hardware and memory, used for high-performance kernels, systems software, and numerically intensive research code.",
         "fr": "Langages compilés de bas niveau qui donnent un contrôle direct sur le matériel et la mémoire, utilisés pour les noyaux haute performance, les logiciels système et le code de recherche numériquement intensif."
       },
+      "color": "#4663cf",
       "position": {
         "x": 470,
         "y": 431
@@ -897,6 +922,7 @@
         "en": "High-productivity languages designed or widely adopted for numerical computation, data analysis, machine learning, and mathematical modelling in research contexts.",
         "fr": "Langages à haute productivité conçus ou largement adoptés pour le calcul numérique, l'analyse de données, l'apprentissage automatique et la modélisation mathématique dans les contextes de recherche."
       },
+      "color": "#4663cf",
       "position": {
         "x": 429,
         "y": 574
@@ -915,6 +941,7 @@
         "en": "Lightweight languages and build-system tools used to automate workflows, orchestrate pipelines, manage build configurations, and glue together heterogeneous research software components.",
         "fr": "Langages légers et outils de systèmes de build utilisés pour automatiser les flux de travail, orchestrer les pipelines, gérer les configurations de build et assembler des composants logiciels de recherche hétérogènes."
       },
+      "color": "#4663cf",
       "position": {
         "x": 336,
         "y": 323
@@ -933,6 +960,7 @@
         "en": "Proficiency in programming languages commonly used in research software engineering, organised by paradigm: system/native, scientific computing, functional, web, formal proof, and scripting.",
         "fr": "Maîtrise des langages de programmation couramment utilisés en ingénierie logicielle de recherche, organisés par paradigme : système/natif, calcul scientifique, fonctionnel, web, preuve formelle et scripting."
       },
+      "color": "#4663cf",
       "position": {
         "x": 210,
         "y": 434
@@ -951,6 +979,7 @@
         "en": "Languages and frameworks used to build research software user interfaces, interactive visualisations, and web-based tools and dashboards accessible to non-specialist users.",
         "fr": "Langages et frameworks utilisés pour construire des interfaces utilisateur de logiciels de recherche, des visualisations interactives et des outils et tableaux de bord web accessibles aux utilisateurs non spécialistes."
       },
+      "color": "#4663cf",
       "position": {
         "x": 265,
         "y": 688
@@ -987,6 +1016,7 @@
         "en": "Lean 4 is a modern proof assistant and functional programming language gaining rapid adoption in formalised mathematics (Mathlib) and verified software, combining dependent types with metaprogramming and a fast kernel.",
         "fr": "Lean 4 est un assistant de preuve et langage de programmation fonctionnel moderne qui gagne rapidement en adoption dans les mathématiques formalisées (Mathlib) et les logiciels vérifiés, combinant des types dépendants avec la métaprogrammation et un noyau rapide."
       },
+      "color": "#4663cf",
       "position": {
         "x": 39,
         "y": 812
@@ -1005,6 +1035,7 @@
         "en": "Understanding open-source licenses (MIT, GPL, Apache, CeCILL, EUPL, etc.) and applying them correctly to research outputs, while navigating institutional IP policies and third-party dependency constraints.",
         "fr": "Compréhension des licences open source (MIT, GPL, Apache, CeCILL, EUPL, etc.) et application correcte à des résultats de recherche, tout en naviguant dans les politiques de propriété intellectuelle institutionnelles et les contraintes de dépendances tierces."
       },
+      "color": "#d1d96b",
       "position": {
         "x": -674,
         "y": 384
@@ -1023,6 +1054,7 @@
         "en": "Make and CMake for managing the build process of C, C++, and Fortran research software — defining compilation rules, dependency graphs, and cross-platform build configurations essential for reproducible HPC and systems research.",
         "fr": "Make et CMake pour gérer le processus de build des logiciels de recherche en C, C++ et Fortran — définissant les règles de compilation, les graphes de dépendances et les configurations de build multiplateformes essentielles pour la recherche HPC et système reproductible."
       },
+      "color": "#4663cf",
       "position": {
         "x": 455,
         "y": 348
@@ -1131,6 +1163,7 @@
         "en": "OCaml is a functional language with a powerful module system and type inference, historically developed at Inria and still widely used there for compilers, proof assistants (Coq is written in OCaml), static analysis tools, and verified software.",
         "fr": "OCaml est un langage fonctionnel avec un puissant système de modules et une inférence de types, historiquement développé à Inria et encore largement utilisé pour les compilateurs, les assistants de preuve (Coq est écrit en OCaml), les outils d'analyse statique et les logiciels vérifiés."
       },
+      "color": "#4663cf",
       "position": {
         "x": 396,
         "y": 798
@@ -1149,7 +1182,7 @@
         "en": "Practices that make research outputs — code, data, and publications — freely available, reusable, and verifiable, maximising the societal and scientific return on publicly funded research.",
         "fr": "Pratiques qui rendent les résultats de recherche — code, données et publications — librement disponibles, réutilisables et vérifiables, maximisant le retour sociétal et scientifique de la recherche financée sur fonds publics."
       },
-      "colorOverride": "#b7b893",
+      "color": "#d1d96b",
       "position": {
         "x": -213,
         "y": 148
@@ -1168,6 +1201,7 @@
         "en": "Developing and publishing research software under open-source licenses to maximise its reach, impact, and longevity, and to enable the community to audit, extend, and build upon the work.",
         "fr": "Développement et publication de logiciels de recherche sous licences open source pour maximiser leur portée, leur impact et leur longévité, et permettre à la communauté d'auditer, d'étendre et de s'appuyer sur les travaux."
       },
+      "color": "#d1d96b",
       "position": {
         "x": -432,
         "y": 289
@@ -1240,6 +1274,7 @@
         "en": "Profiling, optimising, and scaling research software to run efficiently on available hardware — leveraging multi-core CPUs, SIMD vectorisation, GPUs, and memory hierarchy awareness.",
         "fr": "Profilage, optimisation et mise à l'échelle des logiciels de recherche pour une exécution efficace sur le matériel disponible — en tirant parti des processeurs multi-cœurs, de la vectorisation SIMD, des GPU et de la connaissance de la hiérarchie mémoire."
       },
+      "color": "#4663cf",
       "position": {
         "x": -126,
         "y": 581
@@ -1366,6 +1401,7 @@
         "en": "Proficiency in Python for scientific computing, data science, and research tooling — including key libraries such as NumPy, SciPy, Pandas, Matplotlib, PyTorch, and the broader scientific ecosystem.",
         "fr": "Maîtrise de Python pour le calcul scientifique, la science des données et les outils de recherche — y compris les bibliothèques clés telles que NumPy, SciPy, Pandas, Matplotlib, PyTorch et le plus large écosystème scientifique."
       },
+      "color": "#4663cf",
       "position": {
         "x": 550,
         "y": 656
@@ -1384,6 +1420,7 @@
         "en": "The R language and ecosystem for statistical computing, data visualisation, and bioinformatics — particularly relevant for research involving genomics, epidemiology, environmental data, and reproducible analysis (R Markdown, Quarto).",
         "fr": "Le langage R et son écosystème pour le calcul statistique, la visualisation de données et la bioinformatique — particulièrement pertinent pour la recherche en génomique, épidémiologie, données environnementales et analyse reproductible (R Markdown, Quarto)."
       },
+      "color": "#4663cf",
       "position": {
         "x": 676,
         "y": 657
@@ -1420,6 +1457,7 @@
         "en": "Ensuring that computational experiments, results, and artefacts can be independently reproduced by others — a cornerstone of scientific integrity and a key quality criterion in research software engineering.",
         "fr": "Garantir que les expériences computationnelles, les résultats et les artefacts peuvent être reproduits indépendamment par d'autres — pierre angulaire de l'intégrité scientifique et critère de qualité clé en ingénierie logicielle de recherche."
       },
+      "color": "#d1d96b",
       "position": {
         "x": -473,
         "y": 166
@@ -1456,6 +1494,7 @@
         "en": "Creating and publishing citable, persistent research objects — Zenodo deposits, Software Heritage archives, Research Compendiums — that bundle code, data, and documentation alongside the corresponding publications.",
         "fr": "Création et publication d'objets de recherche citables et persistants — dépôts Zenodo, archives Software Heritage, Research Compendium — qui regroupent code, données et documentation aux côtés des publications correspondantes."
       },
+      "color": "#d1d96b",
       "position": {
         "x": -718,
         "y": 252
@@ -1524,6 +1563,7 @@
         "en": "The Rust programming language for building safe, high-performance system-level research tools with memory safety guarantees, zero-cost abstractions, and a strong type system.",
         "fr": "Le langage de programmation Rust pour la construction d'outils de recherche système sûrs et haute performance avec des garanties de sécurité mémoire, des abstractions sans coût et un système de types robuste."
       },
+      "color": "#4663cf",
       "position": {
         "x": 725,
         "y": 380
@@ -1542,6 +1582,7 @@
         "en": "Making research accessible and engaging for non-specialist audiences through public events, school interventions, media appearances, exhibitions (e.g., Fête de la Science), and educational content.",
         "fr": "Rendre la recherche accessible et engageante pour des publics non spécialistes par des événements publics, des interventions scolaires, des passages dans les médias, des expositions (par ex. Fête de la Science) et des contenus éducatifs."
       },
+      "color": "#d1d96b",
       "position": {
         "x": -491,
         "y": 588
@@ -1596,6 +1637,7 @@
         "en": "Creating and maintaining comprehensive documentation for research software — tutorials, how-to guides, API references, and architectural explanations — to facilitate adoption, contribution, and long-term maintenance.",
         "fr": "Création et maintenance d'une documentation complète pour les logiciels de recherche — tutoriels, guides pratiques, références API et explications architecturales — pour faciliter l'adoption, la contribution et la maintenance à long terme."
       },
+      "color": "#4663cf",
       "position": {
         "x": 146,
         "y": 175
@@ -1614,7 +1656,7 @@
         "en": "Professional software development skills, practices, and tools applied to the engineering of reliable, efficient, and sustainable research software — from language proficiency to DevOps and documentation.",
         "fr": "Compétences, pratiques et outils de développement logiciel professionnel appliqués à l'ingénierie de logiciels de recherche fiables, efficaces et durables — de la maîtrise des langages au DevOps et à la documentation."
       },
-      "colorOverride": "#487cef",
+      "color": "#4663cf",
       "position": {
         "x": 17,
         "y": 259
@@ -1705,6 +1747,7 @@
         "en": "Collaborating with industry partners, start-ups, and Inria's technology transfer office (SATT, SED) to transfer research outcomes into products, services, or spin-offs that create real-world impact.",
         "fr": "Collaboration avec des partenaires industriels, des start-ups et le bureau de transfert technologique d'Inria (SATT, SED) pour transférer les résultats de recherche en produits, services ou start-ups créant un impact dans le monde réel."
       },
+      "color": "#d1d96b",
       "position": {
         "x": -465,
         "y": 479
@@ -1723,6 +1766,7 @@
         "en": "Writing clear, structured technical documentation following the Diátaxis framework (tutorials, how-to guides, explanations, reference) to make research software understandable and usable by its target audience.",
         "fr": "Rédaction d'une documentation technique claire et structurée suivant le cadre Diátaxis (tutoriels, guides pratiques, explications, références) pour rendre les logiciels de recherche compréhensibles et utilisables par leur public cible."
       },
+      "color": "#4663cf",
       "position": {
         "x": 279,
         "y": 135
@@ -1741,6 +1785,7 @@
         "en": "Writing and maintaining automated test suites — unit, integration, property-based, and regression tests — to ensure software correctness, prevent regressions, and enable safe refactoring over a project's lifetime.",
         "fr": "Rédaction et maintenance de suites de tests automatisés — tests unitaires, d'intégration, basés sur des propriétés et de régression — pour assurer l'exactitude des logiciels, prévenir les régressions et permettre un refactoring sûr."
       },
+      "color": "#4663cf",
       "position": {
         "x": -81,
         "y": 660
@@ -1795,6 +1840,7 @@
         "en": "TypeScript for building robust, type-safe web applications and research tools — providing static type checking on top of JavaScript for larger codebases and team development.",
         "fr": "TypeScript pour la construction d'applications web robustes et sûres en termes de types et d'outils de recherche — fournissant une vérification statique des types au-dessus de JavaScript pour les grandes bases de code et le développement en équipe."
       },
+      "color": "#4663cf",
       "position": {
         "x": 349,
         "y": 880
@@ -1813,6 +1859,7 @@
         "en": "Translating research results into broader societal and economic impact through technology transfer, scientific outreach, and competitive grant funding — key missions of Inria as a public research institute.",
         "fr": "Traduction des résultats de recherche en impact sociétal et économique plus large grâce au transfert technologique, à la médiation scientifique et aux financements de projets compétitifs — missions clés d'Inria en tant qu'organisme de recherche public."
       },
+      "color": "#d1d96b",
       "position": {
         "x": -352,
         "y": 368
@@ -1831,6 +1878,7 @@
         "en": "Proficiency with Git and collaborative workflows — branching strategies, pull/merge requests, code review, conflict resolution — using platforms such as GitHub or Inria's own GitLab instance.",
         "fr": "Maîtrise de Git et des flux de travail collaboratifs — stratégies de branches, pull/merge requests, revue de code, résolution de conflits — en utilisant des plateformes telles que GitHub ou l'instance GitLab d'Inria."
       },
+      "color": "#4663cf",
       "position": {
         "x": -204,
         "y": 587
