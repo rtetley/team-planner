@@ -216,6 +216,15 @@ export const fr = {
       maxReached: 'Maximum atteint (5/5)',
       radarTitle: 'Répartition des compétences',
       radarHint: 'Points alloués par catégorie principale'
+    },
+    projectSkillTree: {
+      noDescription: 'Aucune description disponible.',
+      rootNode: 'Nœud racine — sélectionnez une branche',
+      required: 'Requise pour le projet',
+      notRequired: 'Non requise',
+      add: 'Requérir la compétence',
+      remove: 'Retirer le prérequis',
+      summaryTitle: 'Compétences requises'
     }
   }
 };

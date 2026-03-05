@@ -12,6 +12,7 @@ export interface Project {
   techStack: string[];
   startDate: string;
   endDate: string;
+  requiredSkills?: string[];
 }
 
 export interface Task {

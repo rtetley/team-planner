@@ -216,6 +216,15 @@ export const en = {
       maxReached: 'Maximum reached (5/5)',
       radarTitle: 'Skill Distribution',
       radarHint: 'Points allocated per top-level category'
+    },
+    projectSkillTree: {
+      noDescription: 'No description available.',
+      rootNode: 'Root node — select a branch',
+      required: 'Required for project',
+      notRequired: 'Not required',
+      add: 'Require skill',
+      remove: 'Remove requirement',
+      summaryTitle: 'Required skills'
     }
   }
 };

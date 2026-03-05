@@ -35,6 +35,7 @@ export const mockProjects: Project[] = [
     techStack: ['React', 'TypeScript', 'MUI', 'DSFR'],
     startDate: '2026-01-15',
     endDate: '2026-04-30',
+    requiredSkills: [],
   },
   {
     id: '2',
@@ -43,6 +44,7 @@ export const mockProjects: Project[] = [
     techStack: ['React', 'Node.js', 'MongoDB'],
     startDate: '2026-02-01',
     endDate: '2026-06-30',
+    requiredSkills: [],
   },
   {
     id: '3',
@@ -51,6 +53,7 @@ export const mockProjects: Project[] = [
     techStack: ['Next.js', 'MDX', 'Tailwind'],
     startDate: '2026-03-01',
     endDate: '2026-05-15',
+    requiredSkills: [],
   },
 ];
 

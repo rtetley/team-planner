@@ -23,6 +23,7 @@ import { projectsApi } from '../api';
 import type { Project } from '../types';
 import { useAuth } from '../context/AuthContext';
 import ProjectDialog from './ProjectDialog';
+import ProjectSkillTree from './ProjectSkillTree';
 
 // ── helpers ───────────────────────────────────────────────────────────────────
 const fmt = (d: string) => (d ? new Date(d).toLocaleDateString() : '—');
@@ -218,8 +219,12 @@ export default function ProjectView() {
               <Typography fontWeight={600}>{t('projects.panelSkillTree')}</Typography>
             </Box>
           </AccordionSummary>
-          <AccordionDetails>
-            <EmptyPanel label={t('projects.panelSkillTreeEmpty')} />
+          <AccordionDetails sx={{ pt: 2 }}>
+            <ProjectSkillTree
+              project={project}
+              onUpdate={p => setProject(p)}
+              isManager={isManager}
+            />
           </AccordionDetails>
         </Accordion>
       </Box>
