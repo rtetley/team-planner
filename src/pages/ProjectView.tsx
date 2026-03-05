@@ -17,6 +17,7 @@ import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import WorkIcon from '@mui/icons-material/AccountTree';
 import ViewKanbanIcon from '@mui/icons-material/ViewKanban';
 import HubIcon from '@mui/icons-material/Hub';
+import DescriptionIcon from '@mui/icons-material/Description';
 import ReactMarkdown from 'react-markdown';
 import { useTranslation } from 'react-i18next';
 import { projectsApi } from '../api';
@@ -25,6 +26,7 @@ import { useAuth } from '../context/AuthContext';
 import ProjectDialog from './ProjectDialog';
 import ProjectSkillTree from './ProjectSkillTree';
 import ProjectRoadmap from './ProjectRoadmap';
+import ProjectPrd from './ProjectPrd';
 
 // ── helpers ───────────────────────────────────────────────────────────────────
 const fmt = (d: string) => (d ? new Date(d).toLocaleDateString() : '—');
@@ -52,7 +54,7 @@ export default function ProjectView() {
   const [loading, setLoading] = useState(true);
   const [notFound, setNotFound] = useState(false);
   const [dialogOpen, setDialogOpen] = useState(false);
-  const [expanded, setExpanded] = useState<string | false>('skillTree');
+  const [expanded, setExpanded] = useState<string | false>('prd');
 
   useEffect(() => {
     if (!id) return;
@@ -74,6 +76,7 @@ export default function ProjectView() {
       id: project.id,
       requiredSkills: project.requiredSkills ?? [],
       workPackages: project.workPackages ?? [],
+      prd: project.prd ?? '',
     });
     setProject(updated);
   };
@@ -176,6 +179,28 @@ export default function ProjectView() {
 
       {/* ── collapsible panels ── */}
       <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1.5 }}>
+
+        {/* PRD */}
+        <Accordion
+          expanded={expanded === 'prd'}
+          onChange={handleAccordion('prd')}
+          disableGutters
+          sx={{ border: '1px solid', borderColor: 'divider', borderRadius: '8px !important', '&:before': { display: 'none' } }}
+        >
+          <AccordionSummary expandIcon={<ExpandMoreIcon />}>
+            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
+              <DescriptionIcon fontSize="small" color="action" />
+              <Typography fontWeight={600}>{t('projects.panelPrd')}</Typography>
+            </Box>
+          </AccordionSummary>
+          <AccordionDetails sx={{ pt: 2 }}>
+            <ProjectPrd
+              project={project}
+              onUpdate={p => setProject(p)}
+              isManager={isManager}
+            />
+          </AccordionDetails>
+        </Accordion>
 
         {/* Skill Tree */}
         <Accordion

@@ -55,7 +55,16 @@ export const fr = {
       panelKanban: 'Kanban',
       panelKanbanEmpty: 'Aucune tâche pour l’instant.',
       panelSkillTree: 'Arbre de compétences',
-      panelSkillTreeEmpty: 'Aucun arbre de compétences associé pour l’instant.'
+      panelSkillTreeEmpty: "Aucun arbre de compétences associé pour l'instant.",
+      panelPrd: 'Document de spécifications fonctionnelles'
+    },
+    prd: {
+      edit: 'Modifier',
+      preview: 'Aperçu',
+      save: 'Enregistrer',
+      cancel: 'Annuler',
+      saving: 'Enregistrement…',
+      editHint: 'Rédigez le document en Markdown'
     },
     tasks: {
       title: 'Tâches',

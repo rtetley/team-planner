@@ -55,7 +55,16 @@ export const en = {
       panelKanban: 'Kanban',
       panelKanbanEmpty: 'No tasks yet.',
       panelSkillTree: 'Skill Tree',
-      panelSkillTreeEmpty: 'No skill tree linked yet.'
+      panelSkillTreeEmpty: 'No skill tree linked yet.',
+      panelPrd: 'Product Requirement Document'
+    },
+    prd: {
+      edit: 'Edit',
+      preview: 'Preview',
+      save: 'Save',
+      cancel: 'Cancel',
+      saving: 'Saving…',
+      editHint: 'Write the PRD in Markdown'
     },
     tasks: {
       title: 'Tasks',

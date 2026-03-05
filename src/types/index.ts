@@ -22,6 +22,7 @@ export interface Project {
   endDate: string;
   requiredSkills?: string[];
   workPackages?: WorkPackage[];
+  prd?: string;
 }
 
 export interface Task {
