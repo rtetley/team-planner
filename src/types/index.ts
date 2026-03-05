@@ -5,6 +5,14 @@ export interface TeamMember {
   skills: string[];
 }
 
+export interface WorkPackage {
+  id: string;
+  title: string;
+  startDate: string;
+  endDate: string;
+  color: string;
+}
+
 export interface Project {
   id: string;
   name: string;
@@ -13,6 +21,7 @@ export interface Project {
   startDate: string;
   endDate: string;
   requiredSkills?: string[];
+  workPackages?: WorkPackage[];
 }
 
 export interface Task {

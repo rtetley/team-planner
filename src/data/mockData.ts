@@ -36,6 +36,7 @@ export const mockProjects: Project[] = [
     startDate: '2026-01-15',
     endDate: '2026-04-30',
     requiredSkills: [],
+    workPackages: [],
   },
   {
     id: '2',
@@ -45,6 +46,7 @@ export const mockProjects: Project[] = [
     startDate: '2026-02-01',
     endDate: '2026-06-30',
     requiredSkills: [],
+    workPackages: [],
   },
   {
     id: '3',
@@ -54,6 +56,7 @@ export const mockProjects: Project[] = [
     startDate: '2026-03-01',
     endDate: '2026-05-15',
     requiredSkills: [],
+    workPackages: [],
   },
 ];
 

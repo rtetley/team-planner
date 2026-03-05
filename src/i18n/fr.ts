@@ -50,7 +50,7 @@ export const fr = {
       notFound: 'Projet introuvable.',
       backToList: 'Retour aux projets',
       noTechStack: 'Aucune stack technique définie.',
-      panelWorkPackages: 'Lots de travaux',
+      panelWorkPackages: 'Feuille de route',
       panelWorkPackagesEmpty: 'Aucun lot de travaux pour l’instant.',
       panelKanban: 'Kanban',
       panelKanbanEmpty: 'Aucune tâche pour l’instant.',
@@ -228,6 +228,25 @@ export const fr = {
       add: 'Requérir la compétence',
       remove: 'Retirer le prérequis',
       summaryTitle: 'Compétences requises'
+    },
+    roadmap: {
+      addWorkPackage: 'Ajouter un lot de travaux',
+      editWorkPackage: 'Modifier le lot de travaux',
+      workPackageTitle: 'Titre',
+      startDate: 'Début',
+      endDate: 'Fin',
+      save: 'Enregistrer',
+      cancel: 'Annuler',
+      delete: 'Supprimer',
+      confirmDeleteTitle: 'Supprimer le lot de travaux',
+      confirmDelete: 'Voulez-vous vraiment supprimer ce lot de travaux ?',
+      dragHint: 'Faites glisser les bords pour redimensionner · faites glisser la barre pour déplacer',
+      empty: 'Aucun lot de travaux. Cliquez sur + pour en ajouter un.',
+      errorTitleRequired: 'Le titre est requis',
+      errorStartRequired: 'La date de début est requise',
+      errorEndRequired: 'La date de fin est requise',
+      errorEndBeforeStart: 'La date de fin doit être postérieure à la date de début',
+      colorLabel: 'Couleur'
     }
   }
 };

@@ -24,6 +24,7 @@ import type { Project } from '../types';
 import { useAuth } from '../context/AuthContext';
 import ProjectDialog from './ProjectDialog';
 import ProjectSkillTree from './ProjectSkillTree';
+import ProjectRoadmap from './ProjectRoadmap';
 
 // ── helpers ───────────────────────────────────────────────────────────────────
 const fmt = (d: string) => (d ? new Date(d).toLocaleDateString() : '—');
@@ -67,8 +68,13 @@ export default function ProjectView() {
 
   const handleSave = async (data: Omit<Project, 'id'>) => {
     if (!project) return;
-    // Preserve requiredSkills — the edit dialog doesn't manage them
-    const updated = await projectsApi.update({ ...data, id: project.id, requiredSkills: project.requiredSkills ?? [] });
+    // Preserve fields the edit dialog doesn't manage
+    const updated = await projectsApi.update({
+      ...data,
+      id: project.id,
+      requiredSkills: project.requiredSkills ?? [],
+      workPackages: project.workPackages ?? [],
+    });
     setProject(updated);
   };
 
@@ -206,8 +212,12 @@ export default function ProjectView() {
               <Typography fontWeight={600}>{t('projects.panelWorkPackages')}</Typography>
             </Box>
           </AccordionSummary>
-          <AccordionDetails>
-            <EmptyPanel label={t('projects.panelWorkPackagesEmpty')} />
+          <AccordionDetails sx={{ pt: 0 }}>
+            <ProjectRoadmap
+              project={project}
+              onUpdate={p => setProject(p)}
+              isManager={isManager}
+            />
           </AccordionDetails>
         </Accordion>
 

@@ -50,7 +50,7 @@ export const en = {
       notFound: 'Project not found.',
       backToList: 'Back to projects',
       noTechStack: 'No tech stack defined.',
-      panelWorkPackages: 'Work Packages',
+      panelWorkPackages: 'Road Map',
       panelWorkPackagesEmpty: 'No work packages yet.',
       panelKanban: 'Kanban',
       panelKanbanEmpty: 'No tasks yet.',
@@ -228,6 +228,25 @@ export const en = {
       add: 'Require skill',
       remove: 'Remove requirement',
       summaryTitle: 'Required skills'
+    },
+    roadmap: {
+      addWorkPackage: 'Add work package',
+      editWorkPackage: 'Edit work package',
+      workPackageTitle: 'Title',
+      startDate: 'Start',
+      endDate: 'End',
+      save: 'Save',
+      cancel: 'Cancel',
+      delete: 'Delete',
+      confirmDeleteTitle: 'Delete work package',
+      confirmDelete: 'Are you sure you want to delete this work package?',
+      dragHint: 'Drag edges to resize · drag bar to move',
+      empty: 'No work packages yet. Click + to add one.',
+      errorTitleRequired: 'Title is required',
+      errorStartRequired: 'Start date is required',
+      errorEndRequired: 'End date is required',
+      errorEndBeforeStart: 'End must be after start date',
+      colorLabel: 'Color'
     }
   }
 };
