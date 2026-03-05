@@ -320,7 +320,20 @@ export default function Skills() {
     // Use the cached converged layout if available — skip simulation entirely
     const cached = layoutCache.get(skillTree.treeId);
     if (cached) {
-      setNodes(cached.nodes);
+      // Always apply fresh labels/colors from the API so a DB re-seed is
+      // reflected without discarding the converged node positions.
+      const freshById = new Map<string, SkillTreeNode>();
+      (function collect(n: SkillTreeNode) {
+        freshById.set(n.id, n);
+        (n.children ?? []).forEach(collect);
+      })(skillTree.root);
+      const freshNodes = cached.nodes.map(n => {
+        const f = freshById.get(n.id);
+        return f ? { ...n, label: f.label, color: f.color } : n;
+      });
+      const updated = { ...cached, nodes: freshNodes };
+      layoutCache.set(skillTree.treeId, updated);
+      setNodes(freshNodes);
       setEdges(cached.edges);
       setZoom(cached.zoom);
       setPanX(cached.panX);

@@ -238,9 +238,25 @@ export default function ProjectSkillTree({ project, onUpdate, isManager }: Proje
     if (!skillTree) return;
     cancelAnimationFrame(frameRef.current);
     const cacheKey = `${skillTree.treeId}-${project.id}`;
+
+    // Build a flat id→node map from the freshly-fetched tree for metadata merging
+    const freshById = new Map<string, SkillTreeNode>();
+    (function collect(n: SkillTreeNode) {
+      freshById.set(n.id, n);
+      (n.children ?? []).forEach(collect);
+    })(skillTree.root);
+
     const cached = projectLayoutCache.get(cacheKey);
     if (cached) {
-      setNodes(cached.nodes); setEdges(cached.edges);
+      // Preserve computed positions but always apply fresh labels/descriptions/colors
+      // from the API so a DB re-seed is reflected without discarding the layout.
+      const freshNodes = cached.nodes.map(n => {
+        const f = freshById.get(n.id);
+        return f ? { ...n, label: f.label, description: f.description, color: f.color } : n;
+      });
+      const updated = { ...cached, nodes: freshNodes };
+      projectLayoutCache.set(cacheKey, updated);
+      setNodes(freshNodes); setEdges(cached.edges);
       setZoom(cached.zoom); setPanX(cached.panX); setPanY(cached.panY); setFocusedId(cached.focusedId);
       return;
     }
