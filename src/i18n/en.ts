@@ -222,6 +222,9 @@ export const en = {
       rootNode: 'Root node — select a branch',
       required: 'Required for project',
       notRequired: 'Not required',
+      available: 'Available to require',
+      locked: 'Locked',
+      lockReason: 'Require “{{parent}}” first',
       add: 'Require skill',
       remove: 'Remove requirement',
       summaryTitle: 'Required skills'

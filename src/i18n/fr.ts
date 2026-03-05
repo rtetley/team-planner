@@ -222,6 +222,9 @@ export const fr = {
       rootNode: 'Nœud racine — sélectionnez une branche',
       required: 'Requise pour le projet',
       notRequired: 'Non requise',
+      available: 'Disponible',
+      locked: 'Verrouillée',
+      lockReason: 'Requiert « {{parent}} » d’abord',
       add: 'Requérir la compétence',
       remove: 'Retirer le prérequis',
       summaryTitle: 'Compétences requises'

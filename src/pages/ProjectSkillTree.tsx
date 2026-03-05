@@ -1,7 +1,8 @@
 import { useState, useCallback, useMemo, useEffect, useRef } from 'react';
-import { Box, Typography, Chip, Divider, CircularProgress } from '@mui/material';
+import { Box, Typography, Chip, Divider, CircularProgress, Tooltip } from '@mui/material';
 import AddCircleOutlineIcon from '@mui/icons-material/AddCircleOutline';
 import RemoveCircleOutlineIcon from '@mui/icons-material/RemoveCircleOutline';
+import LockIcon from '@mui/icons-material/Lock';
 import { useTranslation } from 'react-i18next';
 import { skillTreeApi, projectsApi } from '../api';
 import type { SkillTreeDoc, SkillTreeNode, Project } from '../types';
@@ -109,9 +110,18 @@ function wrapText(text: string, maxChars = 10): string[] {
   if (cur) lines.push(cur); return lines;
 }
 
-// ── Required ring (full circle, like max-points in UserSkills) ────────────────
+// ── Outer rings ──────────────────────────────────────────────────────────────
+// Solid ring = required; dashed ring = available (parent is required, so this can be added)
 function RequiredRing({ r, stroke }: { r: number; stroke: string }) {
   return <circle r={r} fill="none" stroke={stroke} strokeWidth={2.5} opacity={0.9} />;
+}
+
+function AvailableRing({ r, stroke }: { r: number; stroke: string }) {
+  const circ = 2 * Math.PI * r;
+  return (
+    <circle r={r} fill="none" stroke={stroke} strokeWidth={1.8} opacity={0.55}
+      strokeDasharray={`${circ * 0.12} ${circ * 0.08}`} />
+  );
 }
 
 // ── Skill node (project variant) ──────────────────────────────────────────────
@@ -120,10 +130,12 @@ interface ProjectSkillNodeElProps {
   isFocused: boolean;
   isChild: boolean;
   isRequired: boolean;
+  isAvailable: boolean; // parent is required → can be added
+  isLocked: boolean;    // parent is NOT required → cannot add yet
   onClick: () => void;
 }
 
-function ProjectSkillNodeEl({ node, isFocused, isChild, isRequired, onClick }: ProjectSkillNodeElProps) {
+function ProjectSkillNodeEl({ node, isFocused, isChild, isRequired, isAvailable, isLocked, onClick }: ProjectSkillNodeElProps) {
   const [hovered, setHovered] = useState(false);
   const { stroke, fill, text } = PALETTE[node.colorKey];
   const r = BASE_R[node.depth] ?? 22;
@@ -131,8 +143,8 @@ function ProjectSkillNodeEl({ node, isFocused, isChild, isRequired, onClick }: P
   const fs = [12, 11, 9.5, 8.5][node.depth] ?? 8.5;
   const scale = isFocused ? FOCUS_SCALE : isChild ? 1.08 : hovered ? 1.1 : 1;
   const sw = isFocused ? 2.5 : isRequired ? 2 : isChild ? 1.8 : hovered ? 1.5 : 1;
-  // dim nodes that are neither focused, a child of focused, nor required
-  const opacity = isFocused || isChild || isRequired ? 1 : 0.45;
+  // locked nodes are very dim; available (but not required) are slightly raised
+  const opacity = isLocked ? 0.2 : isFocused || isChild || isRequired || isAvailable ? 1 : 0.4;
 
   return (
     <g
@@ -140,7 +152,7 @@ function ProjectSkillNodeEl({ node, isFocused, isChild, isRequired, onClick }: P
       onClick={onClick}
       onMouseEnter={() => setHovered(true)}
       onMouseLeave={() => setHovered(false)}
-      style={{ cursor: 'pointer', opacity, transition: 'opacity 0.3s ease' }}
+      style={{ cursor: isLocked ? 'not-allowed' : 'pointer', opacity, transition: 'opacity 0.3s ease' }}
     >
       {/* Focused pulse ring */}
       {isFocused && <circle r={r * 1.7} fill="none" stroke={stroke} strokeWidth={1} opacity={0.35} className="skill-pulse" />}
@@ -149,14 +161,15 @@ function ProjectSkillNodeEl({ node, isFocused, isChild, isRequired, onClick }: P
       <g style={{ transformBox: 'fill-box', transformOrigin: 'center', transform: `scale(${scale})`, transition: 'transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1)' }}>
         <circle r={r} fill={fill} stroke={stroke} strokeWidth={sw} style={{ transition: 'stroke-width 0.2s ease' }} />
 
-        {/* Required ring outside circle */}
+        {/* Solid ring = required; dashed ring = available to add */}
         {node.depth > 0 && isRequired && <RequiredRing r={r + 5} stroke={stroke} />}
+        {node.depth > 0 && isAvailable && !isRequired && <AvailableRing r={r + 5} stroke={stroke} />}
 
         {/* Label */}
         {lines.map((line, i) => (
           <text key={i} textAnchor="middle" dominantBaseline="middle"
             fontSize={fs} fontWeight={isFocused ? 700 : isChild || isRequired ? 600 : 500}
-            fill={isFocused || isRequired ? text : isChild ? text : '#9aa8b8'}
+            fill={isFocused || isRequired ? text : isChild || isAvailable ? text : '#9aa8b8'}
             y={(i - (lines.length - 1) / 2) * (fs + 2.5)}
             style={{ userSelect: 'none', pointerEvents: 'none' }}>
             {line}
@@ -262,6 +275,7 @@ export default function ProjectSkillTree({ project, onUpdate, isManager }: Proje
 
   // ── Derived maps ──────────────────────────────────────────────────────────
   const nodeMap    = useMemo(() => new Map(nodes.map(n => [n.id, n])), [nodes]);
+  const parentMap  = useMemo(() => { const m = new Map<string, string>(); edges.forEach(e => m.set(e.childId, e.parentId)); return m; }, [edges]);
   const childrenOf = useMemo(() => {
     const m = new Map<string, Set<string>>();
     edges.forEach(e => { if (!m.has(e.parentId)) m.set(e.parentId, new Set()); m.get(e.parentId)!.add(e.childId); });
@@ -269,6 +283,27 @@ export default function ProjectSkillTree({ project, onUpdate, isManager }: Proje
   }, [edges]);
 
   const childrenIds = useMemo(() => childrenOf.get(focusedId) ?? new Set<string>(), [childrenOf, focusedId]);
+
+  /** A depth-2+ node is locked if its direct parent has NOT been required.
+   * Depth-0 (root) and depth-1 (categories) are always available.
+   */
+  const isLocked = useCallback((nodeId: string): boolean => {
+    const node = nodeMap.get(nodeId);
+    if (!node || node.depth <= 1) return false;
+    const pid = parentMap.get(nodeId);
+    return !pid || !required.has(pid);
+  }, [nodeMap, parentMap, required]);
+
+  /** Collect a node and all its descendants */
+  const collectSubtree = useCallback((nodeId: string): string[] => {
+    const result: string[] = [nodeId];
+    const queue = [nodeId];
+    while (queue.length) {
+      const cur = queue.shift()!;
+      (childrenOf.get(cur) ?? new Set()).forEach(child => { result.push(child); queue.push(child); });
+    }
+    return result;
+  }, [childrenOf]);
 
   // ── Ancestor path ─────────────────────────────────────────────────────────
   const ancestorPath = useMemo(() => {
@@ -281,11 +316,11 @@ export default function ProjectSkillTree({ project, onUpdate, isManager }: Proje
     return path;
   }, [edges, nodeMap, focusedId]);
 
-  const focusedNode       = nodeMap.get(focusedId);
-  const focusedColor      = focusedNode ? PALETTE[focusedNode.colorKey].stroke : '#94a3b8';
-  const focusedIsRequired = required.has(focusedId);
-  // only non-root nodes can be toggled
-  const focusedCanToggle  = isManager && !!focusedNode && focusedNode.depth > 0;
+  const focusedNode         = nodeMap.get(focusedId);
+  const focusedColor        = focusedNode ? PALETTE[focusedNode.colorKey].stroke : '#94a3b8';
+  const focusedIsRequired   = required.has(focusedId);
+  const focusedIsLocked     = focusedNode ? isLocked(focusedId) : false;
+  const focusedParentLabel  = focusedNode ? (nodeMap.get(parentMap.get(focusedId) ?? '')?.label ?? '') : '';
 
   // ── Zoom & drag-to-pan ────────────────────────────────────────────────────
   const svgContainerRef = useRef<HTMLDivElement>(null);
@@ -337,9 +372,13 @@ export default function ProjectSkillTree({ project, onUpdate, isManager }: Proje
   const handleToggleRequired = useCallback(async () => {
     if (!focusedNode || focusedNode.depth === 0) return;
     const next = new Set(required);
-    if (next.has(focusedId)) next.delete(focusedId);
-    else next.add(focusedId);
-    // optimistic update
+    if (next.has(focusedId)) {
+      // Un-requiring: also remove all descendants so no child can remain required
+      // without its ancestor
+      collectSubtree(focusedId).forEach(id => next.delete(id));
+    } else {
+      next.add(focusedId);
+    }
     setRequired(next);
     setSaving(true);
     try {
@@ -351,7 +390,7 @@ export default function ProjectSkillTree({ project, onUpdate, isManager }: Proje
     } finally {
       setSaving(false);
     }
-  }, [focusedId, focusedNode, required, project, onUpdate]);
+  }, [focusedId, focusedNode, required, project, onUpdate, collectSubtree]);
 
   // ── Render ────────────────────────────────────────────────────────────────
   return (
@@ -392,11 +431,13 @@ export default function ProjectSkillTree({ project, onUpdate, isManager }: Proje
                 {/* Edges */}
                 {edges.map((e, i) => {
                   const { stroke } = PALETTE[e.colorKey];
-                  const toChild  = e.parentId === focusedId;
-                  const toParent = e.childId  === focusedId;
-                  const isReq    = required.has(e.childId);
-                  const sw      = toChild ? 2 : toParent ? 1.2 : isReq ? 1.6 : 0.8;
-                  const opacity  = toChild ? 0.75 : toParent ? 0.35 : isReq ? 0.55 : 0.12;
+                  const toChild   = e.parentId === focusedId;
+                  const toParent  = e.childId  === focusedId;
+                  const childReq  = required.has(e.childId);
+                  const childAvail = !childReq && !isLocked(e.childId);
+                  const childLocked = isLocked(e.childId);
+                  const sw      = toChild ? 2 : toParent ? 1.2 : childReq ? 1.6 : 0.8;
+                  const opacity  = childLocked ? 0.05 : toChild ? 0.75 : toParent ? 0.35 : childReq ? 0.55 : childAvail ? 0.3 : 0.12;
                   return (
                     <line key={i} x1={e.x1} y1={e.y1} x2={e.x2} y2={e.y2}
                       stroke={stroke} strokeWidth={sw} strokeOpacity={opacity}
@@ -410,6 +451,8 @@ export default function ProjectSkillTree({ project, onUpdate, isManager }: Proje
                     isFocused={n.id === focusedId}
                     isChild={childrenIds.has(n.id)}
                     isRequired={required.has(n.id)}
+                    isAvailable={!required.has(n.id) && !isLocked(n.id) && n.depth > 0}
+                    isLocked={isLocked(n.id)}
                     onClick={() => handleNodeClick(n)}
                   />
                 ))}
@@ -470,6 +513,14 @@ export default function ProjectSkillTree({ project, onUpdate, isManager }: Proje
           <Box sx={{ mb: 2 }}>
             {focusedNode?.depth === 0 ? (
               <Chip label={t('projectSkillTree.rootNode')} size="small" sx={{ bgcolor: '#1e2229', color: '#94a3b8' }} />
+            ) : focusedIsLocked ? (
+              <Chip
+                icon={<LockIcon sx={{ fontSize: '0.85rem !important' }} />}
+                label={t('projectSkillTree.locked')}
+                size="small"
+                color="error"
+                variant="outlined"
+              />
             ) : focusedIsRequired ? (
               <Chip
                 label={t('projectSkillTree.required')}
@@ -478,39 +529,56 @@ export default function ProjectSkillTree({ project, onUpdate, isManager }: Proje
                 sx={{ borderColor: focusedColor, color: focusedColor }}
               />
             ) : (
-              <Chip label={t('projectSkillTree.notRequired')} size="small" sx={{ bgcolor: '#1e2229', color: '#94a3b8' }} />
+              <Chip
+                label={t('projectSkillTree.available')}
+                size="small"
+                variant="outlined"
+                sx={{ borderColor: focusedColor, color: focusedColor, opacity: 0.7,
+                  borderStyle: 'dashed' }}
+              />
             )}
           </Box>
 
-          {/* Add / Remove button (manager only, non-root nodes) */}
-          {focusedCanToggle && (
-            <Box
-              component="button"
-              onClick={handleToggleRequired}
-              disabled={saving}
-              sx={{
-                display: 'flex', alignItems: 'center', gap: 0.75, px: 1.5, py: 0.75,
-                border: '1px solid', borderRadius: 1, cursor: 'pointer',
-                bgcolor: 'transparent',
-                borderColor: focusedIsRequired ? 'divider' : focusedColor,
-                color: focusedIsRequired ? 'text.secondary' : focusedColor,
-                transition: 'all 0.2s',
-                '&:not(:disabled):hover': focusedIsRequired
-                  ? { borderColor: '#ef4444', color: '#ef4444' }
-                  : { bgcolor: `${focusedColor}18` },
-                '&:disabled': { opacity: 0.35, cursor: 'not-allowed' },
-              }}
-            >
-              {saving
-                ? <CircularProgress size={14} sx={{ color: focusedIsRequired ? 'text.secondary' : focusedColor }} />
-                : focusedIsRequired
-                  ? <RemoveCircleOutlineIcon fontSize="small" />
-                  : <AddCircleOutlineIcon fontSize="small" />
-              }
-              <Typography variant="caption" sx={{ fontWeight: 600, userSelect: 'none' }}>
-                {focusedIsRequired ? t('projectSkillTree.remove') : t('projectSkillTree.add')}
-              </Typography>
-            </Box>
+          {/* Lock reason hint */}
+          {focusedIsLocked && focusedParentLabel && (
+            <Typography variant="caption" color="error" sx={{ display: 'block', mb: 2 }}>
+              🔒 {t('projectSkillTree.lockReason', { parent: focusedParentLabel })}
+            </Typography>
+          )}
+
+          {/* Add / Remove button (manager only, non-locked, non-root nodes) */}
+          {isManager && !!focusedNode && focusedNode.depth > 0 && (
+            <Tooltip title={focusedIsLocked ? t('projectSkillTree.lockReason', { parent: focusedParentLabel }) : ''}>
+              <Box component="span">
+                <Box
+                  component="button"
+                  onClick={handleToggleRequired}
+                  disabled={saving || focusedIsLocked}
+                  sx={{
+                    display: 'flex', alignItems: 'center', gap: 0.75, px: 1.5, py: 0.75,
+                    border: '1px solid', borderRadius: 1, cursor: 'pointer',
+                    bgcolor: 'transparent',
+                    borderColor: focusedIsRequired ? 'divider' : focusedIsLocked ? 'divider' : focusedColor,
+                    color: focusedIsRequired ? 'text.secondary' : focusedIsLocked ? 'text.disabled' : focusedColor,
+                    transition: 'all 0.2s',
+                    '&:not(:disabled):hover': focusedIsRequired
+                      ? { borderColor: '#ef4444', color: '#ef4444' }
+                      : { bgcolor: `${focusedColor}18` },
+                    '&:disabled': { opacity: 0.35, cursor: 'not-allowed' },
+                  }}
+                >
+                  {saving
+                    ? <CircularProgress size={14} sx={{ color: focusedIsRequired ? 'text.secondary' : focusedColor }} />
+                    : focusedIsRequired
+                      ? <RemoveCircleOutlineIcon fontSize="small" />
+                      : <AddCircleOutlineIcon fontSize="small" />
+                  }
+                  <Typography variant="caption" sx={{ fontWeight: 600, userSelect: 'none' }}>
+                    {focusedIsRequired ? t('projectSkillTree.remove') : t('projectSkillTree.add')}
+                  </Typography>
+                </Box>
+              </Box>
+            </Tooltip>
           )}
         </Box>
 
