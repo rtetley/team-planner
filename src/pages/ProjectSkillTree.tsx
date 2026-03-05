@@ -141,10 +141,11 @@ function ProjectSkillNodeEl({ node, isFocused, isChild, isRequired, isAvailable,
   const r = BASE_R[node.depth] ?? 22;
   const lines = wrapText(node.label);
   const fs = [12, 11, 9.5, 8.5][node.depth] ?? 8.5;
+  const isRoot = node.depth === 0;
   const scale = isFocused ? FOCUS_SCALE : isChild ? 1.08 : hovered ? 1.1 : 1;
   const sw = isFocused ? 2.5 : isRequired ? 2 : isChild ? 1.8 : hovered ? 1.5 : 1;
-  // locked nodes are very dim; available (but not required) are slightly raised
-  const opacity = isLocked ? 0.2 : isFocused || isChild || isRequired || isAvailable ? 1 : 0.4;
+  // root and actively relevant nodes stay at full opacity; locked are ghosted
+  const opacity = isLocked ? 0.2 : isRoot || isFocused || isChild || isRequired || isAvailable ? 1 : 0.4;
 
   return (
     <g
@@ -168,8 +169,8 @@ function ProjectSkillNodeEl({ node, isFocused, isChild, isRequired, isAvailable,
         {/* Label */}
         {lines.map((line, i) => (
           <text key={i} textAnchor="middle" dominantBaseline="middle"
-            fontSize={fs} fontWeight={isFocused ? 700 : isChild || isRequired ? 600 : 500}
-            fill={isFocused || isRequired ? text : isChild || isAvailable ? text : '#9aa8b8'}
+            fontSize={fs} fontWeight={isFocused || isRoot ? 700 : isChild || isRequired ? 600 : 500}
+            fill={isFocused || isRoot || isRequired ? text : isChild || isAvailable ? text : '#9aa8b8'}
             y={(i - (lines.length - 1) / 2) * (fs + 2.5)}
             style={{ userSelect: 'none', pointerEvents: 'none' }}>
             {line}
