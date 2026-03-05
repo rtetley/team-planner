@@ -67,7 +67,8 @@ export default function ProjectView() {
 
   const handleSave = async (data: Omit<Project, 'id'>) => {
     if (!project) return;
-    const updated = await projectsApi.update({ ...data, id: project.id });
+    // Preserve requiredSkills — the edit dialog doesn't manage them
+    const updated = await projectsApi.update({ ...data, id: project.id, requiredSkills: project.requiredSkills ?? [] });
     setProject(updated);
   };
 
