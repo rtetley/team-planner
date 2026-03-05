@@ -8,6 +8,7 @@ import { LanguageSelect } from '@codegouvfr/react-dsfr/LanguageSelect';
 import Dashboard from './pages/Dashboard';
 import Team from './pages/Team';
 import Projects from './pages/Projects';
+import ProjectView from './pages/ProjectView';
 import Tasks from './pages/Tasks';
 import TeamMatrix from './pages/TeamMatrix';
 import Objectives from './pages/Objectives';
@@ -89,7 +90,8 @@ function AppContent() {
           {/* Manager-only routes */}
           <Route path="/"           element={<ProtectedRoute requiredRole="manager"><Dashboard /></ProtectedRoute>} />
           <Route path="/team"       element={<ProtectedRoute requiredRole="manager"><Team /></ProtectedRoute>} />
-          <Route path="/projects"   element={<ProtectedRoute requiredRole="manager"><Projects /></ProtectedRoute>} />
+          <Route path="/projects"      element={<ProtectedRoute requiredRole="manager"><Projects /></ProtectedRoute>} />
+          <Route path="/projects/:id"  element={<ProtectedRoute requiredRole="manager"><ProjectView /></ProtectedRoute>} />
           <Route path="/matrix"     element={<ProtectedRoute requiredRole="manager"><TeamMatrix /></ProtectedRoute>} />
           <Route path="/skills"     element={<ProtectedRoute>{user?.role === 'manager' ? <Skills /> : <UserSkills />}</ProtectedRoute>} />
           <Route path="/objectives" element={<ProtectedRoute requiredRole="manager"><Objectives /></ProtectedRoute>} />

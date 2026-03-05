@@ -45,7 +45,17 @@ export const fr = {
       errorNameRequired: 'Le nom du projet est requis',
       errorStartRequired: 'La date de début est requise',
       errorEndRequired: 'La date de fin est requise',
-      errorEndBeforeStart: 'La date de fin doit être postérieure à la date de début'
+      errorEndBeforeStart: 'La date de fin doit être postérieure à la date de début',
+      view: 'Voir',
+      notFound: 'Projet introuvable.',
+      backToList: 'Retour aux projets',
+      noTechStack: 'Aucune stack technique définie.',
+      panelWorkPackages: 'Lots de travaux',
+      panelWorkPackagesEmpty: 'Aucun lot de travaux pour l’instant.',
+      panelKanban: 'Kanban',
+      panelKanbanEmpty: 'Aucune tâche pour l’instant.',
+      panelSkillTree: 'Arbre de compétences',
+      panelSkillTreeEmpty: 'Aucun arbre de compétences associé pour l’instant.'
     },
     tasks: {
       title: 'Tâches',

@@ -45,7 +45,17 @@ export const en = {
       errorNameRequired: 'Project name is required',
       errorStartRequired: 'Start date is required',
       errorEndRequired: 'End date is required',
-      errorEndBeforeStart: 'End date must be after start date'
+      errorEndBeforeStart: 'End date must be after start date',
+      view: 'View',
+      notFound: 'Project not found.',
+      backToList: 'Back to projects',
+      noTechStack: 'No tech stack defined.',
+      panelWorkPackages: 'Work Packages',
+      panelWorkPackagesEmpty: 'No work packages yet.',
+      panelKanban: 'Kanban',
+      panelKanbanEmpty: 'No tasks yet.',
+      panelSkillTree: 'Skill Tree',
+      panelSkillTreeEmpty: 'No skill tree linked yet.'
     },
     tasks: {
       title: 'Tasks',
