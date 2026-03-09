@@ -66,10 +66,17 @@ export type UserRole = 'manager' | 'user';
 export interface User {
   id: string;
   username: string;
-  passwordHash: string;
+  /** Present for local accounts; absent for OAuth-only accounts */
+  passwordHash?: string;
   role: UserRole;
   /** Links a 'user' account to a TeamMember */
   teamMemberId?: string;
+  /** GitLab numeric user ID (OAuth accounts) */
+  gitlabId?: number;
+  /** Display name from GitLab */
+  displayName?: string;
+  /** Avatar URL from GitLab */
+  avatarUrl?: string;
 }
 
 /** Shape returned to the client (no password hash) */
@@ -78,4 +85,6 @@ export interface PublicUser {
   username: string;
   role: UserRole;
   teamMemberId?: string;
+  displayName?: string;
+  avatarUrl?: string;
 }

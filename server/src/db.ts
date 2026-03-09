@@ -11,14 +11,18 @@ db.on('error', (err) => console.error('[Valkey] Connection error:', err));
 db.on('connect', () => console.log('[Valkey] Connected to', VALKEY_URL));
 
 export const KEYS = {
-  members:     'teamtree:members',
-  projects:    'teamtree:projects',
-  tasks:       'teamtree:tasks',
-  objectives:  'teamtree:objectives',
-  matrix:      'teamtree:matrix',
-  skillMatrix: 'teamtree:skill-matrix',
-  skillTree:   'teamtree:skill-tree',
-  users:       'teamtree:users',
-  sessions:    'teamtree:sessions',
-  skillPoints: 'teamtree:skill-points',
+  members:      'teamtree:members',
+  projects:     'teamtree:projects',
+  tasks:        'teamtree:tasks',
+  objectives:   'teamtree:objectives',
+  matrix:       'teamtree:matrix',
+  skillMatrix:  'teamtree:skill-matrix',
+  skillTree:    'teamtree:skill-tree',
+  users:        'teamtree:users',
+  sessions:     'teamtree:sessions',
+  skillPoints:  'teamtree:skill-points',
+  /** Hash: gitlabId (string) → userId */
+  gitlabIds:    'teamtree:gitlab-ids',
+  /** String keys with TTL used for CSRF state verification */
+  oauthStates:  'teamtree:oauth-states',
 } as const;
