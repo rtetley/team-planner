@@ -17,6 +17,7 @@ import Skills from './pages/Skills';
 import Login from './pages/Login';
 import UserProfile from './pages/UserProfile';
 import UserSkills from './pages/UserSkills';
+import GitLabCallback from './pages/GitLabCallback';
 import { ObjectivesProvider } from './context/ObjectivesContext';
 import { AuthProvider, useAuth } from './context/AuthContext';
 import ProtectedRoute from './components/ProtectedRoute';
@@ -86,6 +87,7 @@ function AppContent() {
         <Routes>
           {/* Public */}
           <Route path="/login" element={<Login />} />
+          <Route path="/auth/callback" element={<GitLabCallback />} />
 
           {/* Manager-only routes */}
           <Route path="/"           element={<ProtectedRoute requiredRole="manager"><Dashboard /></ProtectedRoute>} />

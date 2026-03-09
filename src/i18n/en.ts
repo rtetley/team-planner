@@ -208,7 +208,12 @@ export const en = {
       profileTitle: 'My Profile',
       myTasks: 'My Tasks',
       noTasks: 'No tasks assigned to you.',
-      accountSection: 'Account'
+      accountSection: 'Account',
+      orDivider: 'or',
+      gitlabButton: 'Sign in with GitLab',
+      gitlabDenied: 'GitLab authorisation was denied.',
+      gitlabInvalidState: 'Invalid OAuth state. Please try again.',
+      gitlabCallbackLoading: 'Completing sign in…',
     },
     userSkills: {
       title: 'My Skills',

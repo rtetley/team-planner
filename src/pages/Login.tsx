@@ -1,10 +1,11 @@
 import { useState, type FormEvent } from 'react';
-import { useNavigate, useLocation } from 'react-router-dom';
+import { useNavigate, useLocation, useSearchParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import Box from '@mui/material/Box';
 import Typography from '@mui/material/Typography';
 import Alert from '@mui/material/Alert';
 import CircularProgress from '@mui/material/CircularProgress';
+import Divider from '@mui/material/Divider';
 import { Input } from '@codegouvfr/react-dsfr/Input';
 import { Button } from '@codegouvfr/react-dsfr/Button';
 import { useAuth } from '../context/AuthContext';
@@ -14,10 +15,23 @@ export default function Login() {
   const { login } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
+  const [searchParams] = useSearchParams();
 
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
-  const [error, setError]       = useState<string | null>(null);
+  const [error, setError]       = useState<string | null>(() => {
+    const e = searchParams.get('error');
+    if (!e) return null;
+    const map: Record<string, string> = {
+      gitlab_denied:        t('auth.gitlabDenied'),
+      invalid_state:        t('auth.gitlabInvalidState'),
+      token_exchange_failed: t('auth.errorGeneric'),
+      user_fetch_failed:    t('auth.errorGeneric'),
+      missing_token:        t('auth.errorGeneric'),
+      token_invalid:        t('auth.errorGeneric'),
+    };
+    return map[e] ?? t('auth.errorGeneric');
+  });
   const [loading, setLoading]   = useState(false);
 
   const from = (location.state as { from?: string })?.from ?? '/';
@@ -147,6 +161,26 @@ export default function Login() {
             </Button>
           )}
         </form>
+
+        <Divider sx={{ my: 3 }}>
+          <Typography variant="caption" color="text.secondary">
+            {t('auth.orDivider')}
+          </Typography>
+        </Divider>
+
+        {/* GitLab OAuth */}
+        <Button
+          priority="secondary"
+          iconId="ri-gitlab-line"
+          iconPosition="left"
+          style={{ width: '100%', justifyContent: 'center' }}
+          nativeButtonProps={{
+            onClick: () => { window.location.href = '/api/auth/gitlab'; },
+            type: 'button',
+          }}
+        >
+          {t('auth.gitlabButton')}
+        </Button>
       </Box>
     </Box>
   );

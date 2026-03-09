@@ -208,7 +208,12 @@ export const fr = {
       profileTitle: 'Mon profil',
       myTasks: 'Mes tâches',
       noTasks: 'Aucune tâche assignée.',
-      accountSection: 'Compte'
+      accountSection: 'Compte',
+      orDivider: 'ou',
+      gitlabButton: 'Se connecter avec GitLab',
+      gitlabDenied: 'L\'autorisation GitLab a été refusée.',
+      gitlabInvalidState: 'État OAuth invalide. Veuillez réessayer.',
+      gitlabCallbackLoading: 'Finalisation de la connexion…',
     },
     userSkills: {
       title: 'Mes compétences',

@@ -90,4 +90,8 @@ export interface AuthUser {
   role: UserRole;
   /** Only present for 'user' role accounts */
   teamMemberId?: string;
+  /** Display name from GitLab (OAuth accounts) */
+  displayName?: string;
+  /** Avatar URL from GitLab (OAuth accounts) */
+  avatarUrl?: string;
 }

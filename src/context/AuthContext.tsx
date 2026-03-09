@@ -8,6 +8,8 @@ interface AuthContextValue {
   user: AuthUser | null;
   isLoading: boolean;
   login: (username: string, password: string) => Promise<void>;
+  /** Stores a pre-obtained token (e.g. from GitLab OAuth callback) and loads the user. */
+  loginWithToken: (token: string) => Promise<void>;
   logout: () => Promise<void>;
 }
 
@@ -40,6 +42,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     setUser(user);
   }, []);
 
+  const loginWithToken = useCallback(async (token: string) => {
+    localStorage.setItem(TOKEN_KEY, token);
+    const { user } = await authApi.me();
+    setUser(user);
+  }, []);
+
   const logout = useCallback(async () => {
     try { await authApi.logout(); } catch { /* ignore */ }
     localStorage.removeItem(TOKEN_KEY);
@@ -47,7 +55,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }, []);
 
   return (
-    <AuthContext.Provider value={{ user, isLoading, login, logout }}>
+    <AuthContext.Provider value={{ user, isLoading, login, loginWithToken, logout }}>
       {children}
     </AuthContext.Provider>
   );
