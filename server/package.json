@@ -7,6 +7,7 @@
     "dev": "tsx watch src/index.ts",
     "build": "tsc",
     "start": "node dist/index.js",
+    "migrate": "tsx src/migrations/runner.ts",
     "seed": "tsx src/seed.ts",
     "update-skill-tree": "tsx src/updateSkillTree.ts"
   },

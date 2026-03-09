@@ -12,6 +12,8 @@ import { skillTreeRoute }   from './routes/skillTree.js';
 import { authRoute } from './routes/auth.js';
 import { requireAuth } from './middleware/auth.js';
 import { skillPointsRoute } from './routes/skillPoints.js';
+import { db } from './db.js';
+import { runMigrations } from './migrations/runner.js';
 
 const app = new Hono();
 
@@ -48,6 +50,10 @@ app.route('/api/skill-tree',   skillTreeRoute);
 app.route('/api/skill-points', skillPointsRoute);
 
 const PORT = Number(process.env.PORT ?? 3001);
+
+// Run pending migrations before accepting traffic
+await runMigrations(db);
+
 serve({ fetch: app.fetch, port: PORT }, () => {
   console.log(`[TeamTree Server] Listening on http://localhost:${PORT}`);
 });
