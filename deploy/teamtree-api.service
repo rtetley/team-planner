@@ -1,0 +1,28 @@
+[Unit]
+Description=TeamTree API Server
+Documentation=https://github.com/your-org/team-planner
+After=network.target
+
+[Service]
+Type=simple
+User=__DEPLOY_USER__
+Group=__DEPLOY_USER__
+WorkingDirectory=__SERVER_DIR__
+
+# Node.js server — built by `yarn build` in the server/ directory
+ExecStart=/usr/bin/env node dist/index.js
+
+# Load environment variables from .env (create this file manually on the VM,
+# never commit it).  See deploy/.env.example for required variables.
+EnvironmentFile=__SERVER_DIR__/.env
+
+Restart=on-failure
+RestartSec=5
+
+# Logging — readable with: journalctl -u teamtree-api -f
+StandardOutput=journal
+StandardError=journal
+SyslogIdentifier=teamtree-api
+
+[Install]
+WantedBy=multi-user.target
