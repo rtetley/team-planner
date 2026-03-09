@@ -19,7 +19,13 @@ export const fr = {
     team: {
       title: 'Équipe',
       position: 'Poste',
-      skills: 'Compétences'
+      skills: 'Compétences',
+      addMember: 'Ajouter un membre',
+      addMemberDialogTitle: 'Ajouter un membre à l\'équipe',
+      addMemberSelectLabel: 'Sélectionner des membres',
+      addMemberConfirm: 'Ajouter',
+      addMemberCancel: 'Annuler',
+      noMembersAvailable: 'Aucun membre disponible à ajouter.'
     },
     projects: {
       title: 'Projets',

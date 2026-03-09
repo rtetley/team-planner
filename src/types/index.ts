@@ -3,6 +3,17 @@ export interface TeamMember {
   name: string;
   position: string;
   skills: string[];
+  /** ID of the manager (AuthUser.id) who owns this team member */
+  managerId?: string;
+}
+
+/**
+ * Returned by GET /team-members/available.
+ * When _fromUserId is set the entry represents a GitLab user who has no
+ * TeamMember record yet; confirming will create one server-side.
+ */
+export interface AvailableMember extends TeamMember {
+  _fromUserId?: string;
 }
 
 export interface WorkPackage {

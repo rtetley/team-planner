@@ -3,6 +3,8 @@ export interface TeamMember {
   name: string;
   position: string;
   skills: string[];
+  /** ID of the manager (User.id) who owns this team member */
+  managerId?: string;
 }
 
 export interface WorkPackage {

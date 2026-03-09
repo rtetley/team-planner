@@ -19,7 +19,13 @@ export const en = {
     team: {
       title: 'Team',
       position: 'Position',
-      skills: 'Skills'
+      skills: 'Skills',
+      addMember: 'Add Member',
+      addMemberDialogTitle: 'Add team member',
+      addMemberSelectLabel: 'Select members',
+      addMemberConfirm: 'Add',
+      addMemberCancel: 'Cancel',
+      noMembersAvailable: 'No available members to add.'
     },
     projects: {
       title: 'Projects',

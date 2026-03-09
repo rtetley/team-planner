@@ -1,5 +1,6 @@
 import type {
   TeamMember,
+  AvailableMember,
   Project,
   Task,
   MaturityLevel,
@@ -30,6 +31,12 @@ async function req<T>(path: string, init?: RequestInit): Promise<T> {
 
 export const teamMembersApi = {
   getAll: () => req<TeamMember[]>('/team-members'),
+  getAvailable: () => req<AvailableMember[]>('/team-members/available'),
+  createFromUser: (userId: string, managerId: string) =>
+    req<TeamMember>('/team-members/from-user', {
+      method: 'POST',
+      body: JSON.stringify({ userId, managerId }),
+    }),
   create: (data: Omit<TeamMember, 'id'>) =>
     req<TeamMember>('/team-members', { method: 'POST', body: JSON.stringify(data) }),
   update: (member: TeamMember) =>
