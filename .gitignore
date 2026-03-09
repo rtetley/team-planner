@@ -12,6 +12,14 @@ dist
 dist-ssr
 *.local
 
+# Environment files (contain secrets)
+.env
+.env.*
+!.env.example
+
+# npm lock file (project uses Yarn)
+package-lock.json
+
 # Editor directories and files
 .vscode/*
 !.vscode/extensions.json
