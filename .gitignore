@@ -15,7 +15,8 @@ dist-ssr
 # Environment files (contain secrets)
 .env
 .env.*
-!.env.example
+!.env.development.example
+!.env.production.example
 
 # npm lock file (project uses Yarn)
 package-lock.json

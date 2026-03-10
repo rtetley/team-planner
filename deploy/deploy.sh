@@ -197,8 +197,8 @@ if [[ "$DO_DB" == true ]]; then
   step "Running database migrations on VM…"
   # The runner loads dotenv automatically when invoked as a CLI entry point.
   # It expects a .env file in the server working directory (SERVER_DIR).
-  if ! run_ssh "test -f '${SERVER_DIR}/.env'"; then
-    error "${SERVER_DIR}/.env not found on the VM. Create it from deploy/.env.example before running migrations."
+  if ! run_ssh "test -f '${SERVER_DIR}/.env' || test -f '${SERVER_DIR}/.env.production'"; then
+    error "Neither ${SERVER_DIR}/.env nor ${SERVER_DIR}/.env.production found on the VM. Create one from deploy/.env.production.example before running migrations."
   fi
   run_ssh "cd '${SERVER_DIR}' && node dist/migrations/runner.js"
   info "Migrations complete."
@@ -290,7 +290,7 @@ if [[ "$WITH_SERVICE" == true ]]; then
 REMOTE
 
   info "Service ${SERVICE_NAME} installed and enabled."
-  warn "Create ${SERVER_DIR}/.env (see deploy/.env.example), then start with:"
+  warn "Create ${SERVER_DIR}/.env.production (see deploy/.env.production.example), then start with:"
   warn "  sudo systemctl start ${SERVICE_NAME}"
   warn "  journalctl -u ${SERVICE_NAME} -f"
 fi
