@@ -73,7 +73,7 @@ export async function runMigrations(db: Redis): Promise<void> {
 
 // Only run when executed directly (not when imported by the server)
 if (import.meta.url === new URL(process.argv[1], 'file://').href) {
-  import('dotenv/config').then(async () => {
+  import('../env.js').then(async () => {
     const { db } = await import('../db.js');
     try {
       await runMigrations(db);

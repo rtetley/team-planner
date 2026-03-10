@@ -7,7 +7,7 @@
  *   yarn users demote  <id>  # revoke manager role (back to 'user')
  */
 
-import 'dotenv/config';
+import './env.js';
 import { db, KEYS } from './db.js';
 import type { User } from './types.js';
 

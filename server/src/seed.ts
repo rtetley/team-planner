@@ -1,3 +1,4 @@
+import './env.js';
 import { db, KEYS } from './db.js';
 import type { TeamMember, Project, Task, MatrixCell, Objective } from './types.js';
 import type { User } from './types.js';
