@@ -6,6 +6,7 @@ import Chip from '@mui/material/Chip';
 import Divider from '@mui/material/Divider';
 import CircularProgress from '@mui/material/CircularProgress';
 import Alert from '@mui/material/Alert';
+import Avatar from '@mui/material/Avatar';
 import { useAuth } from '../context/AuthContext';
 import { teamMembersApi, tasksApi, projectsApi } from '../api';
 import type { TeamMember, Task, Project } from '../types';
@@ -60,6 +61,45 @@ export default function UserProfile() {
       <Typography variant="h4" component="h1" gutterBottom sx={{ fontWeight: 700 }}>
         {t('auth.profileTitle')}
       </Typography>
+
+      {/* Account card */}
+      <Box
+        sx={{
+          display: 'flex',
+          alignItems: 'center',
+          gap: 2,
+          bgcolor: 'var(--background-raised-grey)',
+          borderRadius: 1,
+          p: 3,
+          mb: 4,
+          boxShadow: 'var(--raised-shadow)',
+        }}
+      >
+        <Avatar
+          src={user?.avatarUrl}
+          alt={user?.displayName ?? user?.username}
+          sx={{ width: 56, height: 56, fontSize: 22 }}
+        >
+          {(user?.displayName ?? user?.username ?? '?').charAt(0).toUpperCase()}
+        </Avatar>
+        <Box>
+          <Typography variant="h6" sx={{ fontWeight: 600, lineHeight: 1.2 }}>
+            {user?.displayName ?? user?.username}
+          </Typography>
+          {user?.displayName && (
+            <Typography variant="body2" color="text.secondary">
+              @{user.username}
+            </Typography>
+          )}
+          <Chip
+            label={t(user?.role === 'manager' ? 'userManagement.roleManager' : 'userManagement.roleUser')}
+            size="small"
+            color={user?.role === 'manager' ? 'primary' : 'default'}
+            variant="outlined"
+            sx={{ mt: 0.75 }}
+          />
+        </Box>
+      </Box>
 
       {/* Personal info */}
       {member ? (

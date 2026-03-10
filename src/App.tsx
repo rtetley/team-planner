@@ -67,7 +67,7 @@ function AppContent() {
             : []),          {
             iconId: 'fr-icon-user-line' as const,
             text: user.username,
-            linkProps: { to: user.role === 'manager' ? '/' : '/profile' },
+            linkProps: { to: '/profile' },
           },
           {
             iconId: 'fr-icon-logout-box-r-line' as const,
