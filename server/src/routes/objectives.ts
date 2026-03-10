@@ -7,7 +7,7 @@ export const objectivesRoute = new Hono();
 
 objectivesRoute.get('/', async (c) => {
   const all = await db.hgetall(KEYS.objectives);
-  return c.json(Object.values(all).map((v) => JSON.parse(v) as Objective));
+  return c.json(Object.values(all as Record<string, string>).map((v) => JSON.parse(v) as Objective));
 });
 
 objectivesRoute.post('/', async (c) => {

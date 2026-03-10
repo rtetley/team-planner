@@ -7,7 +7,7 @@ export const teamMembersRoute = new Hono();
 
 teamMembersRoute.get('/', async (c) => {
   const all = await db.hgetall(KEYS.members);
-  return c.json(Object.values(all).map((v) => JSON.parse(v) as TeamMember));
+  return c.json(Object.values(all as Record<string, string>).map((v) => JSON.parse(v) as TeamMember));
 });
 
 /** Returns members not yet assigned to any manager, plus GitLab users who have
@@ -20,12 +20,12 @@ teamMembersRoute.get('/available', async (c) => {
     db.hgetall(KEYS.users),
   ]);
 
-  const unassigned = Object.values(allMembers)
+  const unassigned = Object.values(allMembers as Record<string, string>)
     .map((v) => JSON.parse(v) as TeamMember)
     .filter((m) => !m.managerId);
 
   // GitLab-authenticated users who have never been linked to a TeamMember
-  const unlinked = Object.values(allUsers)
+  const unlinked = Object.values(allUsers as Record<string, string>)
     .map((v) => JSON.parse(v) as User)
     .filter((u) => u.role === 'user' && !u.teamMemberId && u.gitlabId !== undefined)
     .map((u) => ({

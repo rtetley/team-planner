@@ -1,4 +1,4 @@
-import Redis from 'ioredis';
+import { Redis } from 'ioredis';
 
 const VALKEY_URL = process.env.VALKEY_URL ?? 'redis://127.0.0.1:6379';
 
@@ -7,7 +7,7 @@ export const db = new Redis(VALKEY_URL, {
   maxRetriesPerRequest: 3,
 });
 
-db.on('error', (err) => console.error('[Valkey] Connection error:', err));
+db.on('error', (err: Error) => console.error('[Valkey] Connection error:', err));
 db.on('connect', () => console.log('[Valkey] Connected to', VALKEY_URL));
 
 export const KEYS = {

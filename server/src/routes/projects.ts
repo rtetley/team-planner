@@ -7,7 +7,7 @@ export const projectsRoute = new Hono();
 
 projectsRoute.get('/', async (c) => {
   const all = await db.hgetall(KEYS.projects);
-  return c.json(Object.values(all).map((v) => JSON.parse(v) as Project));
+  return c.json(Object.values(all as Record<string, string>).map((v) => JSON.parse(v) as Project));
 });
 
 projectsRoute.post('/', async (c) => {
