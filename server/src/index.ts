@@ -1,4 +1,4 @@
-import 'dotenv/config';
+import './env.js';
 import { serve } from '@hono/node-server';
 import { Hono } from 'hono';
 import { cors } from 'hono/cors';
@@ -12,6 +12,7 @@ import { skillTreeRoute }   from './routes/skillTree.js';
 import { authRoute } from './routes/auth.js';
 import { requireAuth } from './middleware/auth.js';
 import { skillPointsRoute } from './routes/skillPoints.js';
+import { usersRoute } from './routes/users.js';
 import { db } from './db.js';
 import { runMigrations } from './migrations/runner.js';
 
@@ -40,6 +41,8 @@ app.use('/api/matrix',         requireAuth);
 app.use('/api/skill-matrix',   requireAuth);
 app.use('/api/skill-tree',     requireAuth);app.use('/api/skill-points/*', requireAuth);
 app.use('/api/skill-points',   requireAuth);
+app.use('/api/users/*',        requireAuth);
+app.use('/api/users',          requireAuth);
 app.route('/api/team-members', teamMembersRoute);
 app.route('/api/projects',     projectsRoute);
 app.route('/api/tasks',        tasksRoute);
@@ -48,6 +51,7 @@ app.route('/api/matrix',       matrixRoute);
 app.route('/api/skill-matrix', skillMatrixRoute);
 app.route('/api/skill-tree',   skillTreeRoute);
 app.route('/api/skill-points', skillPointsRoute);
+app.route('/api/users',        usersRoute);
 
 const PORT = Number(process.env.PORT ?? 3001);
 

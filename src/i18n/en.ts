@@ -267,6 +267,28 @@ export const en = {
       errorEndRequired: 'End date is required',
       errorEndBeforeStart: 'End must be after start date',
       colorLabel: 'Color'
+    },
+    userManagement: {
+      title: 'User Accounts',
+      subtitle: 'Manage registered accounts: change roles or remove users.',
+      settingsButton: 'User accounts',
+      columnUser: 'User',
+      columnUsername: 'Username',
+      columnRole: 'Role',
+      columnActions: 'Actions',
+      roleManager: 'Manager',
+      roleUser: 'User',
+      you: 'You',
+      deleteTooltip: 'Delete account',
+      cannotDeleteSelf: 'You cannot delete your own account',
+      confirmDeleteTitle: 'Delete account',
+      confirmDelete: 'Are you sure you want to permanently delete the account for «{{username}}»? This action cannot be undone.',
+      cancel: 'Cancel',
+      delete: 'Delete',
+      noUsers: 'No accounts found.',
+      errorLoad: 'Failed to load user accounts.',
+      errorUpdate: 'Failed to update role.',
+      errorDelete: 'Failed to delete account.'
     }
   }
 };

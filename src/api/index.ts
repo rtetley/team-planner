@@ -9,6 +9,7 @@ import type {
   Objective,
   SkillTreeDoc,
   AuthUser,
+  UserRole,
 } from '../types';
 
 const BASE = '/api';
@@ -138,4 +139,14 @@ export const authApi = {
     req<{ ok: boolean }>('/auth/logout', { method: 'POST' }),
   me: () =>
     req<{ user: AuthUser }>('/auth/me'),
+};
+
+// ── Users (manager only) ──────────────────────────────────────────────────────
+
+export const usersApi = {
+  getAll: () => req<AuthUser[]>('/users'),
+  updateRole: (id: string, role: UserRole) =>
+    req<AuthUser>(`/users/${id}`, { method: 'PATCH', body: JSON.stringify({ role }) }),
+  remove: (id: string) =>
+    req<void>(`/users/${id}`, { method: 'DELETE' }),
 };

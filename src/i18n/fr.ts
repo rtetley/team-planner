@@ -266,7 +266,27 @@ export const fr = {
       errorStartRequired: 'La date de début est requise',
       errorEndRequired: 'La date de fin est requise',
       errorEndBeforeStart: 'La date de fin doit être postérieure à la date de début',
-      colorLabel: 'Couleur'
-    }
+      colorLabel: 'Couleur'    },
+    userManagement: {
+      title: 'Comptes utilisateurs',
+      subtitle: 'Gérez les comptes enregistrés : modifiez les rôles ou supprimez des utilisateurs.',
+      settingsButton: 'Comptes utilisateurs',
+      columnUser: 'Utilisateur',
+      columnUsername: 'Identifiant',
+      columnRole: 'Rôle',
+      columnActions: 'Actions',
+      roleManager: 'Manager',
+      roleUser: 'Utilisateur',
+      you: 'Vous',
+      deleteTooltip: 'Supprimer le compte',
+      cannotDeleteSelf: 'Vous ne pouvez pas supprimer votre propre compte',
+      confirmDeleteTitle: 'Supprimer le compte',
+      confirmDelete: 'Êtes-vous sûr de vouloir supprimer définitivement le compte de « {{username}} » ? Cette action est irréversible.',
+      cancel: 'Annuler',
+      delete: 'Supprimer',
+      noUsers: 'Aucun compte trouvé.',
+      errorLoad: 'Impossible de charger les comptes utilisateurs.',
+      errorUpdate: 'Impossible de mettre à jour le rôle.',
+      errorDelete: 'Impossible de supprimer le compte.'    }
   }
 };

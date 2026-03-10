@@ -18,6 +18,7 @@ import Login from './pages/Login';
 import UserProfile from './pages/UserProfile';
 import UserSkills from './pages/UserSkills';
 import GitLabCallback from './pages/GitLabCallback';
+import UserManagement from './pages/UserManagement';
 import { ObjectivesProvider } from './context/ObjectivesContext';
 import { AuthProvider, useAuth } from './context/AuthContext';
 import ProtectedRoute from './components/ProtectedRoute';
@@ -57,8 +58,13 @@ function AppContent() {
       setLang={(lang: string) => i18n.changeLanguage(lang)}
     />,
     ...(user
-      ? [
-          {
+      ? [          ...(user.role === 'manager'
+            ? [{
+                iconId: 'fr-icon-settings-5-line' as const,
+                text: t('userManagement.settingsButton'),
+                linkProps: { to: '/settings/users' },
+              }]
+            : []),          {
             iconId: 'fr-icon-user-line' as const,
             text: user.username,
             linkProps: { to: user.role === 'manager' ? '/' : '/profile' },
@@ -105,6 +111,9 @@ function AppContent() {
 
           {/* User role home */}
           <Route path="/profile" element={<ProtectedRoute><UserProfile /></ProtectedRoute>} />
+
+          {/* Settings */}
+          <Route path="/settings/users" element={<ProtectedRoute requiredRole="manager"><UserManagement /></ProtectedRoute>} />
 
           {/* Fallback */}
           <Route path="*" element={<Navigate to="/" replace />} />
