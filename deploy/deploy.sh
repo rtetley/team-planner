@@ -176,11 +176,10 @@ if [[ "$DO_SERVER" == true ]]; then
   rsync -az \
     -e "ssh ${SSH_ARGS[*]}" \
     "$REPO_ROOT/server/package.json" \
-    "$REPO_ROOT/server/yarn.lock" \
     "${DEPLOY_USER}@${DEPLOY_HOST}:${SERVER_DIR}/"
 
   step "Installing production dependencies on VM…"
-  run_ssh "cd '${SERVER_DIR}' && yarn install --production --frozen-lockfile --silent"
+  run_ssh "cd '${SERVER_DIR}' && npm install --omit=dev --no-audit --no-fund"
 
   step "Restarting service ${SERVICE_NAME}…"
   if run_ssh "systemctl is-active --quiet '${SERVICE_NAME}' 2>/dev/null || systemctl is-enabled --quiet '${SERVICE_NAME}' 2>/dev/null"; then
