@@ -2,7 +2,7 @@ import { useState, useCallback, useEffect } from 'react';
 import { Box, Typography } from '@mui/material';
 import { Button } from '@codegouvfr/react-dsfr/Button';
 import { useTranslation } from 'react-i18next';
-import ReactMarkdown from 'react-markdown';
+import MarkdownRenderer from '../components/MarkdownRenderer';
 import { projectsApi } from '../api';
 import type { Project } from '../types';
 
@@ -208,7 +208,7 @@ export default function ProjectPrd({ project, onUpdate, isManager }: ProjectPrdP
           },
           '& input[type="checkbox"]': { mr: 0.75 },
         }}>
-          <ReactMarkdown>{draft}</ReactMarkdown>
+          <MarkdownRenderer>{draft}</MarkdownRenderer>
         </Box>
       )}
     </Box>

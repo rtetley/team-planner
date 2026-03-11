@@ -4,6 +4,7 @@ import LockIcon from '@mui/icons-material/Lock';
 import LockOpenIcon from '@mui/icons-material/LockOpen';
 import { SearchBar } from '@codegouvfr/react-dsfr/SearchBar';
 import { useTranslation } from 'react-i18next';
+import MarkdownRenderer from '../components/MarkdownRenderer';
 import { skillTreeApi, skillPointsApi } from '../api';
 import type { SkillTreeDoc, SkillTreeNode } from '../types';
 
@@ -790,9 +791,15 @@ export default function UserSkills() {
             </Typography>
 
             {/* Description */}
-            <Typography variant="body2" color="text.secondary" sx={{ mb: 2, minHeight: 40, fontStyle: focusedNode?.description ? 'normal' : 'italic' }}>
-              {focusedNode?.description ?? t('userSkills.noDescription')}
-            </Typography>
+            {focusedNode?.description ? (
+              <MarkdownRenderer sx={{ mb: 2, minHeight: 40, color: 'text.secondary' }}>
+                {focusedNode.description}
+              </MarkdownRenderer>
+            ) : (
+              <Typography variant="body2" color="text.secondary" sx={{ mb: 2, minHeight: 40, fontStyle: 'italic' }}>
+                {t('userSkills.noDescription')}
+              </Typography>
+            )}
 
             <Divider sx={{ mb: 2 }} />
 

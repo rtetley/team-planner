@@ -12,7 +12,7 @@ import {
 } from '@mui/material';
 import AddIcon from '@mui/icons-material/Add';
 import VisibilityIcon from '@mui/icons-material/Visibility';
-import ReactMarkdown from 'react-markdown';
+import MarkdownRenderer from '../components/MarkdownRenderer';
 import { useNavigate } from 'react-router-dom';
 import { projectsApi } from '../api';
 import { Project } from '../types';
@@ -79,13 +79,11 @@ export default function Projects() {
                 {/* Description */}
                 {project.description?.trim() ? (
                   <Box sx={{
-                    mb: 2, fontSize: '0.875rem', color: 'text.primary',
-                    '& p': { mt: 0, mb: 0.5 },
-                    '& h1,& h2,& h3': { mt: 1, mb: 0.5, fontSize: '1rem' },
+                    mb: 2, color: 'text.primary',
                     overflow: 'hidden',
                     display: '-webkit-box', WebkitLineClamp: 4, WebkitBoxOrient: 'vertical',
                   }}>
-                    <ReactMarkdown>{project.description}</ReactMarkdown>
+                    <MarkdownRenderer>{project.description}</MarkdownRenderer>
                   </Box>
                 ) : (
                   <Typography variant="body2" color="text.disabled" fontStyle="italic" sx={{ mb: 2 }}>

@@ -18,7 +18,7 @@ import WorkIcon from '@mui/icons-material/AccountTree';
 import ViewKanbanIcon from '@mui/icons-material/ViewKanban';
 import HubIcon from '@mui/icons-material/Hub';
 import DescriptionIcon from '@mui/icons-material/Description';
-import ReactMarkdown from 'react-markdown';
+import MarkdownRenderer from '../components/MarkdownRenderer';
 import { useTranslation } from 'react-i18next';
 import { projectsApi } from '../api';
 import type { Project } from '../types';
@@ -156,13 +156,9 @@ export default function ProjectView() {
 
         {/* description */}
         {project.description?.trim() ? (
-          <Box sx={{
-            fontSize: '0.9rem',
-            '& p': { mt: 0, mb: 0.5 },
-            '& h1,& h2,& h3': { mt: 1, mb: 0.5 },
-          }}>
-            <ReactMarkdown>{project.description}</ReactMarkdown>
-          </Box>
+          <MarkdownRenderer sx={{ fontSize: '0.9rem' }}>
+            {project.description}
+          </MarkdownRenderer>
         ) : (
           <Typography variant="body2" color="text.disabled" fontStyle="italic">
             {t('projects.noDescription')}
