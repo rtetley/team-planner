@@ -42,7 +42,6 @@ function AppContent() {
 
   const userNav = [
     { text: t('auth.profileTitle'), linkProps: { to: '/profile' }, isActive: location.pathname === '/profile' },
-    { text: t('navigation.tasks'),  linkProps: { to: '/tasks' },   isActive: location.pathname === '/tasks' },
     { text: t('navigation.skills'), linkProps: { to: '/skills' },  isActive: location.pathname === '/skills' },
   ];
 
