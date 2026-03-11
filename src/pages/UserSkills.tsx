@@ -770,7 +770,7 @@ export default function UserSkills() {
         </Box>
 
         {/* ── Right: info card + radar ───────────────────────────────────── */}
-        <Box sx={{ flex: '0 0 320px', width: 320, display: 'flex', flexDirection: 'column', gap: 2 }}>
+        <Box sx={{ flex: '0 0 320px', width: 320, display: 'flex', flexDirection: 'column', gap: 2, position: { xs: 'relative', lg: 'sticky' }, top: { lg: 16 }, maxHeight: { lg: 'calc(100vh - 32px)' }, overflowY: { lg: 'auto' } }}>
 
           {/* Info card */}
           <Box sx={{ bgcolor: 'var(--background-raised-grey)', borderRadius: 1.5, p: 2.5, boxShadow: 'var(--raised-shadow)' }}>
@@ -792,9 +792,11 @@ export default function UserSkills() {
 
             {/* Description */}
             {focusedNode?.description ? (
-              <MarkdownRenderer sx={{ mb: 2, minHeight: 40, color: 'text.secondary' }}>
-                {focusedNode.description}
-              </MarkdownRenderer>
+              <Box sx={{ maxHeight: 200, overflowY: 'auto', mb: 2 }}>
+                <MarkdownRenderer sx={{ color: 'text.secondary' }}>
+                  {focusedNode.description}
+                </MarkdownRenderer>
+              </Box>
             ) : (
               <Typography variant="body2" color="text.secondary" sx={{ mb: 2, minHeight: 40, fontStyle: 'italic' }}>
                 {t('userSkills.noDescription')}
