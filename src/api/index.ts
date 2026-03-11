@@ -12,7 +12,9 @@ import type {
   UserRole,
 } from '../types';
 
-const BASE = '/api';
+// Derive the API root from Vite's base URL so it works both locally and behind
+// a reverse-proxy sub-path (e.g. /teamtree/api when base = '/teamtree/').
+const BASE = `${import.meta.env.BASE_URL.replace(/\/$/, '')}/api`;
 
 function getToken(): string | null {
   return localStorage.getItem('teamtree_token');

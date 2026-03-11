@@ -175,7 +175,7 @@ export default function Login() {
           iconPosition="left"
           style={{ width: '100%', justifyContent: 'center' }}
           nativeButtonProps={{
-            onClick: () => { window.location.href = '/api/auth/gitlab'; },
+            onClick: () => { window.location.href = `${import.meta.env.BASE_URL}api/auth/gitlab`; },
             type: 'button',
           }}
         >
