@@ -24,6 +24,7 @@
 #   --update-frontend     Build Vite app locally and sync dist/ to the VM
 #   --update-server       Build Node.js server locally, sync and restart service
 #   --update-db           Run database migrations on the remote VM
+#   --update-skill-tree   Run the skill-tree update script on the remote VM
 #   --all                 Equivalent to all three update actions above
 #
 # One-time setup (opt-in, can be combined with update actions):
@@ -82,6 +83,7 @@ WITH_SERVICE=false
 DO_FRONTEND=false
 DO_SERVER=false
 DO_DB=false
+DO_SKILL_TREE=false
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 REPO_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
@@ -105,10 +107,11 @@ while [[ $# -gt 0 ]]; do
     --server-dir)         SERVER_DIR="$2";    shift 2 ;;
     --api-port)           API_PORT="$2";      shift 2 ;;
     --service)            SERVICE_NAME="$2";  shift 2 ;;
-    --update-frontend)    DO_FRONTEND=true;   shift ;;
-    --update-server)      DO_SERVER=true;     shift ;;
-    --update-db)          DO_DB=true;         shift ;;
-    --all)                DO_FRONTEND=true; DO_SERVER=true; DO_DB=true; shift ;;
+    --update-frontend)    DO_FRONTEND=true;    shift ;;
+    --update-server)      DO_SERVER=true;      shift ;;
+    --update-db)          DO_DB=true;          shift ;;
+    --update-skill-tree)  DO_SKILL_TREE=true;  shift ;;
+    --all)                DO_FRONTEND=true; DO_SERVER=true; DO_DB=true; DO_SKILL_TREE=true; shift ;;
     --with-nginx)         WITH_NGINX=true;    shift ;;
     --update-proxy-conf)  UPDATE_PROXY_CONF=true; shift ;;
     --with-service)       WITH_SERVICE=true;  shift ;;
@@ -125,8 +128,9 @@ done
   error "SSH key not found: $DEPLOY_KEY"
 
 if [[ "$DO_FRONTEND" == false && "$DO_SERVER" == false && "$DO_DB" == false &&
+      "$DO_SKILL_TREE" == false &&
       "$WITH_NGINX" == false && "$UPDATE_PROXY_CONF" == false && "$WITH_SERVICE" == false ]]; then
-  error "No action specified. Pass at least one of: --update-frontend, --update-server, --update-db, --all, --with-nginx, --update-proxy-conf, --with-service"
+  error "No action specified. Pass at least one of: --update-frontend, --update-server, --update-db, --update-skill-tree, --all, --with-nginx, --update-proxy-conf, --with-service"
 fi
 
 # ── SSH helpers ───────────────────────────────────────────────────────────────
@@ -178,6 +182,14 @@ if [[ "$DO_SERVER" == true ]]; then
     "$REPO_ROOT/server/package.json" \
     "${DEPLOY_USER}@${DEPLOY_HOST}:${SERVER_DIR}/"
 
+  # Sync the skill-tree JSON so update-skill-tree can be run independently
+  if [[ -f "$REPO_ROOT/research_engineer.json" ]]; then
+    rsync -az \
+      -e "ssh ${SSH_ARGS[*]}" \
+      "$REPO_ROOT/research_engineer.json" \
+      "${DEPLOY_USER}@${DEPLOY_HOST}:${SERVER_DIR}/"
+  fi
+
   step "Installing production dependencies on VM…"
   run_ssh "cd '${SERVER_DIR}' && npm install --omit=dev --no-audit --no-fund"
 
@@ -201,6 +213,16 @@ if [[ "$DO_DB" == true ]]; then
   fi
   run_ssh "cd '${SERVER_DIR}' && node dist/migrations/runner.js"
   info "Migrations complete."
+fi
+
+# ── Step: update skill tree ───────────────────────────────────────────────────
+if [[ "$DO_SKILL_TREE" == true ]]; then
+  step "Running skill-tree update on VM…"
+  if ! run_ssh "test -f '${SERVER_DIR}/.env' || test -f '${SERVER_DIR}/.env.production'"; then
+    error "Neither ${SERVER_DIR}/.env nor ${SERVER_DIR}/.env.production found on the VM."
+  fi
+  run_ssh "cd '${SERVER_DIR}' && node dist/updateSkillTree.js '${SERVER_DIR}/research_engineer.json'"
+  info "Skill tree updated."
 fi
 
 # ── Step: install nginx (full, opt-in) ───────────────────────────────────────
@@ -297,6 +319,7 @@ fi
 # ── Done ──────────────────────────────────────────────────────────────────────
 echo ""
 info "✅  Done!"
-[[ "$DO_FRONTEND" == true ]] && info "   Frontend → ${REMOTE_DIR} on ${DEPLOY_HOST}"
-[[ "$DO_SERVER"   == true ]] && info "   Server   → ${SERVER_DIR} on ${DEPLOY_HOST}"
-[[ "$DO_DB"       == true ]] && info "   Database migrations applied."
+[[ "$DO_FRONTEND"    == true ]] && info "   Frontend    → ${REMOTE_DIR} on ${DEPLOY_HOST}"
+[[ "$DO_SERVER"      == true ]] && info "   Server      → ${SERVER_DIR} on ${DEPLOY_HOST}"
+[[ "$DO_DB"          == true ]] && info "   Database migrations applied."
+[[ "$DO_SKILL_TREE"  == true ]] && info "   Skill tree updated."

@@ -6,8 +6,9 @@
  * KEYS.skillTree so the Skills tab can serve it via the API.
  *
  * Usage:
- *   yarn update-skill-tree              (from the server/ directory)
- *   VALKEY_URL=redis://... tsx src/updateSkillTree.ts
+ *   yarn update-skill-tree                          (defaults to ../research_engineer.json)
+ *   yarn update-skill-tree /path/to/custom_tree.json
+ *   VALKEY_URL=redis://... tsx src/updateSkillTree.ts [path]
  */
 
 import { readFile } from 'fs/promises';
@@ -97,8 +98,15 @@ function buildTree(nodes: RawNode[]): SkillTreeNode {
 
 async function updateSkillTree() {
   const __dirname = path.dirname(fileURLToPath(import.meta.url));
-  // research_engineer.json sits at the project root (two levels up from src/)
-  const jsonPath = path.resolve(__dirname, '../../research_engineer.json');
+
+  // Accept an explicit path as the first CLI argument; otherwise look for
+  // research_engineer.json one level up from the server/ directory so the
+  // script works both in the repo (server/../research_engineer.json) and on
+  // the remote VM where the file is deployed alongside the server bundle.
+  const cliPath = process.argv[2];
+  const jsonPath = cliPath
+    ? path.resolve(cliPath)
+    : path.resolve(__dirname, '../research_engineer.json');
 
   console.log(`[UpdateSkillTree] Reading ${jsonPath}…`);
   const raw = JSON.parse(await readFile(jsonPath, 'utf-8')) as RawTree;
