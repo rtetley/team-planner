@@ -34,7 +34,7 @@ Vite dev server (port 5173)
                           └─ ioredis ──► Valkey (port 6379)
 ```
 
-The Vite frontend proxies all `/api` requests to the Hono server, so there are no CORS issues in development. In production, both the static build and the API should sit behind a reverse proxy (e.g. Nginx) on the same origin.
+The Vite frontend proxies all `/teamtree/api` requests to the Hono server, so there are no CORS issues in development. In production, both the static build and the API should sit behind a reverse proxy (e.g. Nginx) on the same origin.
 
 ### Data storage
 
@@ -82,9 +82,15 @@ cd server
 yarn install
 ```
 
-### 2. Seed the database
+### 2. Configure environment
 
-Populates Valkey with initial demo data (team members, projects, tasks, objectives and matrix cells). The seed script is idempotent — it will skip if data is already present.
+Copy the development example and adjust if needed:
+
+```bash
+cp ../deploy/.env.development.example .env
+```
+
+### 3. Seed the database
 
 ```bash
 yarn seed
@@ -96,41 +102,17 @@ To wipe existing data and re-seed from scratch:
 FLUSH_BEFORE_SEED=1 yarn seed
 ```
 
-### 3. Load (or update) the skill tree
+### 4. Load the skill tree
 
-The Skills tab reads its tree structure from Valkey. The tree is defined in a JSON file at the **project root** (`research_engineer.json`) and must be loaded into the database at least once before the Skills page will work.
-
-Run the migration script from the `server/` directory:
+The Skills tab requires a skill tree to be loaded into Valkey before it will work:
 
 ```bash
 yarn update-skill-tree
 ```
 
-The script will:
-1. Read the JSON file from `../research_engineer.json` (relative to `server/`)
-2. Convert the flat `nodes` array into a nested tree
-3. Write the result to Valkey under the key `teamtree:skill-tree`
+See [Scripts reference — `yarn update-skill-tree`](#yarn-update-skill-tree-path) for full details.
 
-The script is **idempotent** — if the same `treeId` and `version` are already stored it will skip the write. To force an overwrite (e.g. after editing node labels or positions):
-
-```bash
-FORCE=1 yarn update-skill-tree
-```
-
-#### Updating the tree later
-
-To swap in a different skill tree (or update the existing one):
-
-1. Replace or edit `research_engineer.json` at the project root, then bump the `version` field (e.g. `1` → `2`).
-2. Re-run the script — the version bump is enough to trigger an update without `FORCE=1`:
-
-```bash
-yarn update-skill-tree
-```
-
-3. The running server picks up the new tree immediately on the next request (no restart needed).
-
-### 4. Start the dev server
+### 5. Start the dev server
 
 ```bash
 yarn dev
@@ -143,13 +125,116 @@ The server starts with `tsx watch`, so it hot-reloads on any file change. You sh
 [TeamTree Server] Listening on http://localhost:3001
 ```
 
-### 5. Verify
+### 6. Verify
 
 ```bash
 curl http://localhost:3001/api/health
 # → {"status":"ok"}
 
 curl http://localhost:3001/api/team-members
+```
+
+---
+
+## Scripts reference
+
+All scripts are run from the `server/` directory with `yarn <script>`.
+
+---
+
+### `yarn dev`
+
+Starts the development server with `tsx watch`. The process hot-reloads on any source file change.
+
+```bash
+yarn dev
+```
+
+---
+
+### `yarn build` / `yarn start`
+
+Compiles TypeScript to `dist/` and then runs the compiled output.
+
+```bash
+yarn build   # tsc → dist/
+yarn start   # node dist/index.js
+```
+
+---
+
+### `yarn seed`
+
+Populates Valkey with demo data (team members, projects, tasks, objectives, matrix cells and a default manager account). Safe to run multiple times — it skips collections that already contain data.
+
+```bash
+yarn seed
+```
+
+To wipe all existing data and start fresh:
+
+```bash
+FLUSH_BEFORE_SEED=1 yarn seed
+```
+
+> **Note:** the seed script does not load the skill tree. Run `yarn update-skill-tree` separately for that.
+
+---
+
+### `yarn update-skill-tree [path]`
+
+Reads a skill tree JSON file, converts the flat `nodes` array into a nested tree, and writes the result to Valkey. By default it looks for `../research_engineer.json` (i.e. the project root when run from `server/`). An explicit path can be passed as the first argument.
+
+```bash
+# Use the default path (../research_engineer.json)
+yarn update-skill-tree
+
+# Use a custom file
+yarn update-skill-tree /path/to/my_tree.json
+```
+
+The script is **idempotent** — if the same `treeId` and `version` are already stored it exits without writing. To force an overwrite (e.g. after editing node labels):
+
+```bash
+FORCE=1 yarn update-skill-tree
+```
+
+---
+
+### `yarn migrate`
+
+Runs all pending database migrations in order. Migrations are numbered scripts in `src/migrations/` and are tracked in Valkey so each one runs only once.
+
+```bash
+yarn migrate
+```
+
+This is run automatically when the server starts (`yarn dev` or `yarn start`), so you rarely need to call it manually. It is useful when running migrations independently — e.g. on a fresh database or before starting the server for the first time.
+
+---
+
+### `yarn users [command] [id|username]`
+
+CLI tool for user administration. Operates directly on the Valkey database — no running server required.
+
+| Command | Description |
+|---|---|
+| `yarn users` *(or `yarn users list`)* | Print a table of all users with their ID, username, display name, role and auth method |
+| `yarn users promote <id\|username>` | Grant the `manager` role to the specified user |
+| `yarn users demote  <id\|username>` | Revoke the `manager` role (resets to `user`) |
+
+```bash
+# List all users
+yarn users
+
+# Promote by username
+yarn users promote alice
+
+# Promote by ID
+yarn users promote a3f1c2d4-...
+
+# Demote
+yarn users demote bob
 ```
 
 ---
@@ -259,13 +344,6 @@ cd server && yarn dev
 yarn dev
 ```
 
-The frontend runs on `http://localhost:5173` and proxies all `/api` calls to the server on port 3001.
+The frontend runs on `http://localhost:5173` and proxies all `/teamtree/api` calls to the server on port 3001.
 
 ---
-
-## Production build
-
-```bash
-yarn build          # compiles TypeScript → dist/
-yarn start          # runs node dist/index.js
-```
