@@ -12,9 +12,12 @@ WorkingDirectory=__SERVER_DIR__
 # Node.js server — built by `yarn build` in the server/ directory
 ExecStart=/usr/bin/env node dist/index.js
 
-# Load environment variables from .env (create this file manually on the VM,
-# never commit it).  See deploy/.env.example for required variables.
-EnvironmentFile=__SERVER_DIR__/.env
+# Load environment variables from .env or .env.production on the VM.
+# The - prefix makes this optional: if the file is absent the service still
+# starts and env.ts will load .env.production automatically (NODE_ENV=production).
+# See deploy/.env.production.example for required variables.
+EnvironmentFile=-__SERVER_DIR__/.env
+EnvironmentFile=-__SERVER_DIR__/.env.production
 
 Restart=on-failure
 RestartSec=5

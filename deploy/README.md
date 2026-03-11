@@ -41,7 +41,11 @@ cp deploy/.env.production.example /opt/teamtree-server/.env
 # Edit /opt/teamtree-server/.env and fill in all values
 ```
 
-See [`.env.production.example`](.env.production.example) for the full list of required variables (GitLab OAuth credentials, Redis URL, etc.).
+See [`.env.production.example`](.env.production.example) for the full list of required variables.
+
+> **Important — `FRONTEND_URL`**: set this to `https://your-domain/teamtree` (include
+> the `/teamtree` sub-path). The server redirects the browser here after GitLab OAuth;
+> if the sub-path is omitted the OAuth callback will land on an nginx 404.
 
 ### 3. Run the full first-time deploy
 
