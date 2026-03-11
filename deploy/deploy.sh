@@ -171,11 +171,17 @@ if [[ "$DO_SERVER" == true ]]; then
   step "Preparing remote server directory ${SERVER_DIR}…"
   run_ssh "sudo mkdir -p '${SERVER_DIR}' && sudo chown '${DEPLOY_USER}:${DEPLOY_USER}' '${SERVER_DIR}'"
 
-  step "Syncing server/dist/ and package files to ${DEPLOY_USER}@${DEPLOY_HOST}:${SERVER_DIR}…"
-  # Sync the compiled output and manifest files (never .env)
+  step "Syncing server/dist/, server/src/ and package files to ${DEPLOY_USER}@${DEPLOY_HOST}:${SERVER_DIR}…"
+  # Sync the compiled output (for the server process) and the TypeScript
+  # sources (for tsx-based CLI scripts: yarn seed, yarn migrate, etc.)
   run_rsync \
     "$REPO_ROOT/server/dist/" \
     "${DEPLOY_USER}@${DEPLOY_HOST}:${SERVER_DIR}/dist/"
+
+  rsync -az --delete \
+    -e "ssh ${SSH_ARGS[*]}" \
+    "$REPO_ROOT/server/src/" \
+    "${DEPLOY_USER}@${DEPLOY_HOST}:${SERVER_DIR}/src/"
 
   rsync -az \
     -e "ssh ${SSH_ARGS[*]}" \
