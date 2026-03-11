@@ -32,7 +32,10 @@ export default function GitLabCallback() {
 
     loginWithToken(token)
       .then(() => navigate('/', { replace: true }))
-      .catch(() => navigate('/login?error=token_invalid', { replace: true }));
+      .catch((err: unknown) => {
+        console.error('[GitLabCallback] token validation failed:', err);
+        navigate('/login?error=token_invalid', { replace: true });
+      });
   }, [loginWithToken, navigate, searchParams]);
 
   return (
