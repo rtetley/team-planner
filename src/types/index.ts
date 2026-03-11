@@ -5,6 +5,8 @@ export interface TeamMember {
   skills: string[];
   /** ID of the manager (AuthUser.id) who owns this team member */
   managerId?: string;
+  /** ID of the linked user account (if any) — populated by the server for managers */
+  linkedUserId?: string;
 }
 
 /**

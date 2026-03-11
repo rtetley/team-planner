@@ -25,7 +25,12 @@ export const en = {
       addMemberSelectLabel: 'Select members',
       addMemberConfirm: 'Add',
       addMemberCancel: 'Cancel',
-      noMembersAvailable: 'No available members to add.'
+      noMembersAvailable: 'No available members to add.',
+      linked: 'Linked account',
+      noLinkedUser: 'No linked account — ask the member to sign in.',
+      viewSkillTree: 'View skill tree',
+      viewOnlyBanner: 'Read-only view — skills belong to the member',
+      unlockedSkills: 'Unlocked skills',
     },
     projects: {
       title: 'Projects',

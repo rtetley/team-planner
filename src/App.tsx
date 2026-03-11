@@ -17,6 +17,7 @@ import Skills from './pages/Skills';
 import Login from './pages/Login';
 import UserProfile from './pages/UserProfile';
 import UserSkills from './pages/UserSkills';
+import MemberSkillView from './pages/MemberSkillView';
 import GitLabCallback from './pages/GitLabCallback';
 import UserManagement from './pages/UserManagement';
 import { ObjectivesProvider } from './context/ObjectivesContext';
@@ -98,6 +99,7 @@ function AppContent() {
           {/* Manager-only routes */}
           <Route path="/"           element={<ProtectedRoute requiredRole="manager"><Dashboard /></ProtectedRoute>} />
           <Route path="/team"       element={<ProtectedRoute requiredRole="manager"><Team /></ProtectedRoute>} />
+          <Route path="/team/:memberId/skills" element={<ProtectedRoute requiredRole="manager"><MemberSkillView /></ProtectedRoute>} />
           <Route path="/projects"      element={<ProtectedRoute requiredRole="manager"><Projects /></ProtectedRoute>} />
           <Route path="/projects/:id"  element={<ProtectedRoute requiredRole="manager"><ProjectView /></ProtectedRoute>} />
           <Route path="/matrix"     element={<ProtectedRoute requiredRole="manager"><TeamMatrix /></ProtectedRoute>} />

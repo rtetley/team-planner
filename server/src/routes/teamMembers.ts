@@ -2,12 +2,29 @@ import { Hono } from 'hono';
 import { randomUUID } from 'crypto';
 import { db, KEYS } from '../db.js';
 import type { TeamMember, User } from '../types.js';
+import { requireRole } from '../middleware/auth.js';
 
 export const teamMembersRoute = new Hono();
 
 teamMembersRoute.get('/', async (c) => {
-  const all = await db.hgetall(KEYS.members);
-  return c.json(Object.values(all as Record<string, string>).map((v) => JSON.parse(v) as TeamMember));
+  const [allMembers, allUsers] = await Promise.all([
+    db.hgetall(KEYS.members),
+    db.hgetall(KEYS.users),
+  ]);
+  // Build a reverse map: teamMemberId → userId so the client can fetch skill points
+  const memberIdToUserId = new Map<string, string>();
+  for (const raw of Object.values(allUsers as Record<string, string>)) {
+    const u = JSON.parse(raw) as User;
+    if (u.teamMemberId) memberIdToUserId.set(u.teamMemberId, u.id);
+  }
+  const members = Object.values(allMembers as Record<string, string>)
+    .map((v) => {
+      const m = JSON.parse(v) as TeamMember & { linkedUserId?: string };
+      const uid = memberIdToUserId.get(m.id);
+      if (uid) m.linkedUserId = uid;
+      return m;
+    });
+  return c.json(members);
 });
 
 /** Returns members not yet assigned to any manager, plus GitLab users who have

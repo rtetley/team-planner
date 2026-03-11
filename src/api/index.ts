@@ -122,6 +122,7 @@ export const skillTreeApi = {
 
 export const skillPointsApi = {
   getAll: () => req<Record<string, number>>('/skill-points'),
+  getForUser: (userId: string) => req<Record<string, number>>(`/skill-points/user/${encodeURIComponent(userId)}`),
   update: (nodeId: string, points: number) =>
     req<Record<string, number>>(`/skill-points/${encodeURIComponent(nodeId)}`, {
       method: 'PUT',

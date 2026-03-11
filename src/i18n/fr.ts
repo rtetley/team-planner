@@ -21,11 +21,16 @@ export const fr = {
       position: 'Poste',
       skills: 'Compétences',
       addMember: 'Ajouter un membre',
-      addMemberDialogTitle: 'Ajouter un membre à l\'équipe',
+      addMemberDialogTitle: "Ajouter un membre à l'équipe",
       addMemberSelectLabel: 'Sélectionner des membres',
       addMemberConfirm: 'Ajouter',
       addMemberCancel: 'Annuler',
-      noMembersAvailable: 'Aucun membre disponible à ajouter.'
+      noMembersAvailable: 'Aucun membre disponible à ajouter.',
+      linked: 'Compte lié',
+      noLinkedUser: "Aucun compte lié — demandez au membre de se connecter.",
+      viewSkillTree: "Voir l'arbre de compétences",
+      viewOnlyBanner: 'Vue en lecture seule — les compétences appartiennent au membre',
+      unlockedSkills: 'Compétences déverrouillées',
     },
     projects: {
       title: 'Projets',

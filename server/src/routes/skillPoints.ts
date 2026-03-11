@@ -1,6 +1,6 @@
 import { Hono } from 'hono';
 import { db, KEYS } from '../db.js';
-import { requireAuth } from '../middleware/auth.js';
+import { requireAuth, requireRole } from '../middleware/auth.js';
 
 export const skillPointsRoute = new Hono();
 
@@ -26,6 +26,12 @@ async function getAll(userId: string): Promise<Record<string, number>> {
 skillPointsRoute.get('/', async (c) => {
   const user = c.get('user');
   return c.json(await getAll(user.id));
+});
+
+/** GET /api/skill-points/user/:userId — manager only, returns points for any user */
+skillPointsRoute.get('/user/:userId', requireRole('manager'), async (c) => {
+  const userId = c.req.param('userId');
+  return c.json(await getAll(userId));
 });
 
 /** PUT /api/skill-points/:nodeId — body { points: number } clamps 0-MAX_POINTS */
