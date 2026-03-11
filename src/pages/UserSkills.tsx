@@ -556,8 +556,10 @@ export default function UserSkills() {
 
   const handleNodeClick = useCallback((node: NodeDatum) => {
     if (dragRef.current.moved) return;
-    focusNode(node);
-  }, [focusNode]);
+    setFocusedId(node.id);
+    setPanX(VW / 2 - node.x);
+    setPanY(VH / 2 - node.y);
+  }, []);
 
   const currentPoints = focusedNode ? (points[focusedNode.id] ?? 0) : 0;
   const focusedIsLeaf = focusedNode ? leafIds.has(focusedNode.id) : false;

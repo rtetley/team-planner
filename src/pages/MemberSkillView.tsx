@@ -441,8 +441,10 @@ export default function MemberSkillView() {
 
   const handleNodeClick = useCallback((node: NodeDatum) => {
     if (dragRef.current.moved) return;
-    focusNode(node);
-  }, [focusNode]);
+    setFocusedId(node.id);
+    setPanX(VW / 2 - node.x);
+    setPanY(VH / 2 - node.y);
+  }, []);
 
   // ── Render ────────────────────────────────────────────────────────────────
   if (loading) return (
