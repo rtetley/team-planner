@@ -68,7 +68,9 @@ export interface TeamMatrix {
 export interface SkillTreeNode {
   id: string;
   label: string;
+  labels?: Record<string, string>;
   description?: string;
+  descriptions?: Record<string, string>;
   color?: string;
   position?: { x: number; y: number };
   children?: SkillTreeNode[];

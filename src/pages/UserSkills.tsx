@@ -1,9 +1,8 @@
 import { useState, useCallback, useMemo, useEffect, useRef } from 'react';
-import { Box, Typography, Chip, Divider, Tooltip, CircularProgress } from '@mui/material';
+import { Box, Typography, Chip, Divider, CircularProgress } from '@mui/material';
 import LockIcon from '@mui/icons-material/Lock';
 import LockOpenIcon from '@mui/icons-material/LockOpen';
-import AddCircleOutlineIcon from '@mui/icons-material/AddCircleOutline';
-import RemoveCircleOutlineIcon from '@mui/icons-material/RemoveCircleOutline';
+import { SearchBar } from '@codegouvfr/react-dsfr/SearchBar';
 import { useTranslation } from 'react-i18next';
 import { skillTreeApi, skillPointsApi } from '../api';
 import type { SkillTreeDoc, SkillTreeNode } from '../types';
@@ -41,7 +40,7 @@ function springLen(srcDepth: number) { return srcDepth === 0 ? 165 : srcDepth ==
 
 // ── Types ─────────────────────────────────────────────────────────────────────
 interface NodeDatum { id: string; label: string; description?: string; x: number; y: number; depth: number; colorKey: PKey; color?: string; }
-interface EdgeDatum { x1: number; y1: number; x2: number; y2: number; colorKey: PKey; parentId: string; childId: string; }
+interface EdgeDatum { x1: number; y1: number; x2: number; y2: number; colorKey: PKey; color?: string; parentId: string; childId: string; }
 interface SimNode extends NodeDatum { vx: number; vy: number; pinned: boolean; }
 interface SimEdge { s: string; t: string; srcDepth: number; colorKey: PKey; }
 interface ConvergedLayout { nodes: NodeDatum[]; edges: EdgeDatum[]; zoom: number; panX: number; panY: number; focusedId: string; }
@@ -130,11 +129,11 @@ function PointsArc({ r, points, stroke }: { r: number; points: number; stroke: s
 // ── Skill node (user variant) ─────────────────────────────────────────────────
 interface UserSkillNodeElProps {
   node: NodeDatum; isFocused: boolean; isChild: boolean;
-  isLocked: boolean; isGlowing: boolean; points: number;
+  isUnlocked: boolean; isLeaf: boolean; isGlowing: boolean; displayScore: number;
   onClick: () => void;
 }
 
-function UserSkillNodeEl({ node, isFocused, isChild, isLocked, isGlowing, points, onClick }: UserSkillNodeElProps) {
+function UserSkillNodeEl({ node, isFocused, isChild, isUnlocked, isLeaf: _isLeaf, isGlowing, displayScore, onClick }: UserSkillNodeElProps) {
   const [hovered, setHovered] = useState(false);
   const base = PALETTE[node.colorKey];
   const stroke = node.color ?? base.stroke;
@@ -144,28 +143,28 @@ function UserSkillNodeEl({ node, isFocused, isChild, isLocked, isGlowing, points
   const lines = wrapText(node.label);
   const fs = [12, 11, 9.5, 8.5][node.depth] ?? 8.5;
   const scale = isFocused ? FOCUS_SCALE : isChild ? 1.08 : hovered ? 1.1 : 1;
-  const sw = isFocused ? 2.5 : points > 0 ? 2 : isChild ? 1.8 : hovered ? 1.5 : 1;
+  const sw = isFocused ? 2.5 : isUnlocked ? 2 : isChild ? 1.8 : hovered ? 1.5 : 1;
 
   return (
     <g
       transform={`translate(${node.x}, ${node.y})`}
-      onClick={isLocked ? undefined : onClick}
-      onMouseEnter={() => { if (!isLocked) setHovered(true); }}
+      onClick={onClick}
+      onMouseEnter={() => setHovered(true)}
       onMouseLeave={() => setHovered(false)}
-      style={{ cursor: isLocked ? 'not-allowed' : 'pointer', opacity: isLocked ? 0.22 : 1, transition: 'opacity 0.3s ease' }}
+      style={{ cursor: 'pointer', opacity: isUnlocked ? 1 : 0.38, transition: 'opacity 0.35s ease' }}
     >
       {/* Focused pulse ring */}
       {isFocused && <circle r={r * 1.7} fill="none" stroke={stroke} strokeWidth={1} opacity={0.35} className="skill-pulse" />}
 
-      {/* Glow ripple on point add */}
+      {/* Glow ripple on unlock / rating change */}
       {isGlowing && <circle r={r * 2.2} fill="none" stroke={stroke} strokeWidth={3} className="skill-glow-ring" />}
 
       {/* Scale group */}
       <g style={{ transformBox: 'fill-box', transformOrigin: 'center', transform: `scale(${scale})`, transition: 'transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1)' }}>
         <circle r={r} fill={fill} stroke={stroke} strokeWidth={sw} style={{ transition: 'stroke-width 0.2s ease' }} />
 
-        {/* Points arc (outside ring) */}
-        {node.depth > 0 && <PointsArc r={r + 5} points={points} stroke={stroke} />}
+        {/* Score arc — shown when unlocked */}
+        {node.depth > 0 && isUnlocked && <PointsArc r={r + 5} points={displayScore} stroke={stroke} />}
 
         {/* Label */}
         {lines.map((line, i) => (
@@ -183,7 +182,7 @@ function UserSkillNodeEl({ node, isFocused, isChild, isLocked, isGlowing, points
 }
 
 // ── Radar chart ───────────────────────────────────────────────────────────────
-interface RadarCat { id: string; label: string; colorKey: PKey; total: number; }
+interface RadarCat { id: string; label: string; colorKey: PKey; color?: string; total: number; }
 
 function RadarChart({ categories, maxVal }: { categories: RadarCat[]; maxVal: number }) {
   const n = categories.length;
@@ -213,18 +212,21 @@ function RadarChart({ categories, maxVal }: { categories: RadarCat[]; maxVal: nu
       {/* Colored sectors between data points */}
       {categories.map((cat, i) => {
         const j = (i + 1) % n;
-        const { fill, stroke } = PALETTE[cat.colorKey];
+        const base = PALETTE[cat.colorKey];
+        const stroke = cat.color ?? base.stroke;
+        // Derive a fill by blending the custom color with darkness when present
+        const fill = cat.color ? cat.color + '28' : base.fill;
         return (
           <polygon key={cat.id}
             points={`${cx},${cy} ${pts[i].x},${pts[i].y} ${pts[j].x},${pts[j].y}`}
-            fill={fill} fillOpacity={0.7} stroke={stroke} strokeWidth={0.6}
+            fill={fill} fillOpacity={0.85} stroke={stroke} strokeWidth={0.6}
           />
         );
       })}
 
       {/* Data points */}
       {categories.map((cat, i) => (
-        <circle key={cat.id} cx={pts[i].x} cy={pts[i].y} r={4} fill={PALETTE[cat.colorKey].stroke} />
+        <circle key={cat.id} cx={pts[i].x} cy={pts[i].y} r={4} fill={cat.color ?? PALETTE[cat.colorKey].stroke} />
       ))}
 
       {/* Axis labels */}
@@ -233,7 +235,7 @@ function RadarChart({ categories, maxVal }: { categories: RadarCat[]; maxVal: nu
         return (
           <text key={cat.id} x={cx + lr * Math.cos(a)} y={cy + lr * Math.sin(a)}
             textAnchor="middle" dominantBaseline="middle" fontSize={8.5}
-            fill={PALETTE[cat.colorKey].stroke} fontWeight={600} style={{ userSelect: 'none' }}>
+            fill={cat.color ?? PALETTE[cat.colorKey].stroke} fontWeight={600} style={{ userSelect: 'none' }}>
             {cat.label}
           </text>
         );
@@ -249,7 +251,7 @@ const userLayoutCache = new Map<string, ConvergedLayout>();
 
 // ── Main page ─────────────────────────────────────────────────────────────────
 export default function UserSkills() {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
 
   // ── Tree + points state ──────────────────────────────────────────────────
   const [skillTree, setSkillTree] = useState<SkillTreeDoc | null>(null);
@@ -269,6 +271,26 @@ export default function UserSkills() {
   const [nodes, setNodes]         = useState<NodeDatum[]>([]);
   const [edges, setEdges]         = useState<EdgeDatum[]>([]);
 
+  // Search state
+  const [searchQuery, setSearchQuery] = useState('');
+  const [searchOpen, setSearchOpen]   = useState(false);
+  const searchRef = useRef<HTMLDivElement>(null);
+
+  // ── Localized tree — resolves labels/descriptions for the active language ──
+  const localizedSkillTree = useMemo(() => {
+    if (!skillTree) return null;
+    const lang = i18n.language;
+    function resolve(node: SkillTreeNode): SkillTreeNode {
+      return {
+        ...node,
+        label:       node.labels?.[lang]       ?? node.label,
+        description: node.descriptions?.[lang] ?? node.description,
+        children:    node.children?.map(resolve),
+      };
+    }
+    return { ...skillTree, root: resolve(skillTree.root) };
+  }, [skillTree, i18n.language]);
+
   const viewStateRef = useRef({ zoom, panX, panY, focusedId });
   useEffect(() => {
     viewStateRef.current = { zoom, panX, panY, focusedId };
@@ -286,7 +308,7 @@ export default function UserSkills() {
 
   // ── Spring simulation ─────────────────────────────────────────────────────
   useEffect(() => {
-    if (!skillTree) return;
+    if (!localizedSkillTree) return;
     cancelAnimationFrame(frameRef.current);
 
     // Build a flat id→node map from the freshly-fetched tree for metadata merging
@@ -294,9 +316,9 @@ export default function UserSkills() {
     (function collect(n: SkillTreeNode) {
       freshById.set(n.id, n);
       (n.children ?? []).forEach(collect);
-    })(skillTree.root);
+    })(localizedSkillTree.root);
 
-    const cached = userLayoutCache.get(skillTree.treeId);
+    const cached = userLayoutCache.get(localizedSkillTree.treeId);
     if (cached) {
       // Preserve computed positions but always apply fresh labels/descriptions/colors
       // from the API so a DB re-seed is reflected without discarding the layout.
@@ -305,13 +327,13 @@ export default function UserSkills() {
         return f ? { ...n, label: f.label, description: f.description, color: f.color } : n;
       });
       const updated = { ...cached, nodes: freshNodes };
-      userLayoutCache.set(skillTree.treeId, updated);
+      userLayoutCache.set(localizedSkillTree.treeId, updated);
       setNodes(freshNodes); setEdges(cached.edges);
       setZoom(cached.zoom); setPanX(cached.panX); setPanY(cached.panY); setFocusedId(cached.focusedId);
       return;
     }
-    const treeId = skillTree.treeId;
-    const { simNodes, simEdges } = flattenTree(skillTree.root);
+    const treeId = localizedSkillTree.treeId;
+    const { simNodes, simEdges } = flattenTree(localizedSkillTree.root);
     simRef.current = { nodes: simNodes, edges: simEdges, iter: 0 };
     const getViewState = viewStateRef;
 
@@ -321,7 +343,7 @@ export default function UserSkills() {
       const nodes = sn.map(({ id, label, description, x, y, depth, colorKey, color }) => ({ id, label, description, x, y, depth, colorKey, color }));
       const edges = se.map(e => {
         const src = m.get(e.s)!, tgt = m.get(e.t)!;
-        return { x1: src.x, y1: src.y, x2: tgt.x, y2: tgt.y, colorKey: e.colorKey, parentId: e.s, childId: e.t };
+        return { x1: src.x, y1: src.y, x2: tgt.x, y2: tgt.y, colorKey: e.colorKey, color: tgt.color, parentId: e.s, childId: e.t };
       });
       return { nodes, edges, zoom: vs.zoom, panX: vs.panX, panY: vs.panY, focusedId: vs.focusedId };
     }
@@ -342,10 +364,36 @@ export default function UserSkills() {
     setNodes(init.nodes); setEdges(init.edges);
     frameRef.current = requestAnimationFrame(animate);
     return () => cancelAnimationFrame(frameRef.current);
-  }, [skillTree]);
+  }, [localizedSkillTree]);
 
   // ── Derived maps ──────────────────────────────────────────────────────────
   const nodeMap    = useMemo(() => new Map(nodes.map(n => [n.id, n])), [nodes]);
+
+  // ── Search results ────────────────────────────────────────────────────────
+  const searchResults = useMemo(() => {
+    const q = searchQuery.trim().toLowerCase();
+    if (!q) return [];
+    return nodes
+      .filter(n => n.label.toLowerCase().includes(q) || (n.description ?? '').toLowerCase().includes(q))
+      .slice(0, 8);
+  }, [nodes, searchQuery]);
+
+  const searchMatchIds = useMemo(() => new Set(searchResults.map(n => n.id)), [searchResults]);
+
+  /** Pan and zoom to centre on a node. Zoom level is depth-dependent. */
+  const focusNode = useCallback((node: NodeDatum) => {
+    const targetZoom = ([0.45, 0.65, 0.85, 1.0] as const)[Math.min(node.depth, 3)];
+    setZoom(targetZoom);
+    setFocusedId(node.id);
+    setPanX(VW / 2 - node.x);
+    setPanY(VH / 2 - node.y);
+  }, []);
+
+  const handleSearchSelect = useCallback((node: NodeDatum) => {
+    focusNode(node);
+    setSearchQuery('');
+    setSearchOpen(false);
+  }, [focusNode]);
   const parentMap  = useMemo(() => { const m = new Map<string, string>(); edges.forEach(e => m.set(e.childId, e.parentId)); return m; }, [edges]);
   const childrenOf = useMemo(() => {
     const m = new Map<string, Set<string>>();
@@ -355,37 +403,53 @@ export default function UserSkills() {
 
   const childrenIds = useMemo(() => childrenOf.get(focusedId) ?? new Set<string>(), [childrenOf, focusedId]);
 
-  /** A node is locked if depth >= 2 and its direct parent has 0 points. Root (depth 0) and categories (depth 1) are always unlocked. */
-  const isLocked = useCallback((nodeId: string): boolean => {
-    const node = nodeMap.get(nodeId);
-    if (!node || node.depth <= 1) return false;
-    const parentId = parentMap.get(nodeId);
-    return !parentId || (points[parentId] ?? 0) < 1;
-  }, [nodeMap, parentMap, points]);
-
-  /** Root (depth 0) is not allocatable; everything else that is unlocked can receive points. */
-  const canAllocate = useCallback((nodeId: string): boolean => {
-    const node = nodeMap.get(nodeId);
-    return !!node && node.depth > 0 && !isLocked(nodeId);
-  }, [nodeMap, isLocked]);
-
-  // ── Category subtrees for radar chart ────────────────────────────────────
-  const radarCategories = useMemo<RadarCat[]>(() => {
-    if (!skillTree) return [];
-    function subtreeIds(nodeId: string): string[] {
-      const ids = [nodeId];
-      (childrenOf.get(nodeId) ?? new Set()).forEach(child => subtreeIds(child).forEach(id => ids.push(id)));
-      return ids;
-    }
-    return (skillTree.root.children ?? []).map(cat => {
-      const ck = (CAT_KEYS[cat.id] ?? 'default') as PKey;
-      const ids = subtreeIds(cat.id);
-      const total = ids.reduce((sum, id) => sum + (points[id] ?? 0), 0);
-      return { id: cat.id, label: cat.label, colorKey: ck, total };
+  // ── Leaf detection ────────────────────────────────────────────────────────
+  const leafIds = useMemo(() => {
+    const s = new Set<string>();
+    nodes.forEach(n => {
+      const kids = childrenOf.get(n.id);
+      if (!kids || kids.size === 0) s.add(n.id);
     });
-  }, [skillTree, childrenOf, points]);
+    return s;
+  }, [nodes, childrenOf]);
 
-  const radarMax = useMemo(() => Math.max(10, ...radarCategories.map(c => c.total)), [radarCategories]);
+  const isLeaf = useCallback((id: string) => leafIds.has(id), [leafIds]);
+  const isUnlocked = useCallback((id: string) => (points[id] ?? 0) > 0, [points]);
+
+  // ── Effective scores — computed recursively ───────────────────────────────
+  // Leaf: star rating (0–5). Parent: mix of unlock fraction × 5 and mean child score.
+  const effectiveScores = useMemo<Record<string, number>>(() => {
+    const cache: Record<string, number> = {};
+    function compute(id: string): number {
+      if (id in cache) return cache[id];
+      const kids = [...(childrenOf.get(id) ?? [])];
+      if (kids.length === 0) {
+        cache[id] = points[id] ?? 0;
+        return cache[id];
+      }
+      const unlockedKids = kids.filter(kid => (points[kid] ?? 0) > 0);
+      const unlockFraction = unlockedKids.length / kids.length;
+      const meanGrade = unlockedKids.length > 0
+        ? unlockedKids.reduce((sum, kid) => sum + compute(kid), 0) / unlockedKids.length
+        : 0;
+      cache[id] = (unlockFraction * 5 + meanGrade) / 2;
+      return cache[id];
+    }
+    nodes.forEach(n => compute(n.id));
+    return cache;
+  }, [nodes, childrenOf, points]);
+
+  // ── Category scores for radar chart ──────────────────────────────────────
+  const radarCategories = useMemo<RadarCat[]>(() => {
+    if (!localizedSkillTree) return [];
+    return (localizedSkillTree.root.children ?? []).map(cat => {
+      const ck = (CAT_KEYS[cat.id] ?? 'default') as PKey;
+      const color = nodeMap.get(cat.id)?.color;
+      return { id: cat.id, label: cat.label, colorKey: ck, color, total: effectiveScores[cat.id] ?? 0 };
+    });
+  }, [localizedSkillTree, effectiveScores, nodeMap]);
+
+  const radarMax = 5;
 
   // ── Ancestor path (breadcrumb) ────────────────────────────────────────────
   const ancestorPath = useMemo(() => {
@@ -440,40 +504,63 @@ export default function UserSkills() {
   }, []);
 
   // ── Handlers ──────────────────────────────────────────────────────────────
-  const handleNodeClick = useCallback((node: NodeDatum) => {
-    if (dragRef.current.moved) return;
-    setFocusedId(node.id);
-    setPanX(VW / 2 - node.x);
-    setPanY(VH / 2 - node.y);
-  }, []);
-
-  const handleChangePoints = useCallback(async (nodeId: string, delta: 1 | -1) => {
-    const current = points[nodeId] ?? 0;
-    const next = Math.min(MAX_SKILL_POINTS, Math.max(0, current + delta));
-    if (next === current) return;
+  /** Unlock a node and cascade upward to unlock all ancestor nodes. */
+  const handleUnlockNode = useCallback(async (nodeId: string) => {
+    if ((points[nodeId] ?? 0) > 0) return;
+    // Collect node + all locked ancestors
+    const toUnlock: string[] = [];
+    let cur: string | undefined = nodeId;
+    while (cur) {
+      if ((points[cur] ?? 0) === 0) toUnlock.push(cur);
+      cur = parentMap.get(cur);
+    }
+    if (toUnlock.length === 0) return;
+    // Optimistic update
+    setPoints(prev => {
+      const next = { ...prev };
+      toUnlock.forEach(id => { next[id] = 1; });
+      return next;
+    });
+    setGlowingId(nodeId);
+    setTimeout(() => setGlowingId(null), 1100);
+    // Server sync
     setLoadingPoints(true);
     try {
-      const updated = await skillPointsApi.update(nodeId, next);
-      setPoints(updated);
-      if (delta === 1) {
-        setGlowingId(nodeId);
-        setTimeout(() => setGlowingId(null), 1100);
+      let latest: Record<string, number> = {};
+      for (const id of toUnlock) {
+        latest = await skillPointsApi.update(id, 1);
       }
+      setPoints(latest);
     } catch (err) { console.error(err); }
     finally { setLoadingPoints(false); }
-  }, [points]);
+  }, [points, parentMap]);
 
-  // ── Stars display ─────────────────────────────────────────────────────────
-  const renderStars = (n: number) => Array.from({ length: MAX_SKILL_POINTS }, (_, i) => (
-    <Box key={i} component="span" sx={{ fontSize: '1.3rem', lineHeight: 1, color: i < n ? '#e2b714' : '#334155' }}>
-      {i < n ? '★' : '☆'}
-    </Box>
-  ));
+  /** Set the star rating (1–5) on a leaf node. */
+  const handleSetRating = useCallback(async (nodeId: string, rating: number) => {
+    if (!leafIds.has(nodeId)) return;
+    const clamped = Math.min(MAX_SKILL_POINTS, Math.max(1, rating));
+    if (clamped === (points[nodeId] ?? 0)) return;
+    setPoints(prev => ({ ...prev, [nodeId]: clamped }));
+    if (clamped > (points[nodeId] ?? 0)) {
+      setGlowingId(nodeId);
+      setTimeout(() => setGlowingId(null), 1100);
+    }
+    setLoadingPoints(true);
+    try {
+      const updated = await skillPointsApi.update(nodeId, clamped);
+      setPoints(updated);
+    } catch (err) { console.error(err); }
+    finally { setLoadingPoints(false); }
+  }, [leafIds, points]);
+
+  const handleNodeClick = useCallback((node: NodeDatum) => {
+    if (dragRef.current.moved) return;
+    focusNode(node);
+  }, [focusNode]);
 
   const currentPoints = focusedNode ? (points[focusedNode.id] ?? 0) : 0;
-  const focusedIsLocked = focusedNode ? isLocked(focusedNode.id) : false;
-  const focusedCanAllocate = focusedNode ? canAllocate(focusedNode.id) : false;
-  const focusedParentLabel = focusedNode ? (nodeMap.get(parentMap.get(focusedNode.id) ?? '')?.label ?? '') : '';
+  const focusedIsLeaf = focusedNode ? leafIds.has(focusedNode.id) : false;
+  const focusedIsUnlocked = focusedNode ? (points[focusedNode.id] ?? 0) > 0 : false;
   const focusedColor = focusedNode ? (focusedNode.color ?? PALETTE[focusedNode.colorKey].stroke) : '#94a3b8';
 
   return (
@@ -508,6 +595,93 @@ export default function UserSkills() {
             )}
           </Box>
 
+          {/* SVG + search overlay wrapper */}
+          <Box sx={{ position: 'relative' }}>
+
+            {/* Search overlay — top-right corner of graph */}
+            <Box ref={searchRef} sx={{ position: 'absolute', top: 8, right: 8, zIndex: 5, width: 220 }}>
+              <Box sx={{
+                // Compact the DSFR SearchBar to fit the dark graph window
+                '& .fr-search-bar': { gap: '4px' },
+                '& .fr-label': { position: 'absolute', width: '1px', height: '1px', p: 0, m: '-1px', overflow: 'hidden', clip: 'rect(0,0,0,0)', whiteSpace: 'nowrap', border: 0 },
+                '& .fr-input': { height: '1.875rem !important', fontSize: '0.75rem !important', background: 'rgba(18,22,28,0.88) !important', backdropFilter: 'blur(6px)', color: '#e2e8f0 !important', border: '1px solid rgba(255,255,255,0.12) !important', boxShadow: 'none !important', '--idle': 'transparent', '--hover': 'transparent', '--active': 'transparent' },
+                '& .fr-input::placeholder': { color: 'rgba(148,163,184,0.7) !important' },
+                '& .fr-btn': { height: '1.875rem !important', minHeight: '0 !important', lineHeight: '1.875rem !important', fontSize: '0 !important', px: '0.5rem !important', ml: '4px !important', background: 'rgba(18,22,28,0.88) !important', backdropFilter: 'blur(6px)', border: '1px solid rgba(255,255,255,0.12) !important', color: 'rgba(148,163,184,0.7) !important', '&::before': { fontSize: '0.875rem !important' } },
+                '& .fr-btn:hover': { background: 'rgba(255,255,255,0.06) !important', color: '#e2e8f0 !important' },
+              }}>
+                <SearchBar
+                  label={t('userSkills.searchPlaceholder')}
+                  renderInput={({ id, type, className, placeholder }) => (
+                    <input
+                      id={id}
+                      type={type}
+                      className={className}
+                      placeholder={placeholder}
+                      value={searchQuery}
+                      onChange={e => { setSearchQuery(e.target.value); setSearchOpen(true); }}
+                      onFocus={() => setSearchOpen(true)}
+                      onBlur={() => setTimeout(() => setSearchOpen(false), 150)}
+                      autoComplete="off"
+                    />
+                  )}
+                  onButtonClick={() => { if (searchResults.length > 0) handleSearchSelect(searchResults[0]); }}
+                />
+              </Box>
+
+              {/* Dropdown results */}
+              {searchOpen && searchResults.length > 0 && (
+                <Box sx={{
+                  position: 'absolute', top: '100%', left: 0, right: 0, zIndex: 10, mt: 0.25,
+                  bgcolor: 'rgba(18,22,28,0.96)', backdropFilter: 'blur(8px)',
+                  border: '1px solid rgba(255,255,255,0.1)',
+                  borderRadius: 1, overflow: 'hidden', boxShadow: '0 8px 24px rgba(0,0,0,0.6)',
+                }}>
+                  {searchResults.map(n => {
+                    const color = n.color ?? PALETTE[n.colorKey].stroke;
+                    return (
+                      <Box key={n.id} onMouseDown={() => handleSearchSelect(n)}
+                        sx={{
+                          display: 'flex', alignItems: 'center', gap: 1, px: 1.25, py: 0.6,
+                          cursor: 'pointer', borderBottom: '1px solid rgba(255,255,255,0.06)',
+                          '&:last-child': { borderBottom: 'none' },
+                          '&:hover': { bgcolor: 'rgba(255,255,255,0.05)' },
+                        }}
+                      >
+                        <Box sx={{ width: 6, height: 6, borderRadius: '50%', bgcolor: color, flexShrink: 0 }} />
+                        <Box sx={{ minWidth: 0, flex: 1 }}>
+                          <Typography variant="caption" sx={{ display: 'block', fontWeight: 600, color, fontSize: '0.7rem', lineHeight: 1.3 }}>
+                            {n.label}
+                          </Typography>
+                          {n.description && (
+                            <Typography variant="caption" sx={{ display: 'block', fontSize: '0.63rem', color: 'rgba(148,163,184,0.6)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', lineHeight: 1.2 }}>
+                              {n.description}
+                            </Typography>
+                          )}
+                        </Box>
+                        {isUnlocked(n.id)
+                          ? <LockOpenIcon sx={{ fontSize: '0.75rem', color: 'success.main', opacity: 0.7, flexShrink: 0 }} />
+                          : <LockIcon sx={{ fontSize: '0.75rem', color: 'rgba(148,163,184,0.4)', flexShrink: 0 }} />
+                        }
+                      </Box>
+                    );
+                  })}
+                </Box>
+              )}
+
+              {/* No results */}
+              {searchOpen && searchQuery.trim() && searchResults.length === 0 && (
+                <Box sx={{
+                  position: 'absolute', top: '100%', left: 0, right: 0, zIndex: 10, mt: 0.25,
+                  bgcolor: 'rgba(18,22,28,0.96)', backdropFilter: 'blur(8px)',
+                  border: '1px solid rgba(255,255,255,0.1)', borderRadius: 1, px: 1.25, py: 0.75,
+                }}>
+                  <Typography variant="caption" sx={{ fontSize: '0.7rem', color: 'rgba(148,163,184,0.6)' }}>
+                    {t('userSkills.searchNoResults')}
+                  </Typography>
+                </Box>
+              )}
+            </Box>
+
           {/* SVG */}
           <Box ref={svgContainerRef}
             onMouseDown={handleMouseDown}
@@ -517,22 +691,38 @@ export default function UserSkills() {
             sx={{ borderRadius: 2, overflow: 'hidden', border: '1px solid', borderColor: 'divider', bgcolor: TREE_BG, cursor: isDragging ? 'grabbing' : 'grab' }}>
             <svg viewBox={`0 0 ${VW} ${VH}`} style={{ width: '100%', height: 'auto', display: 'block' }}>
               <rect width={VW} height={VH} fill={TREE_BG} />
-              <g transform={`translate(${VW / 2}, ${VH / 2}) scale(${zoom}) translate(${-VW / 2}, ${-VH / 2})`}>
-                <g style={{ transform: `translate(${panX}px, ${panY}px)`, transition: isDragging ? 'none' : 'transform 0.55s cubic-bezier(0.25, 0.46, 0.45, 0.94)' }}>
+              <g style={{
+                  // Combine zoom and pan into a single CSS transform so they animate
+                  // as one matrix — no more split-axis arc during focus transitions.
+                  // Math: translate(zoom*(panX-VW/2)+VW/2, zoom*(panY-VH/2)+VH/2) scale(zoom)
+                  // with transform-origin:0 0 replicates the old two-group behaviour exactly.
+                  transform: `translate(${zoom * (panX - VW / 2) + VW / 2}px, ${zoom * (panY - VH / 2) + VH / 2}px) scale(${zoom})`,
+                  transformOrigin: '0 0',
+                  transition: isDragging ? 'none' : 'transform 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94)',
+                }}>
                   {/* Edges */}
                   {edges.map((e, i) => {
-                    const { stroke } = PALETTE[e.colorKey];
+                    const stroke = e.color ?? PALETTE[e.colorKey].stroke;
                     const toChild  = e.parentId === focusedId;
                     const toParent = e.childId  === focusedId;
-                    const locked   = isLocked(e.childId);
+                    const childUnlocked = isUnlocked(e.childId);
+                    const parentUnlocked = isUnlocked(e.parentId);
                     const glowing  = glowingId !== null && (e.childId === glowingId || e.parentId === glowingId);
-                    const sw      = glowing ? 3 : toChild ? 2 : toParent ? 1.2 : 0.8;
-                    const opacity = locked ? 0.07 : glowing ? 1 : toChild ? 0.75 : toParent ? 0.35 : 0.15;
+                    // Score of the child drives thickness and brightness
+                    const score = effectiveScores[e.childId] ?? 0;
+                    const scoreFraction = score / MAX_SKILL_POINTS; // 0–1
+                    // Both endpoints unlocked = active edge; only parent = partially active
+                    const fullyActive = childUnlocked && parentUnlocked;
+                    const partiallyActive = !childUnlocked && parentUnlocked;
+                    const baseSw = fullyActive ? 0.8 + scoreFraction * 2.2 : partiallyActive ? 0.6 : 0.4;
+                    const sw = glowing ? 3.5 : toChild ? Math.max(baseSw, 2) : toParent ? Math.max(baseSw, 1.2) : baseSw;
+                    const baseOpacity = fullyActive ? 0.2 + scoreFraction * 0.65 : partiallyActive ? 0.12 : 0.05;
+                    const opacity = glowing ? 1 : toChild ? Math.max(baseOpacity, 0.7) : toParent ? Math.max(baseOpacity, 0.3) : baseOpacity;
                     return (
                       <line key={i} x1={e.x1} y1={e.y1} x2={e.x2} y2={e.y2}
                         stroke={stroke} strokeWidth={sw} strokeOpacity={opacity}
                         className={glowing ? 'edge-glow' : undefined}
-                        style={{ transition: 'stroke-opacity 0.35s ease, stroke-width 0.35s ease' }}
+                        style={{ transition: 'stroke-opacity 0.45s ease, stroke-width 0.45s ease' }}
                       />
                     );
                   })}
@@ -541,14 +731,14 @@ export default function UserSkills() {
                     <UserSkillNodeEl key={n.id} node={n}
                       isFocused={n.id === focusedId}
                       isChild={childrenIds.has(n.id)}
-                      isLocked={isLocked(n.id)}
-                      isGlowing={n.id === glowingId}
-                      points={points[n.id] ?? 0}
+                      isUnlocked={isUnlocked(n.id)}
+                      isLeaf={isLeaf(n.id)}
+                      isGlowing={n.id === glowingId || searchMatchIds.has(n.id)}
+                      displayScore={leafIds.has(n.id) ? (points[n.id] ?? 0) : (effectiveScores[n.id] ?? 0)}
                       onClick={() => handleNodeClick(n)}
                     />
                   ))}
                 </g>
-              </g>
               <style>{`
                 @keyframes skill-pulse { 0%,100%{opacity:.3;transform:scale(1)} 50%{opacity:0;transform:scale(1.55)} }
                 .skill-pulse { transform-box:fill-box; transform-origin:center; animation:skill-pulse 2.8s ease-in-out infinite }
@@ -559,12 +749,13 @@ export default function UserSkills() {
               `}</style>
             </svg>
           </Box>
+          </Box> {/* end SVG + search overlay wrapper */}
 
           {/* Legend */}
           <Box sx={{ display: 'flex', gap: 2, mt: 1.5, flexWrap: 'wrap', alignItems: 'center' }}>
-            {(skillTree?.root.children ?? []).map(cat => {
+            {(localizedSkillTree?.root.children ?? []).map(cat => {
               const ck = (CAT_KEYS[cat.id] ?? 'default') as PKey;
-              const color = PALETTE[ck].stroke;
+              const color = nodeMap.get(cat.id)?.color ?? PALETTE[ck].stroke;
               const active = focusedId === cat.id || childrenIds.has(cat.id);
               return (
                 <Box key={cat.id} onClick={() => { const n = nodeMap.get(cat.id); if (n) handleNodeClick(n); }}
@@ -605,61 +796,32 @@ export default function UserSkills() {
 
             <Divider sx={{ mb: 2 }} />
 
-            {/* Lock status */}
-            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 2 }}>
-              {focusedNode?.depth === 0 ? (
-                <Chip icon={<LockOpenIcon fontSize="small" />} label={t('userSkills.rootNode')} size="small" sx={{ bgcolor: '#1e2229', color: '#94a3b8' }} />
-              ) : focusedIsLocked ? (
-                <Tooltip title={`${t('userSkills.lockReason')}: ${focusedParentLabel}`}>
-                  <Chip icon={<LockIcon fontSize="small" />} label={t('userSkills.locked')} size="small" color="error" variant="outlined" />
-                </Tooltip>
-              ) : (
-                <Chip icon={<LockOpenIcon fontSize="small" />} label={t('userSkills.unlocked')} size="small" color="success" variant="outlined" />
-              )}
-            </Box>
+            {/* Root node */}
+            {focusedNode?.depth === 0 && (
+              <Chip icon={<LockOpenIcon fontSize="small" />} label={t('userSkills.rootNode')} size="small" sx={{ bgcolor: '#1e2229', color: '#94a3b8' }} />
+            )}
 
-            {/* Stars */}
-            <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5, mb: 1.5 }}>
-              {renderStars(currentPoints)}
-              <Typography variant="caption" color="text.secondary" sx={{ ml: 0.5 }}>
-                {currentPoints} / {MAX_SKILL_POINTS}
-              </Typography>
-            </Box>
-
-            {/* Add / Remove buttons */}
-            <Box sx={{ display: 'flex', gap: 1.5 }}>
-              <Tooltip title={currentPoints <= 0 ? '' : t('userSkills.removePoint')}>
-                <Box component="span">
-                  <Box
-                    component="button"
-                    onClick={() => handleChangePoints(focusedId, -1)}
-                    disabled={!focusedCanAllocate || currentPoints <= 0 || loadingPoints}
-                    sx={{
-                      display: 'flex', alignItems: 'center', gap: 0.75, px: 1.5, py: 0.75,
-                      border: '1px solid', borderRadius: 1, cursor: 'pointer',
-                      bgcolor: 'transparent', borderColor: 'divider', color: 'text.secondary',
-                      transition: 'all 0.2s',
-                      '&:not(:disabled):hover': { borderColor: '#ef4444', color: '#ef4444' },
-                      '&:disabled': { opacity: 0.35, cursor: 'not-allowed' },
-                    }}
-                  >
-                    <RemoveCircleOutlineIcon fontSize="small" />
-                    <Typography variant="caption" sx={{ fontWeight: 600, userSelect: 'none' }}>
-                      {t('userSkills.remove')}
-                    </Typography>
-                  </Box>
+            {/* Non-root: lock badge + score interaction */}
+            {focusedNode && focusedNode.depth > 0 && (
+              <>
+                {/* Lock / unlock badge */}
+                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 2 }}>
+                  {focusedIsUnlocked ? (
+                    <Chip icon={<LockOpenIcon fontSize="small" />} label={t('userSkills.unlocked')} size="small" color="success" variant="outlined" />
+                  ) : (
+                    <Chip icon={<LockIcon fontSize="small" />} label={t('userSkills.locked')} size="small" color="default" variant="outlined" />
+                  )}
                 </Box>
-              </Tooltip>
 
-              <Tooltip title={currentPoints >= MAX_SKILL_POINTS ? t('userSkills.maxReached') : !focusedCanAllocate && !focusedIsLocked ? t('userSkills.rootNode') : focusedIsLocked ? `${t('userSkills.lockReason')}: ${focusedParentLabel}` : t('userSkills.addPoint')}>
-                <Box component="span">
+                {/* Locked: unlock button */}
+                {!focusedIsUnlocked && (
                   <Box
                     component="button"
-                    onClick={() => handleChangePoints(focusedId, 1)}
-                    disabled={!focusedCanAllocate || currentPoints >= MAX_SKILL_POINTS || loadingPoints}
+                    onClick={() => handleUnlockNode(focusedId)}
+                    disabled={loadingPoints}
                     sx={{
                       display: 'flex', alignItems: 'center', gap: 0.75, px: 1.5, py: 0.75,
-                      border: '1px solid', borderRadius: 1, cursor: 'pointer',
+                      border: '1px solid', borderRadius: 1, cursor: 'pointer', mb: 2,
                       bgcolor: 'transparent', borderColor: focusedColor, color: focusedColor,
                       transition: 'all 0.2s',
                       '&:not(:disabled):hover': { bgcolor: `${focusedColor}18` },
@@ -668,21 +830,73 @@ export default function UserSkills() {
                   >
                     {loadingPoints
                       ? <CircularProgress size={14} sx={{ color: focusedColor }} />
-                      : <AddCircleOutlineIcon fontSize="small" />
+                      : <LockOpenIcon fontSize="small" />
                     }
                     <Typography variant="caption" sx={{ fontWeight: 600, userSelect: 'none' }}>
-                      {t('userSkills.add')}
+                      {t('userSkills.unlock')}
                     </Typography>
                   </Box>
-                </Box>
-              </Tooltip>
-            </Box>
+                )}
 
-            {/* Locked reason hint */}
-            {focusedIsLocked && (
-              <Typography variant="caption" color="error" sx={{ display: 'block', mt: 1.5 }}>
-                🔒 {t('userSkills.lockReason')}: <strong>{focusedParentLabel}</strong>
-              </Typography>
+                {/* Leaf + unlocked: interactive star rating */}
+                {focusedIsLeaf && focusedIsUnlocked && (
+                  <Box>
+                    <Typography variant="caption" color="text.secondary" sx={{ display: 'block', mb: 0.75 }}>
+                      {t('userSkills.yourRating')}
+                    </Typography>
+                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.25, mb: 0.5 }}>
+                      {Array.from({ length: MAX_SKILL_POINTS }, (_, i) => (
+                        <Box key={i} component="span"
+                          onClick={() => handleSetRating(focusedId, i + 1)}
+                          sx={{
+                            fontSize: '1.6rem', lineHeight: 1, cursor: 'pointer',
+                            color: i < currentPoints ? '#e2b714' : '#334155',
+                            transition: 'color 0.15s, transform 0.15s',
+                            '&:hover': { color: '#e2b714', transform: 'scale(1.2)' },
+                          }}
+                        >
+                          {i < currentPoints ? '★' : '☆'}
+                        </Box>
+                      ))}
+                      <Typography variant="caption" color="text.secondary" sx={{ ml: 0.75 }}>
+                        {currentPoints} / {MAX_SKILL_POINTS}
+                      </Typography>
+                    </Box>
+                    {loadingPoints && <CircularProgress size={12} sx={{ mt: 0.5 }} />}
+                  </Box>
+                )}
+
+                {/* Parent + unlocked: computed score */}
+                {!focusedIsLeaf && focusedIsUnlocked && (() => {
+                  const score = effectiveScores[focusedId] ?? 0;
+                  const kids = [...(childrenOf.get(focusedId) ?? [])];
+                  const unlockedKids = kids.filter(kid => (points[kid] ?? 0) > 0).length;
+                  return (
+                    <Box>
+                      <Typography variant="caption" color="text.secondary" sx={{ display: 'block', mb: 0.75 }}>
+                        {t('userSkills.computedScore')}
+                      </Typography>
+                      <Box sx={{ display: 'flex', alignItems: 'baseline', gap: 1, mb: 0.75 }}>
+                        <Typography variant="h4" sx={{ fontWeight: 700, color: focusedColor }}>
+                          {score.toFixed(1)}
+                        </Typography>
+                        <Typography variant="caption" color="text.secondary">/ 5</Typography>
+                      </Box>
+                      <Typography variant="caption" color="text.secondary" sx={{ display: 'block', mb: 0.75 }}>
+                        {unlockedKids} / {kids.length} {t('userSkills.childrenUnlocked')}
+                      </Typography>
+                      <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.25 }}>
+                        {Array.from({ length: MAX_SKILL_POINTS }, (_, i) => (
+                          <Box key={i} component="span" sx={{ fontSize: '1.3rem', lineHeight: 1, color: i < score ? '#e2b714' : '#334155' }}>
+                            ★
+                          </Box>
+                        ))}
+                      </Box>
+                    </Box>
+                  );
+                })()}
+
+              </>
             )}
           </Box>
 
@@ -698,12 +912,12 @@ export default function UserSkills() {
             {/* Legend */}
             <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1, mt: 1.5 }}>
               {radarCategories.map(cat => {
-                const catColor = nodeMap.get(cat.id)?.color ?? PALETTE[cat.colorKey].stroke;
+                const catColor = cat.color ?? PALETTE[cat.colorKey].stroke;
                 return (
                 <Box key={cat.id} sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
                   <Box sx={{ width: 8, height: 8, borderRadius: '50%', bgcolor: catColor }} />
                   <Typography variant="caption" sx={{ color: catColor, fontSize: '0.68rem', fontWeight: 600 }}>
-                    {cat.label} ({cat.total})
+                    {cat.label} ({cat.total.toFixed(1)})
                   </Typography>
                 </Box>
               );})}

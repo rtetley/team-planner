@@ -223,7 +223,7 @@ export const en = {
     },
     userSkills: {
       title: 'My Skills',
-      hint: 'Click any node to explore and allocate points. Locked nodes (faded) require points in their parent first.',
+      hint: 'Click any node to unlock it — all ancestor nodes are unlocked automatically. Rate leaf skills with 1–5 stars.',
       noDescription: 'No description available.',
       locked: 'Locked',
       unlocked: 'Unlocked',
@@ -234,8 +234,14 @@ export const en = {
       add: 'Add',
       remove: 'Remove',
       maxReached: 'Maximum reached (5/5)',
+      yourRating: 'Your rating',
+      computedScore: 'Computed score',
+      childrenUnlocked: 'sub-skills unlocked',
+      unlock: 'Unlock',
       radarTitle: 'Skill Distribution',
-      radarHint: 'Points allocated per top-level category'
+      radarHint: 'Computed score per top-level category',
+      searchPlaceholder: 'Search skills…',
+      searchNoResults: 'No skills found.',
     },
     projectSkillTree: {
       noDescription: 'No description available.',
