@@ -50,6 +50,23 @@ export const skillTreeRoot: SkillNode = {
             { id: 'security', labelKey: 'skillTree.security' },
           ],
         },
+        {
+          id: 'mobile',
+          labelKey: 'skillTree.mobile',
+          children: [
+            { id: 'swift', labelKey: 'skillTree.swift' },
+            { id: 'kotlin', labelKey: 'skillTree.kotlin' },
+            { id: 'dart', labelKey: 'skillTree.dart' },
+            {
+              id: 'crossPlatform',
+              labelKey: 'skillTree.crossPlatform',
+              children: [
+                { id: 'flutter', labelKey: 'skillTree.flutter' },
+                { id: 'reactNative', labelKey: 'skillTree.reactNative' },
+              ],
+            },
+          ],
+        },
       ],
     },
     {
