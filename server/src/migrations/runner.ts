@@ -25,10 +25,11 @@ import type { Migration } from './types.js';
 export type { Migration } from './types.js';
 import { migration as m001 } from './001_initial_schema.js';
 import { migration as m002 } from './002_gitlab_oauth.js';
+import { migration as m003 } from './003_jobs.js';
 
 // ── Registry – append new migrations here ────────────────────────────────────
 
-const ALL_MIGRATIONS: Migration[] = [m001, m002].sort((a, b) => a.id - b.id);
+const ALL_MIGRATIONS: Migration[] = [m001, m002, m003].sort((a, b) => a.id - b.id);
 
 const VERSION_KEY = 'teamtree:schema-version';
 
