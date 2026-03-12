@@ -1,5 +1,5 @@
 import { useState, useCallback, useMemo, useEffect, useRef } from 'react';
-import { Box, Typography, Chip, Divider, CircularProgress } from '@mui/material';
+import { Box, Typography, Chip, Divider, CircularProgress, Dialog, DialogTitle, DialogContent, DialogContentText, DialogActions, Button } from '@mui/material';
 import LockIcon from '@mui/icons-material/Lock';
 import LockOpenIcon from '@mui/icons-material/LockOpen';
 import { SearchBar } from '@codegouvfr/react-dsfr/SearchBar';
@@ -244,6 +244,7 @@ export default function JobSkillTree({ job, onUpdate, isManager }: JobSkillTreeP
   const [skillTree, setSkillTree] = useState<SkillTreeDoc | null>(null);
   const [ratings, setRatings]     = useState<Record<string, number>>(job.skillRatings ?? {});
   const [saving, setSaving]       = useState(false);
+  const [confirmRemoveOpen, setConfirmRemoveOpen] = useState(false);
 
   const simRef   = useRef<{ nodes: SimNode[]; edges: SimEdge[]; iter: number } | null>(null);
   const frameRef = useRef<number>(0);
@@ -529,6 +530,29 @@ export default function JobSkillTree({ job, onUpdate, isManager }: JobSkillTreeP
     } catch (err) { console.error(err); }
     finally { setSaving(false); }
   }, [isManager, leafIds, ratings, job, onUpdate]);
+
+  /** Remove a skill (and all its descendants), resetting all ratings to 0. */
+  const handleRemoveSkill = useCallback(async (nodeId: string) => {
+    if (!isManager) return;
+    const toRemove: string[] = [nodeId];
+    const queue = [...(childrenOf.get(nodeId) ?? [])];
+    while (queue.length) {
+      const cur = queue.shift()!;
+      toRemove.push(cur);
+      (childrenOf.get(cur) ?? []).forEach(c => queue.push(c));
+    }
+    setConfirmRemoveOpen(false);
+    const next = { ...ratings };
+    toRemove.forEach(id => { delete next[id]; });
+    setRatings(next);
+    setSaving(true);
+    try {
+      const updated = await jobsApi.update({ ...job, skillRatings: next });
+      onUpdate(updated);
+      setRatings(updated.skillRatings ?? {});
+    } catch (err) { console.error(err); setRatings(ratings); }
+    finally { setSaving(false); }
+  }, [isManager, ratings, childrenOf, job, onUpdate]);
 
   // ── Render ────────────────────────────────────────────────────────────────
   return (
@@ -843,6 +867,38 @@ export default function JobSkillTree({ job, onUpdate, isManager }: JobSkillTreeP
                   </Box>
                 );
               })()}
+
+              {/* Remove skill */}
+              {isManager && focusedIsUnlocked && (
+                <>
+                  <Divider sx={{ my: 2 }} />
+                  <Box
+                    component="button"
+                    onClick={() => {
+                      if (focusedIsLeaf) handleRemoveSkill(focusedId);
+                      else setConfirmRemoveOpen(true);
+                    }}
+                    disabled={saving}
+                    sx={{
+                      display: 'flex', alignItems: 'center', gap: 0.75, px: 1.5, py: 0.75,
+                      border: '1px solid', borderRadius: 1, cursor: 'pointer',
+                      bgcolor: 'transparent', borderColor: '#ef4444', color: '#ef4444',
+                      transition: 'all 0.2s',
+                      '&:not(:disabled):hover': { bgcolor: '#ef444418' },
+                      '&:disabled': { opacity: 0.35, cursor: 'not-allowed' },
+                    }}
+                  >
+                    {saving
+                      ? <CircularProgress size={14} sx={{ color: '#ef4444' }} />
+                      : <LockIcon fontSize="small" />
+                    }
+                    <Typography variant="caption" sx={{ fontWeight: 600, userSelect: 'none' }}>
+                      {t('jobs.removeSkill')}
+                    </Typography>
+                  </Box>
+                </>
+              )}
+
             </>
           )}
         </Box>
@@ -871,6 +927,24 @@ export default function JobSkillTree({ job, onUpdate, isManager }: JobSkillTreeP
           </Box>
         </Box>
       </Box>
+
+      {/* Confirm remove dialog (non-leaf nodes) */}
+      <Dialog open={confirmRemoveOpen} onClose={() => setConfirmRemoveOpen(false)}>
+        <DialogTitle>{t('jobs.removeSkillConfirmTitle')}</DialogTitle>
+        <DialogContent>
+          <DialogContentText>
+            {t('jobs.removeSkillConfirmBody', { label: focusedNode?.label ?? '' })}
+          </DialogContentText>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setConfirmRemoveOpen(false)}>
+            {t('jobs.cancel')}
+          </Button>
+          <Button color="error" variant="outlined" onClick={() => handleRemoveSkill(focusedId)}>
+            {t('jobs.removeSkill')}
+          </Button>
+        </DialogActions>
+      </Dialog>
     </Box>
   );
 }

@@ -248,6 +248,10 @@ export const fr = {
       radarHint: 'Score calculé par catégorie principale',
       searchPlaceholder: 'Rechercher des compétences…',
       searchNoResults: 'Aucune compétence trouvée.',
+      removeSkill: 'Retirer la compétence',
+      cancel: 'Annuler',
+      removeSkillConfirmTitle: 'Retirer la compétence',
+      removeSkillConfirmBody: 'Cela va verrouiller "{{label}}" et toutes ses sous-compétences, remettant toutes les notes à 0. Êtes-vous sûr ?',
     },
     projectSkillTree: {
       noDescription: 'Aucune description disponible.',
@@ -338,7 +342,10 @@ export const fr = {
       childrenUnlocked: 'sous-compétences déverrouillées',
       radarTitle: 'Profil de compétences',
       radarHint: 'Score calculé par catégorie principale',
-      requiredSkillsLabel: 'Compétences requises'
+      requiredSkillsLabel: 'Compétences requises',
+      removeSkill: 'Retirer la compétence',
+      removeSkillConfirmTitle: 'Retirer la compétence',
+      removeSkillConfirmBody: 'Cela va verrouiller "{{label}}" et toutes ses sous-compétences requises, remettant toutes les notes à 0. Êtes-vous sûr ?',
     }
   }
 };

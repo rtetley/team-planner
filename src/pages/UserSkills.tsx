@@ -1,5 +1,5 @@
 import { useState, useCallback, useMemo, useEffect, useRef } from 'react';
-import { Box, Typography, Chip, Divider, CircularProgress } from '@mui/material';
+import { Box, Typography, Chip, Divider, CircularProgress, Dialog, DialogTitle, DialogContent, DialogContentText, DialogActions, Button } from '@mui/material';
 import LockIcon from '@mui/icons-material/Lock';
 import LockOpenIcon from '@mui/icons-material/LockOpen';
 import { SearchBar } from '@codegouvfr/react-dsfr/SearchBar';
@@ -259,6 +259,7 @@ export default function UserSkills() {
   const [skillTree, setSkillTree] = useState<SkillTreeDoc | null>(null);
   const [points, setPoints] = useState<Record<string, number>>({});
   const [loadingPoints, setLoadingPoints] = useState(false);
+  const [confirmRemoveOpen, setConfirmRemoveOpen] = useState(false);
 
   // Physics
   const simRef   = useRef<{ nodes: SimNode[]; edges: SimEdge[]; iter: number } | null>(null);
@@ -554,6 +555,34 @@ export default function UserSkills() {
     } catch (err) { console.error(err); }
     finally { setLoadingPoints(false); }
   }, [leafIds, points]);
+
+  /** Remove a skill (and all its descendants), resetting all points to 0. */
+  const handleRemoveSkill = useCallback(async (nodeId: string) => {
+    const toRemove: string[] = [nodeId];
+    const queue = [...(childrenOf.get(nodeId) ?? [])];
+    while (queue.length) {
+      const cur = queue.shift()!;
+      toRemove.push(cur);
+      (childrenOf.get(cur) ?? []).forEach(c => queue.push(c));
+    }
+    setConfirmRemoveOpen(false);
+    const hadPoints = toRemove.filter(id => (points[id] ?? 0) > 0);
+    setPoints(prev => {
+      const next = { ...prev };
+      toRemove.forEach(id => { delete next[id]; });
+      return next;
+    });
+    if (hadPoints.length === 0) return;
+    setLoadingPoints(true);
+    try {
+      let latest: Record<string, number> = {};
+      for (const id of hadPoints) {
+        latest = await skillPointsApi.update(id, 0);
+      }
+      setPoints(latest);
+    } catch (err) { console.error(err); }
+    finally { setLoadingPoints(false); }
+  }, [points, childrenOf]);
 
   const handleNodeClick = useCallback((node: NodeDatum) => {
     if (dragRef.current.moved) return;
@@ -909,6 +938,37 @@ export default function UserSkills() {
                   );
                 })()}
 
+                {/* Remove skill */}
+                {focusedIsUnlocked && (
+                  <>
+                    <Divider sx={{ my: 2 }} />
+                    <Box
+                      component="button"
+                      onClick={() => {
+                        if (focusedIsLeaf) handleRemoveSkill(focusedId);
+                        else setConfirmRemoveOpen(true);
+                      }}
+                      disabled={loadingPoints}
+                      sx={{
+                        display: 'flex', alignItems: 'center', gap: 0.75, px: 1.5, py: 0.75,
+                        border: '1px solid', borderRadius: 1, cursor: 'pointer',
+                        bgcolor: 'transparent', borderColor: '#ef4444', color: '#ef4444',
+                        transition: 'all 0.2s',
+                        '&:not(:disabled):hover': { bgcolor: '#ef444418' },
+                        '&:disabled': { opacity: 0.35, cursor: 'not-allowed' },
+                      }}
+                    >
+                      {loadingPoints
+                        ? <CircularProgress size={14} sx={{ color: '#ef4444' }} />
+                        : <LockIcon fontSize="small" />
+                      }
+                      <Typography variant="caption" sx={{ fontWeight: 600, userSelect: 'none' }}>
+                        {t('userSkills.removeSkill')}
+                      </Typography>
+                    </Box>
+                  </>
+                )}
+
               </>
             )}
           </Box>
@@ -938,6 +998,24 @@ export default function UserSkills() {
           </Box>
         </Box>
       </Box>
+
+      {/* Confirm remove dialog (non-leaf nodes) */}
+      <Dialog open={confirmRemoveOpen} onClose={() => setConfirmRemoveOpen(false)}>
+        <DialogTitle>{t('userSkills.removeSkillConfirmTitle')}</DialogTitle>
+        <DialogContent>
+          <DialogContentText>
+            {t('userSkills.removeSkillConfirmBody', { label: focusedNode?.label ?? '' })}
+          </DialogContentText>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setConfirmRemoveOpen(false)}>
+            {t('userSkills.cancel')}
+          </Button>
+          <Button color="error" variant="outlined" onClick={() => handleRemoveSkill(focusedId)}>
+            {t('userSkills.removeSkill')}
+          </Button>
+        </DialogActions>
+      </Dialog>
     </Box>
   );
 }

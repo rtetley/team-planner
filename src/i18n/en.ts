@@ -248,6 +248,10 @@ export const en = {
       radarHint: 'Computed score per top-level category',
       searchPlaceholder: 'Search skills…',
       searchNoResults: 'No skills found.',
+      removeSkill: 'Remove skill',
+      cancel: 'Cancel',
+      removeSkillConfirmTitle: 'Remove skill',
+      removeSkillConfirmBody: 'This will lock "{{label}}" and all its sub-skills, resetting all ratings to 0. Are you sure?',
     },
     projectSkillTree: {
       noDescription: 'No description available.',
@@ -339,7 +343,10 @@ export const en = {
       childrenUnlocked: 'sub-skills unlocked',
       radarTitle: 'Skill Profile',
       radarHint: 'Computed score per top-level category',
-      requiredSkillsLabel: 'Required skills'
+      requiredSkillsLabel: 'Required skills',
+      removeSkill: 'Remove skill',
+      removeSkillConfirmTitle: 'Remove skill',
+      removeSkillConfirmBody: 'This will lock "{{label}}" and all its required sub-skills, resetting all ratings to 0. Are you sure?',
     }
   }
 };
