@@ -130,11 +130,11 @@ function PointsArc({ r, points, stroke }: { r: number; points: number; stroke: s
 // ── Skill node (user variant) ─────────────────────────────────────────────────
 interface UserSkillNodeElProps {
   node: NodeDatum; isFocused: boolean; isChild: boolean;
-  isUnlocked: boolean; isLeaf: boolean; isGlowing: boolean; displayScore: number;
+  isUnlocked: boolean; isAvailable: boolean; isLeaf: boolean; isGlowing: boolean; displayScore: number;
   onClick: () => void;
 }
 
-function UserSkillNodeEl({ node, isFocused, isChild, isUnlocked, isLeaf: _isLeaf, isGlowing, displayScore, onClick }: UserSkillNodeElProps) {
+function UserSkillNodeEl({ node, isFocused, isChild, isUnlocked, isAvailable, isLeaf: _isLeaf, isGlowing, displayScore, onClick }: UserSkillNodeElProps) {
   const [hovered, setHovered] = useState(false);
   const base = PALETTE[node.colorKey];
   const stroke = node.color ?? base.stroke;
@@ -145,6 +145,7 @@ function UserSkillNodeEl({ node, isFocused, isChild, isUnlocked, isLeaf: _isLeaf
   const fs = [12, 11, 9.5, 8.5][node.depth] ?? 8.5;
   const scale = isFocused ? FOCUS_SCALE : isChild ? 1.08 : hovered ? 1.1 : 1;
   const sw = isFocused ? 2.5 : isUnlocked ? 2 : isChild ? 1.8 : hovered ? 1.5 : 1;
+  const opacity = isUnlocked ? 1 : isAvailable ? 0.65 : 0.38;
 
   return (
     <g
@@ -152,7 +153,7 @@ function UserSkillNodeEl({ node, isFocused, isChild, isUnlocked, isLeaf: _isLeaf
       onClick={onClick}
       onMouseEnter={() => setHovered(true)}
       onMouseLeave={() => setHovered(false)}
-      style={{ cursor: 'pointer', opacity: isUnlocked ? 1 : 0.38, transition: 'opacity 0.35s ease' }}
+      style={{ cursor: 'pointer', opacity, transition: 'opacity 0.35s ease' }}
     >
       {/* Focused pulse ring */}
       {isFocused && <circle r={r * 1.7} fill="none" stroke={stroke} strokeWidth={1} opacity={0.35} className="skill-pulse" />}
@@ -268,7 +269,7 @@ export default function UserSkills() {
   const [panX, setPanX]           = useState(VW / 2);
   const [panY, setPanY]           = useState(VH / 2);
   const [focusedId, setFocusedId] = useState<string>('root');
-  const [glowingId, setGlowingId] = useState<string | null>(null);
+  const [glowingIds, setGlowingIds] = useState<Set<string>>(new Set());
   const [nodes, setNodes]         = useState<NodeDatum[]>([]);
   const [edges, setEdges]         = useState<EdgeDatum[]>([]);
 
@@ -415,7 +416,7 @@ export default function UserSkills() {
   }, [nodes, childrenOf]);
 
   const isLeaf = useCallback((id: string) => leafIds.has(id), [leafIds]);
-  const isUnlocked = useCallback((id: string) => (points[id] ?? 0) > 0, [points]);
+  const isUnlocked = useCallback((id: string) => id === 'root' || (points[id] ?? 0) > 0, [points]);
 
   // ── Effective scores — computed recursively ───────────────────────────────
   // Leaf: star rating (0–5). Parent: mix of unlock fraction × 5 and mean child score.
@@ -522,8 +523,8 @@ export default function UserSkills() {
       toUnlock.forEach(id => { next[id] = 1; });
       return next;
     });
-    setGlowingId(nodeId);
-    setTimeout(() => setGlowingId(null), 1100);
+    setGlowingIds(new Set([nodeId, ...(childrenOf.get(nodeId) ?? [])]));
+    setTimeout(() => setGlowingIds(new Set()), 1100);
     // Server sync
     setLoadingPoints(true);
     try {
@@ -534,7 +535,7 @@ export default function UserSkills() {
       setPoints(latest);
     } catch (err) { console.error(err); }
     finally { setLoadingPoints(false); }
-  }, [points, parentMap]);
+  }, [points, parentMap, childrenOf]);
 
   /** Set the star rating (1–5) on a leaf node. */
   const handleSetRating = useCallback(async (nodeId: string, rating: number) => {
@@ -543,8 +544,8 @@ export default function UserSkills() {
     if (clamped === (points[nodeId] ?? 0)) return;
     setPoints(prev => ({ ...prev, [nodeId]: clamped }));
     if (clamped > (points[nodeId] ?? 0)) {
-      setGlowingId(nodeId);
-      setTimeout(() => setGlowingId(null), 1100);
+      setGlowingIds(new Set([nodeId]));
+      setTimeout(() => setGlowingIds(new Set()), 1100);
     }
     setLoadingPoints(true);
     try {
@@ -563,7 +564,7 @@ export default function UserSkills() {
 
   const currentPoints = focusedNode ? (points[focusedNode.id] ?? 0) : 0;
   const focusedIsLeaf = focusedNode ? leafIds.has(focusedNode.id) : false;
-  const focusedIsUnlocked = focusedNode ? (points[focusedNode.id] ?? 0) > 0 : false;
+  const focusedIsUnlocked = focusedNode ? (focusedNode.id === 'root' || (points[focusedNode.id] ?? 0) > 0) : false;
   const focusedColor = focusedNode ? (focusedNode.color ?? PALETTE[focusedNode.colorKey].stroke) : '#94a3b8';
 
   return (
@@ -710,7 +711,7 @@ export default function UserSkills() {
                     const toParent = e.childId  === focusedId;
                     const childUnlocked = isUnlocked(e.childId);
                     const parentUnlocked = isUnlocked(e.parentId);
-                    const glowing  = glowingId !== null && (e.childId === glowingId || e.parentId === glowingId);
+                    const glowing = glowingIds.size > 0 && (glowingIds.has(e.childId) || glowingIds.has(e.parentId));
                     // Score of the child drives thickness and brightness
                     const score = effectiveScores[e.childId] ?? 0;
                     const scoreFraction = score / MAX_SKILL_POINTS; // 0–1
@@ -735,8 +736,9 @@ export default function UserSkills() {
                       isFocused={n.id === focusedId}
                       isChild={childrenIds.has(n.id)}
                       isUnlocked={isUnlocked(n.id)}
+                      isAvailable={!isUnlocked(n.id) && isUnlocked(parentMap.get(n.id) ?? '')}
                       isLeaf={isLeaf(n.id)}
-                      isGlowing={n.id === glowingId || searchMatchIds.has(n.id)}
+                      isGlowing={glowingIds.has(n.id) || searchMatchIds.has(n.id)}
                       displayScore={leafIds.has(n.id) ? (points[n.id] ?? 0) : (effectiveScores[n.id] ?? 0)}
                       onClick={() => handleNodeClick(n)}
                     />

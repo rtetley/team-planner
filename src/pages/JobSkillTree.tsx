@@ -1,9 +1,10 @@
 import { useState, useCallback, useMemo, useEffect, useRef } from 'react';
-import { Box, Typography, Chip, Divider, CircularProgress, Tooltip } from '@mui/material';
-import AddCircleOutlineIcon from '@mui/icons-material/AddCircleOutline';
-import RemoveCircleOutlineIcon from '@mui/icons-material/RemoveCircleOutline';
+import { Box, Typography, Chip, Divider, CircularProgress } from '@mui/material';
 import LockIcon from '@mui/icons-material/Lock';
+import LockOpenIcon from '@mui/icons-material/LockOpen';
+import { SearchBar } from '@codegouvfr/react-dsfr/SearchBar';
 import { useTranslation } from 'react-i18next';
+import MarkdownRenderer from '../components/MarkdownRenderer';
 import { skillTreeApi, jobsApi } from '../api';
 import type { SkillTreeDoc, SkillTreeNode, JobSheet } from '../types';
 
@@ -24,12 +25,13 @@ const CAT_KEYS: Record<string, PKey> = {
   communication: 'communication', organisation: 'organisation',
 };
 
-const TREE_BG = '#1e2229';
+const TREE_BG   = '#1e2229';
 const BASE_R: Record<number, number> = { 0: 50, 1: 40, 2: 31, 3: 22 };
 const FOCUS_SCALE = 1.5;
 const VW = 800; const VH = 600;
+const MAX_SKILL_POINTS = 5;
 
-// ── Physics ───────────────────────────────────────────────────────────────────
+// ── Physics constants ─────────────────────────────────────────────────────────
 const REPULSION_K = 5500; const SPRING_K = 0.055;
 const DAMPING = 0.82; const STEPS_PER_FRAME = 2;
 const MAX_ITERS = 3600; const CONVERGENCE_THRESHOLD = 0.08;
@@ -39,12 +41,12 @@ function springLen(srcDepth: number) { return srcDepth === 0 ? 165 : srcDepth ==
 
 // ── Types ─────────────────────────────────────────────────────────────────────
 interface NodeDatum { id: string; label: string; description?: string; x: number; y: number; depth: number; colorKey: PKey; color?: string; }
-interface EdgeDatum { x1: number; y1: number; x2: number; y2: number; colorKey: PKey; parentId: string; childId: string; }
+interface EdgeDatum { x1: number; y1: number; x2: number; y2: number; colorKey: PKey; color?: string; parentId: string; childId: string; }
 interface SimNode extends NodeDatum { vx: number; vy: number; pinned: boolean; }
 interface SimEdge { s: string; t: string; srcDepth: number; colorKey: PKey; }
 interface ConvergedLayout { nodes: NodeDatum[]; edges: EdgeDatum[]; zoom: number; panX: number; panY: number; focusedId: string; }
 
-// ── Physics helpers ───────────────────────────────────────────────────────────
+// ── Physics functions ─────────────────────────────────────────────────────────
 function flattenTree(root: SkillTreeNode): { simNodes: SimNode[]; simEdges: SimEdge[] } {
   const simNodes: SimNode[] = []; const simEdges: SimEdge[] = [];
   const INIT_R = [0, 195, 340, 450];
@@ -110,27 +112,29 @@ function wrapText(text: string, maxChars = 10): string[] {
   if (cur) lines.push(cur); return lines;
 }
 
-// ── Ring decorators ───────────────────────────────────────────────────────────
-function RequiredRing({ r, stroke }: { r: number; stroke: string }) {
-  return <circle r={r} fill="none" stroke={stroke} strokeWidth={2.5} opacity={0.9} />;
-}
-function AvailableRing({ r, stroke }: { r: number; stroke: string }) {
-  const circ = 2 * Math.PI * r;
-  return <circle r={r} fill="none" stroke={stroke} strokeWidth={1.8} opacity={0.55} strokeDasharray={`${circ * 0.12} ${circ * 0.08}`} />;
+// ── Points arc around a node ──────────────────────────────────────────────────
+function PointsArc({ r, points, stroke }: { r: number; points: number; stroke: string }) {
+  if (points <= 0) return null;
+  if (points >= MAX_SKILL_POINTS) return <circle r={r} fill="none" stroke={stroke} strokeWidth={2.5} opacity={0.85} />;
+  const frac = points / MAX_SKILL_POINTS;
+  const angle = frac * 2 * Math.PI;
+  const sa = -Math.PI / 2, ea = sa + angle;
+  const x1 = r * Math.cos(sa), y1 = r * Math.sin(sa);
+  const x2 = r * Math.cos(ea), y2 = r * Math.sin(ea);
+  return (
+    <path d={`M ${x1} ${y1} A ${r} ${r} 0 ${angle > Math.PI ? 1 : 0} 1 ${x2} ${y2}`}
+      fill="none" stroke={stroke} strokeWidth={2.5} opacity={0.85} strokeLinecap="round" />
+  );
 }
 
 // ── Skill node ────────────────────────────────────────────────────────────────
-interface JobSkillNodeElProps {
-  node: NodeDatum;
-  isFocused: boolean;
-  isChild: boolean;
-  isRequired: boolean;
-  isAvailable: boolean;
-  isLocked: boolean;
+interface SkillNodeElProps {
+  node: NodeDatum; isFocused: boolean; isChild: boolean;
+  isUnlocked: boolean; isAvailable: boolean; isLeaf: boolean; isGlowing: boolean; displayScore: number;
   onClick: () => void;
 }
 
-function JobSkillNodeEl({ node, isFocused, isChild, isRequired, isAvailable, isLocked, onClick }: JobSkillNodeElProps) {
+function SkillNodeEl({ node, isFocused, isChild, isUnlocked, isAvailable, isLeaf: _isLeaf, isGlowing, displayScore, onClick }: SkillNodeElProps) {
   const [hovered, setHovered] = useState(false);
   const base = PALETTE[node.colorKey];
   const stroke = node.color ?? base.stroke;
@@ -139,10 +143,9 @@ function JobSkillNodeEl({ node, isFocused, isChild, isRequired, isAvailable, isL
   const r = BASE_R[node.depth] ?? 22;
   const lines = wrapText(node.label);
   const fs = [12, 11, 9.5, 8.5][node.depth] ?? 8.5;
-  const isRoot = node.depth === 0;
   const scale = isFocused ? FOCUS_SCALE : isChild ? 1.08 : hovered ? 1.1 : 1;
-  const sw = isFocused ? 2.5 : isRequired ? 2 : isChild ? 1.8 : hovered ? 1.5 : 1;
-  const opacity = isLocked ? 0.2 : isRoot || isFocused || isChild || isRequired || isAvailable ? 1 : 0.4;
+  const sw = isFocused ? 2.5 : isUnlocked ? 2 : isChild ? 1.8 : hovered ? 1.5 : 1;
+  const opacity = isUnlocked ? 1 : isAvailable ? 0.65 : 0.38;
 
   return (
     <g
@@ -150,17 +153,17 @@ function JobSkillNodeEl({ node, isFocused, isChild, isRequired, isAvailable, isL
       onClick={onClick}
       onMouseEnter={() => setHovered(true)}
       onMouseLeave={() => setHovered(false)}
-      style={{ cursor: isLocked ? 'not-allowed' : 'pointer', opacity, transition: 'opacity 0.3s ease' }}
+      style={{ cursor: 'pointer', opacity, transition: 'opacity 0.35s ease' }}
     >
       {isFocused && <circle r={r * 1.7} fill="none" stroke={stroke} strokeWidth={1} opacity={0.35} className="skill-pulse" />}
+      {isGlowing && <circle r={r * 2.2} fill="none" stroke={stroke} strokeWidth={3} className="skill-glow-ring" />}
       <g style={{ transformBox: 'fill-box', transformOrigin: 'center', transform: `scale(${scale})`, transition: 'transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1)' }}>
         <circle r={r} fill={fill} stroke={stroke} strokeWidth={sw} style={{ transition: 'stroke-width 0.2s ease' }} />
-        {node.depth > 0 && isRequired && <RequiredRing r={r + 5} stroke={stroke} />}
-        {node.depth > 0 && isAvailable && !isRequired && <AvailableRing r={r + 5} stroke={stroke} />}
+        {node.depth > 0 && isUnlocked && <PointsArc r={r + 5} points={displayScore} stroke={stroke} />}
         {lines.map((line, i) => (
           <text key={i} textAnchor="middle" dominantBaseline="middle"
-            fontSize={fs} fontWeight={isFocused || isRoot ? 700 : isChild || isRequired ? 600 : 500}
-            fill={isFocused || isRoot || isRequired ? text : isChild || isAvailable ? text : '#9aa8b8'}
+            fontSize={fs} fontWeight={isFocused ? 700 : isChild ? 600 : 500}
+            fill={isFocused ? text : isChild ? text : '#9aa8b8'}
             y={(i - (lines.length - 1) / 2) * (fs + 2.5)}
             style={{ userSelect: 'none', pointerEvents: 'none' }}>
             {line}
@@ -171,7 +174,60 @@ function JobSkillNodeEl({ node, isFocused, isChild, isRequired, isAvailable, isL
   );
 }
 
-// ── Layout cache (job-specific, separate from project cache) ──────────────────
+// ── Radar chart ───────────────────────────────────────────────────────────────
+interface RadarCat { id: string; label: string; colorKey: PKey; color?: string; total: number; }
+
+function RadarChart({ categories, maxVal }: { categories: RadarCat[]; maxVal: number }) {
+  const n = categories.length;
+  if (n < 3) return null;
+  const cx = 120, cy = 120, R = 85, levels = 5;
+  const cap = Math.max(maxVal, 1);
+  const angles = categories.map((_, i) => (2 * Math.PI * i) / n - Math.PI / 2);
+  const dataR = categories.map(cat => (R * Math.min(cat.total, cap)) / cap);
+  const pts = angles.map((a, i) => ({ x: cx + dataR[i] * Math.cos(a), y: cy + dataR[i] * Math.sin(a) }));
+
+  return (
+    <svg viewBox="0 0 240 240" style={{ width: '100%', maxWidth: 240, display: 'block', margin: '0 auto' }}>
+      <rect width={240} height={240} fill="transparent" />
+      {Array.from({ length: levels }, (_, lv) => {
+        const r = (R * (lv + 1)) / levels;
+        const poly = angles.map(a => `${cx + r * Math.cos(a)},${cy + r * Math.sin(a)}`).join(' ');
+        return <polygon key={lv} points={poly} fill="none" stroke="#2d3748" strokeWidth={0.8} />;
+      })}
+      {angles.map((a, i) => (
+        <line key={i} x1={cx} y1={cy} x2={cx + R * Math.cos(a)} y2={cy + R * Math.sin(a)} stroke="#2d3748" strokeWidth={0.8} />
+      ))}
+      {categories.map((cat, i) => {
+        const j = (i + 1) % n;
+        const base = PALETTE[cat.colorKey];
+        const stroke = cat.color ?? base.stroke;
+        const fill = cat.color ? cat.color + '28' : base.fill;
+        return (
+          <polygon key={cat.id}
+            points={`${cx},${cy} ${pts[i].x},${pts[i].y} ${pts[j].x},${pts[j].y}`}
+            fill={fill} fillOpacity={0.85} stroke={stroke} strokeWidth={0.6}
+          />
+        );
+      })}
+      {categories.map((cat, i) => (
+        <circle key={cat.id} cx={pts[i].x} cy={pts[i].y} r={4} fill={cat.color ?? PALETTE[cat.colorKey].stroke} />
+      ))}
+      {categories.map((cat, i) => {
+        const a = angles[i]; const lr = R + 20;
+        return (
+          <text key={cat.id} x={cx + lr * Math.cos(a)} y={cy + lr * Math.sin(a)}
+            textAnchor="middle" dominantBaseline="middle" fontSize={8.5}
+            fill={cat.color ?? PALETTE[cat.colorKey].stroke} fontWeight={600} style={{ userSelect: 'none' }}>
+            {cat.label}
+          </text>
+        );
+      })}
+      <circle cx={cx} cy={cy} r={2.5} fill="#4a5568" />
+    </svg>
+  );
+}
+
+// ── Layout cache (job-specific) ───────────────────────────────────────────────
 const jobLayoutCache = new Map<string, ConvergedLayout>();
 
 // ── Component ─────────────────────────────────────────────────────────────────
@@ -182,21 +238,49 @@ interface JobSkillTreeProps {
 }
 
 export default function JobSkillTree({ job, onUpdate, isManager }: JobSkillTreeProps) {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
 
+  // ── Tree + ratings state ─────────────────────────────────────────────────
   const [skillTree, setSkillTree] = useState<SkillTreeDoc | null>(null);
-  const [required, setRequired]   = useState<Set<string>>(() => new Set(job.requiredSkills ?? []));
+  const [ratings, setRatings]     = useState<Record<string, number>>(job.skillRatings ?? {});
   const [saving, setSaving]       = useState(false);
 
   const simRef   = useRef<{ nodes: SimNode[]; edges: SimEdge[]; iter: number } | null>(null);
   const frameRef = useRef<number>(0);
 
+  // View state
   const [zoom, setZoom]           = useState(1);
   const [panX, setPanX]           = useState(VW / 2);
   const [panY, setPanY]           = useState(VH / 2);
   const [focusedId, setFocusedId] = useState<string>('root');
+  const [glowingIds, setGlowingIds] = useState<Set<string>>(new Set());
   const [nodes, setNodes]         = useState<NodeDatum[]>([]);
   const [edges, setEdges]         = useState<EdgeDatum[]>([]);
+
+  // Search state
+  const [searchQuery, setSearchQuery] = useState('');
+  const [searchOpen, setSearchOpen]   = useState(false);
+  const searchRef = useRef<HTMLDivElement>(null);
+
+  // ── Sync ratings when job prop changes ───────────────────────────────────
+  useEffect(() => {
+    setRatings(job.skillRatings ?? {});
+  }, [job.skillRatings]);
+
+  // ── Localized tree ────────────────────────────────────────────────────────
+  const localizedSkillTree = useMemo(() => {
+    if (!skillTree) return null;
+    const lang = i18n.language;
+    function resolve(node: SkillTreeNode): SkillTreeNode {
+      return {
+        ...node,
+        label:       node.labels?.[lang]       ?? node.label,
+        description: node.descriptions?.[lang] ?? node.description,
+        children:    node.children?.map(resolve),
+      };
+    }
+    return { ...skillTree, root: resolve(skillTree.root) };
+  }, [skillTree, i18n.language]);
 
   const viewStateRef = useRef({ zoom, panX, panY, focusedId });
   useEffect(() => {
@@ -207,24 +291,22 @@ export default function JobSkillTree({ job, onUpdate, isManager }: JobSkillTreeP
     if (entry) jobLayoutCache.set(cacheKey, { ...entry, zoom, panX, panY, focusedId });
   }, [zoom, panX, panY, focusedId, skillTree, job.id]);
 
-  useEffect(() => {
-    setRequired(new Set(job.requiredSkills ?? []));
-  }, [job.requiredSkills]);
-
+  // ── Load tree ─────────────────────────────────────────────────────────────
   useEffect(() => {
     skillTreeApi.get().then(setSkillTree).catch(console.error);
   }, []);
 
+  // ── Spring simulation ─────────────────────────────────────────────────────
   useEffect(() => {
-    if (!skillTree) return;
+    if (!localizedSkillTree) return;
     cancelAnimationFrame(frameRef.current);
-    const cacheKey = `${skillTree.treeId}-job-${job.id}`;
+    const cacheKey = `${localizedSkillTree.treeId}-job-${job.id}`;
 
     const freshById = new Map<string, SkillTreeNode>();
     (function collect(n: SkillTreeNode) {
       freshById.set(n.id, n);
       (n.children ?? []).forEach(collect);
-    })(skillTree.root);
+    })(localizedSkillTree.root);
 
     const cached = jobLayoutCache.get(cacheKey);
     if (cached) {
@@ -238,30 +320,32 @@ export default function JobSkillTree({ job, onUpdate, isManager }: JobSkillTreeP
       setZoom(cached.zoom); setPanX(cached.panX); setPanY(cached.panY); setFocusedId(cached.focusedId);
       return;
     }
-    const { simNodes, simEdges } = flattenTree(skillTree.root);
+
+    const treeId = localizedSkillTree.treeId;
+    const { simNodes, simEdges } = flattenTree(localizedSkillTree.root);
     simRef.current = { nodes: simNodes, edges: simEdges, iter: 0 };
     const getViewState = viewStateRef;
 
     function snapshot(sn: SimNode[], se: SimEdge[]): ConvergedLayout {
-      const m = new Map(sn.map(nd => [nd.id, nd]));
+      const m = new Map(sn.map(n => [n.id, n]));
       const vs = getViewState.current;
       const layoutNodes = sn.map(({ id, label, description, x, y, depth, colorKey, color }) => ({ id, label, description, x, y, depth, colorKey, color }));
-      const layoutEdges = se.map(ed => {
-        const src = m.get(ed.s)!, tgt = m.get(ed.t)!;
-        return { x1: src.x, y1: src.y, x2: tgt.x, y2: tgt.y, colorKey: ed.colorKey, parentId: ed.s, childId: ed.t };
+      const layoutEdges = se.map(e => {
+        const src = m.get(e.s)!, tgt = m.get(e.t)!;
+        return { x1: src.x, y1: src.y, x2: tgt.x, y2: tgt.y, colorKey: e.colorKey, color: tgt.color, parentId: e.s, childId: e.t };
       });
       return { nodes: layoutNodes, edges: layoutEdges, zoom: vs.zoom, panX: vs.panX, panY: vs.panY, focusedId: vs.focusedId };
     }
 
     function animate() {
       const sim = simRef.current; if (!sim) return;
-      if (sim.iter >= MAX_ITERS) { jobLayoutCache.set(cacheKey, snapshot(sim.nodes, sim.edges)); return; }
+      if (sim.iter >= MAX_ITERS) { jobLayoutCache.set(treeId, snapshot(sim.nodes, sim.edges)); return; }
       const alpha = Math.max(0.02, 1 - sim.iter / MAX_ITERS);
       const prev = sim.nodes;
       for (let s = 0; s < STEPS_PER_FRAME; s++) { sim.nodes = tickPhysics(sim.nodes, sim.edges, alpha); sim.iter++; }
       const layout = snapshot(sim.nodes, sim.edges);
       setNodes(layout.nodes); setEdges(layout.edges);
-      if (meanDisplacement(prev, sim.nodes) < CONVERGENCE_THRESHOLD) { jobLayoutCache.set(cacheKey, layout); return; }
+      if (meanDisplacement(prev, sim.nodes) < CONVERGENCE_THRESHOLD) { jobLayoutCache.set(treeId, layout); return; }
       frameRef.current = requestAnimationFrame(animate);
     }
 
@@ -269,7 +353,7 @@ export default function JobSkillTree({ job, onUpdate, isManager }: JobSkillTreeP
     setNodes(init.nodes); setEdges(init.edges);
     frameRef.current = requestAnimationFrame(animate);
     return () => cancelAnimationFrame(frameRef.current);
-  }, [skillTree, job.id]);
+  }, [localizedSkillTree, job.id]);
 
   // ── Derived maps ──────────────────────────────────────────────────────────
   const nodeMap    = useMemo(() => new Map(nodes.map(n => [n.id, n])), [nodes]);
@@ -281,23 +365,56 @@ export default function JobSkillTree({ job, onUpdate, isManager }: JobSkillTreeP
   }, [edges]);
   const childrenIds = useMemo(() => childrenOf.get(focusedId) ?? new Set<string>(), [childrenOf, focusedId]);
 
-  const isLocked = useCallback((nodeId: string): boolean => {
-    const node = nodeMap.get(nodeId);
-    if (!node || node.depth <= 1) return false;
-    const pid = parentMap.get(nodeId);
-    return !pid || !required.has(pid);
-  }, [nodeMap, parentMap, required]);
+  // ── Search ────────────────────────────────────────────────────────────────
+  const searchResults = useMemo(() => {
+    const q = searchQuery.trim().toLowerCase();
+    if (!q) return [];
+    return nodes
+      .filter(n => n.label.toLowerCase().includes(q) || (n.description ?? '').toLowerCase().includes(q))
+      .slice(0, 8);
+  }, [nodes, searchQuery]);
+  const searchMatchIds = useMemo(() => new Set(searchResults.map(n => n.id)), [searchResults]);
 
-  const collectSubtree = useCallback((nodeId: string): string[] => {
-    const result: string[] = [nodeId];
-    const queue = [nodeId];
-    while (queue.length) {
-      const cur = queue.shift()!;
-      (childrenOf.get(cur) ?? new Set()).forEach(child => { result.push(child); queue.push(child); });
+  // ── Leaf detection ────────────────────────────────────────────────────────
+  const leafIds = useMemo(() => {
+    const s = new Set<string>();
+    nodes.forEach(n => { const kids = childrenOf.get(n.id); if (!kids || kids.size === 0) s.add(n.id); });
+    return s;
+  }, [nodes, childrenOf]);
+
+  const isLeaf     = useCallback((id: string) => leafIds.has(id), [leafIds]);
+  const isUnlocked = useCallback((id: string) => id === 'root' || (ratings[id] ?? 0) > 0, [ratings]);
+
+  // ── Effective scores ──────────────────────────────────────────────────────
+  const effectiveScores = useMemo<Record<string, number>>(() => {
+    const cache: Record<string, number> = {};
+    function compute(id: string): number {
+      if (id in cache) return cache[id];
+      const kids = [...(childrenOf.get(id) ?? [])];
+      if (kids.length === 0) { cache[id] = ratings[id] ?? 0; return cache[id]; }
+      const unlockedKids = kids.filter(kid => (ratings[kid] ?? 0) > 0);
+      const unlockFraction = unlockedKids.length / kids.length;
+      const meanGrade = unlockedKids.length > 0
+        ? unlockedKids.reduce((sum, kid) => sum + compute(kid), 0) / unlockedKids.length
+        : 0;
+      cache[id] = (unlockFraction * 5 + meanGrade) / 2;
+      return cache[id];
     }
-    return result;
-  }, [childrenOf]);
+    nodes.forEach(n => compute(n.id));
+    return cache;
+  }, [nodes, childrenOf, ratings]);
 
+  // ── Radar ─────────────────────────────────────────────────────────────────
+  const radarCategories = useMemo<RadarCat[]>(() => {
+    if (!localizedSkillTree) return [];
+    return (localizedSkillTree.root.children ?? []).map(cat => {
+      const ck = (CAT_KEYS[cat.id] ?? 'default') as PKey;
+      const color = nodeMap.get(cat.id)?.color;
+      return { id: cat.id, label: cat.label, colorKey: ck, color, total: effectiveScores[cat.id] ?? 0 };
+    });
+  }, [localizedSkillTree, effectiveScores, nodeMap]);
+
+  // ── Ancestor breadcrumb ───────────────────────────────────────────────────
   const ancestorPath = useMemo(() => {
     const path: NodeDatum[] = []; let current = focusedId;
     while (true) {
@@ -308,11 +425,11 @@ export default function JobSkillTree({ job, onUpdate, isManager }: JobSkillTreeP
     return path;
   }, [edges, nodeMap, focusedId]);
 
-  const focusedNode        = nodeMap.get(focusedId);
-  const focusedColor       = focusedNode ? (focusedNode.color ?? PALETTE[focusedNode.colorKey].stroke) : '#94a3b8';
-  const focusedIsRequired  = required.has(focusedId);
-  const focusedIsLocked    = focusedNode ? isLocked(focusedId) : false;
-  const focusedParentLabel = focusedNode ? (nodeMap.get(parentMap.get(focusedId) ?? '')?.label ?? '') : '';
+  const focusedNode       = nodeMap.get(focusedId);
+  const focusedColor      = focusedNode ? (focusedNode.color ?? PALETTE[focusedNode.colorKey].stroke) : '#94a3b8';
+  const focusedIsLeaf     = focusedNode ? leafIds.has(focusedNode.id) : false;
+  const focusedIsUnlocked = focusedNode ? (focusedNode.id === 'root' || (ratings[focusedNode.id] ?? 0) > 0) : false;
+  const currentRating     = focusedNode ? (ratings[focusedNode.id] ?? 0) : 0;
 
   // ── Zoom & drag ───────────────────────────────────────────────────────────
   const svgContainerRef = useRef<HTMLDivElement>(null);
@@ -348,10 +465,21 @@ export default function JobSkillTree({ job, onUpdate, isManager }: JobSkillTreeP
     setPanY(y => y + dy * ratio / zoomRef.current);
   }, []);
 
-  const handleMouseUp = useCallback(() => {
-    dragRef.current.active = false;
-    setIsDragging(false);
+  const handleMouseUp = useCallback(() => { dragRef.current.active = false; setIsDragging(false); }, []);
+
+  const focusNode = useCallback((node: NodeDatum) => {
+    const targetZoom = ([0.45, 0.65, 0.85, 1.0] as const)[Math.min(node.depth, 3)];
+    setZoom(targetZoom);
+    setFocusedId(node.id);
+    setPanX(VW / 2 - node.x);
+    setPanY(VH / 2 - node.y);
   }, []);
+
+  const handleSearchSelect = useCallback((node: NodeDatum) => {
+    focusNode(node);
+    setSearchQuery('');
+    setSearchOpen(false);
+  }, [focusNode]);
 
   const handleNodeClick = useCallback((node: NodeDatum) => {
     if (dragRef.current.moved) return;
@@ -360,26 +488,47 @@ export default function JobSkillTree({ job, onUpdate, isManager }: JobSkillTreeP
     setPanY(VH / 2 - node.y);
   }, []);
 
-  const handleToggleRequired = useCallback(async () => {
-    if (!focusedNode || focusedNode.depth === 0) return;
-    const next = new Set(required);
-    if (next.has(focusedId)) {
-      collectSubtree(focusedId).forEach(id => next.delete(id));
-    } else {
-      next.add(focusedId);
+  // ── Unlock a node and cascade to all ancestors ────────────────────────────
+  const handleUnlockNode = useCallback(async (nodeId: string) => {
+    if (!isManager) return;
+    if ((ratings[nodeId] ?? 0) > 0) return;
+    const toUnlock: string[] = [];
+    let cur: string | undefined = nodeId;
+    while (cur) {
+      if ((ratings[cur] ?? 0) === 0) toUnlock.push(cur);
+      cur = parentMap.get(cur);
     }
-    setRequired(next);
+    if (toUnlock.length === 0) return;
+    const next = { ...ratings };
+    toUnlock.forEach(id => { next[id] = 1; });
+    setRatings(next);
+    setGlowingIds(new Set([nodeId, ...(childrenOf.get(nodeId) ?? [])]));
+    setTimeout(() => setGlowingIds(new Set()), 1100);
     setSaving(true);
     try {
-      const updated = await jobsApi.update({ ...job, requiredSkills: Array.from(next) });
+      const updated = await jobsApi.update({ ...job, skillRatings: next });
       onUpdate(updated);
-    } catch (err) {
-      console.error(err);
-      setRequired(required);
-    } finally {
-      setSaving(false);
-    }
-  }, [focusedId, focusedNode, required, job, onUpdate, collectSubtree]);
+      setRatings(updated.skillRatings ?? {});
+    } catch (err) { console.error(err); setRatings(ratings); }
+    finally { setSaving(false); }
+  }, [isManager, ratings, parentMap, childrenOf, job, onUpdate]);
+
+  // ── Set star rating on a leaf ─────────────────────────────────────────────
+  const handleSetRating = useCallback(async (nodeId: string, rating: number) => {
+    if (!isManager || !leafIds.has(nodeId)) return;
+    const clamped = Math.min(MAX_SKILL_POINTS, Math.max(1, rating));
+    if (clamped === (ratings[nodeId] ?? 0)) return;
+    const next = { ...ratings, [nodeId]: clamped };
+    setRatings(next);
+    if (clamped > (ratings[nodeId] ?? 0)) { setGlowingIds(new Set([nodeId])); setTimeout(() => setGlowingIds(new Set()), 1100); }
+    setSaving(true);
+    try {
+      const updated = await jobsApi.update({ ...job, skillRatings: next });
+      onUpdate(updated);
+      setRatings(updated.skillRatings ?? {});
+    } catch (err) { console.error(err); }
+    finally { setSaving(false); }
+  }, [isManager, leafIds, ratings, job, onUpdate]);
 
   // ── Render ────────────────────────────────────────────────────────────────
   return (
@@ -406,57 +555,157 @@ export default function JobSkillTree({ job, onUpdate, isManager }: JobSkillTreeP
           )}
         </Box>
 
-        {/* SVG canvas */}
-        <Box ref={svgContainerRef}
-          onMouseDown={handleMouseDown}
-          onMouseMove={handleMouseMove}
-          onMouseUp={handleMouseUp}
-          onMouseLeave={handleMouseUp}
-          sx={{ borderRadius: 2, overflow: 'hidden', border: '1px solid', borderColor: 'divider', bgcolor: TREE_BG, cursor: isDragging ? 'grabbing' : 'grab' }}>
-          <svg viewBox={`0 0 ${VW} ${VH}`} style={{ width: '100%', height: 'auto', display: 'block' }}>
-            <rect width={VW} height={VH} fill={TREE_BG} />
-            <g transform={`translate(${VW / 2}, ${VH / 2}) scale(${zoom}) translate(${-VW / 2}, ${-VH / 2})`}>
-              <g style={{ transform: `translate(${panX}px, ${panY}px)`, transition: isDragging ? 'none' : 'transform 0.55s cubic-bezier(0.25, 0.46, 0.45, 0.94)' }}>
+        {/* SVG + search overlay wrapper */}
+        <Box sx={{ position: 'relative' }}>
+
+          {/* Search overlay */}
+          <Box ref={searchRef} sx={{ position: 'absolute', top: 8, right: 8, zIndex: 5, width: 220 }}>
+            <Box sx={{
+              '& .fr-search-bar': { gap: '4px' },
+              '& .fr-label': { position: 'absolute', width: '1px', height: '1px', p: 0, m: '-1px', overflow: 'hidden', clip: 'rect(0,0,0,0)', whiteSpace: 'nowrap', border: 0 },
+              '& .fr-input': { height: '1.875rem !important', fontSize: '0.75rem !important', background: 'rgba(18,22,28,0.88) !important', backdropFilter: 'blur(6px)', color: '#e2e8f0 !important', border: '1px solid rgba(255,255,255,0.12) !important', boxShadow: 'none !important', '--idle': 'transparent', '--hover': 'transparent', '--active': 'transparent' },
+              '& .fr-input::placeholder': { color: 'rgba(148,163,184,0.7) !important' },
+              '& .fr-btn': { height: '1.875rem !important', minHeight: '0 !important', lineHeight: '1.875rem !important', fontSize: '0 !important', px: '0.5rem !important', ml: '4px !important', background: 'rgba(18,22,28,0.88) !important', backdropFilter: 'blur(6px)', border: '1px solid rgba(255,255,255,0.12) !important', color: 'rgba(148,163,184,0.7) !important', '&::before': { fontSize: '0.875rem !important' } },
+              '& .fr-btn:hover': { background: 'rgba(255,255,255,0.06) !important', color: '#e2e8f0 !important' },
+            }}>
+              <SearchBar
+                label={t('jobs.searchPlaceholder')}
+                renderInput={({ id, type, className, placeholder }) => (
+                  <input
+                    id={id} type={type} className={className} placeholder={placeholder}
+                    value={searchQuery}
+                    onChange={e => { setSearchQuery(e.target.value); setSearchOpen(true); }}
+                    onFocus={() => setSearchOpen(true)}
+                    onBlur={() => setTimeout(() => setSearchOpen(false), 150)}
+                    autoComplete="off"
+                  />
+                )}
+                onButtonClick={() => { if (searchResults.length > 0) handleSearchSelect(searchResults[0]); }}
+              />
+            </Box>
+
+            {/* Dropdown results */}
+            {searchOpen && searchResults.length > 0 && (
+              <Box sx={{
+                position: 'absolute', top: '100%', left: 0, right: 0, zIndex: 10, mt: 0.25,
+                bgcolor: 'rgba(18,22,28,0.96)', backdropFilter: 'blur(8px)',
+                border: '1px solid rgba(255,255,255,0.1)',
+                borderRadius: 1, overflow: 'hidden', boxShadow: '0 8px 24px rgba(0,0,0,0.6)',
+              }}>
+                {searchResults.map(n => {
+                  const color = n.color ?? PALETTE[n.colorKey].stroke;
+                  return (
+                    <Box key={n.id} onMouseDown={() => handleSearchSelect(n)}
+                      sx={{
+                        display: 'flex', alignItems: 'center', gap: 1, px: 1.25, py: 0.6,
+                        cursor: 'pointer', borderBottom: '1px solid rgba(255,255,255,0.06)',
+                        '&:last-child': { borderBottom: 'none' },
+                        '&:hover': { bgcolor: 'rgba(255,255,255,0.05)' },
+                      }}>
+                      <Box sx={{ width: 6, height: 6, borderRadius: '50%', bgcolor: color, flexShrink: 0 }} />
+                      <Box sx={{ minWidth: 0, flex: 1 }}>
+                        <Typography variant="caption" sx={{ display: 'block', fontWeight: 600, color, fontSize: '0.7rem', lineHeight: 1.3 }}>
+                          {n.label}
+                        </Typography>
+                        {n.description && (
+                          <Typography variant="caption" sx={{ display: 'block', fontSize: '0.63rem', color: 'rgba(148,163,184,0.6)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', lineHeight: 1.2 }}>
+                            {n.description}
+                          </Typography>
+                        )}
+                      </Box>
+                      {isUnlocked(n.id)
+                        ? <LockOpenIcon sx={{ fontSize: '0.75rem', color: 'success.main', opacity: 0.7, flexShrink: 0 }} />
+                        : <LockIcon sx={{ fontSize: '0.75rem', color: 'rgba(148,163,184,0.4)', flexShrink: 0 }} />
+                      }
+                    </Box>
+                  );
+                })}
+              </Box>
+            )}
+
+            {/* No results */}
+            {searchOpen && searchQuery.trim() && searchResults.length === 0 && (
+              <Box sx={{
+                position: 'absolute', top: '100%', left: 0, right: 0, zIndex: 10, mt: 0.25,
+                bgcolor: 'rgba(18,22,28,0.96)', backdropFilter: 'blur(8px)',
+                border: '1px solid rgba(255,255,255,0.1)', borderRadius: 1, px: 1.25, py: 0.75,
+              }}>
+                <Typography variant="caption" sx={{ fontSize: '0.7rem', color: 'rgba(148,163,184,0.6)' }}>
+                  {t('jobs.searchNoResults')}
+                </Typography>
+              </Box>
+            )}
+          </Box>
+
+          {/* SVG */}
+          <Box ref={svgContainerRef}
+            onMouseDown={handleMouseDown}
+            onMouseMove={handleMouseMove}
+            onMouseUp={handleMouseUp}
+            onMouseLeave={handleMouseUp}
+            sx={{ borderRadius: 2, overflow: 'hidden', border: '1px solid', borderColor: 'divider', bgcolor: TREE_BG, cursor: isDragging ? 'grabbing' : 'grab' }}>
+            <svg viewBox={`0 0 ${VW} ${VH}`} style={{ width: '100%', height: 'auto', display: 'block' }}>
+              <rect width={VW} height={VH} fill={TREE_BG} />
+              <g style={{
+                transform: `translate(${zoom * (panX - VW / 2) + VW / 2}px, ${zoom * (panY - VH / 2) + VH / 2}px) scale(${zoom})`,
+                transformOrigin: '0 0',
+                transition: isDragging ? 'none' : 'transform 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94)',
+              }}>
+                {/* Edges */}
                 {edges.map((e, i) => {
-                  const { stroke } = PALETTE[e.colorKey];
-                  const toChild    = e.parentId === focusedId;
-                  const toParent   = e.childId  === focusedId;
-                  const childReq   = required.has(e.childId);
-                  const childAvail = !childReq && !isLocked(e.childId);
-                  const childLocked = isLocked(e.childId);
-                  const sw         = toChild ? 2 : toParent ? 1.2 : childReq ? 1.6 : 0.8;
-                  const opacity    = childLocked ? 0.05 : toChild ? 0.75 : toParent ? 0.35 : childReq ? 0.55 : childAvail ? 0.3 : 0.12;
+                  const stroke = e.color ?? PALETTE[e.colorKey].stroke;
+                  const toChild  = e.parentId === focusedId;
+                  const toParent = e.childId  === focusedId;
+                  const childUnlocked  = isUnlocked(e.childId);
+                  const parentUnlocked = isUnlocked(e.parentId);
+                  const glowing = glowingIds.size > 0 && (glowingIds.has(e.childId) || glowingIds.has(e.parentId));
+                  const score = effectiveScores[e.childId] ?? 0;
+                  const scoreFraction = score / MAX_SKILL_POINTS;
+                  const fullyActive   = childUnlocked && parentUnlocked;
+                  const partiallyActive = !childUnlocked && parentUnlocked;
+                  const baseSw = fullyActive ? 0.8 + scoreFraction * 2.2 : partiallyActive ? 0.6 : 0.4;
+                  const sw = glowing ? 3.5 : toChild ? Math.max(baseSw, 2) : toParent ? Math.max(baseSw, 1.2) : baseSw;
+                  const baseOpacity = fullyActive ? 0.2 + scoreFraction * 0.65 : partiallyActive ? 0.12 : 0.05;
+                  const opacity = glowing ? 1 : toChild ? Math.max(baseOpacity, 0.7) : toParent ? Math.max(baseOpacity, 0.3) : baseOpacity;
                   return (
                     <line key={i} x1={e.x1} y1={e.y1} x2={e.x2} y2={e.y2}
                       stroke={stroke} strokeWidth={sw} strokeOpacity={opacity}
-                      style={{ transition: 'stroke-opacity 0.35s ease, stroke-width 0.35s ease' }}
+                      className={glowing ? 'edge-glow' : undefined}
+                      style={{ transition: 'stroke-opacity 0.45s ease, stroke-width 0.45s ease' }}
                     />
                   );
                 })}
+                {/* Nodes */}
                 {nodes.map(n => (
-                  <JobSkillNodeEl key={n.id} node={n}
+                  <SkillNodeEl key={n.id} node={n}
                     isFocused={n.id === focusedId}
                     isChild={childrenIds.has(n.id)}
-                    isRequired={required.has(n.id)}
-                    isAvailable={!required.has(n.id) && !isLocked(n.id) && n.depth > 0}
-                    isLocked={isLocked(n.id)}
+                    isUnlocked={isUnlocked(n.id)}
+                    isAvailable={!isUnlocked(n.id) && isUnlocked(parentMap.get(n.id) ?? '')}
+                    isLeaf={isLeaf(n.id)}
+                    isGlowing={glowingIds.has(n.id) || searchMatchIds.has(n.id)}
+                    displayScore={leafIds.has(n.id) ? (ratings[n.id] ?? 0) : (effectiveScores[n.id] ?? 0)}
                     onClick={() => handleNodeClick(n)}
                   />
                 ))}
               </g>
-            </g>
-            <style>{`
-              @keyframes skill-pulse { 0%,100%{opacity:.3;transform:scale(1)} 50%{opacity:0;transform:scale(1.55)} }
-              .skill-pulse { transform-box:fill-box; transform-origin:center; animation:skill-pulse 2.8s ease-in-out infinite }
-            `}</style>
-          </svg>
+              <style>{`
+                @keyframes skill-pulse { 0%,100%{opacity:.3;transform:scale(1)} 50%{opacity:0;transform:scale(1.55)} }
+                .skill-pulse { transform-box:fill-box; transform-origin:center; animation:skill-pulse 2.8s ease-in-out infinite }
+                @keyframes glow-ring { 0%{opacity:.9;transform:scale(1)} 100%{opacity:0;transform:scale(2.4)} }
+                .skill-glow-ring { transform-box:fill-box; transform-origin:center; animation:glow-ring 1s ease-out forwards }
+                @keyframes edge-glow { 0%{stroke-opacity:1} 100%{stroke-opacity:.3} }
+                .edge-glow { animation:edge-glow 1.1s ease-out forwards }
+              `}</style>
+            </svg>
+          </Box>
         </Box>
 
         {/* Legend */}
         <Box sx={{ display: 'flex', gap: 2, mt: 1.5, flexWrap: 'wrap', alignItems: 'center' }}>
-          {(skillTree?.root.children ?? []).map(cat => {
+          {(localizedSkillTree?.root.children ?? []).map(cat => {
             const ck = (CAT_KEYS[cat.id] ?? 'default') as PKey;
-            const color = PALETTE[ck].stroke;
+            const color = nodeMap.get(cat.id)?.color ?? PALETTE[ck].stroke;
             const active = focusedId === cat.id || childrenIds.has(cat.id);
             return (
               <Box key={cat.id} onClick={() => { const n = nodeMap.get(cat.id); if (n) handleNodeClick(n); }}
@@ -469,8 +718,10 @@ export default function JobSkillTree({ job, onUpdate, isManager }: JobSkillTreeP
         </Box>
       </Box>
 
-      {/* ── Right: info card ── */}
-      <Box sx={{ flex: '0 0 280px', width: 280, display: 'flex', flexDirection: 'column', gap: 2 }}>
+      {/* ── Right: info card + radar ── */}
+      <Box sx={{ flex: '0 0 320px', width: 320, display: 'flex', flexDirection: 'column', gap: 2, position: { xs: 'relative', lg: 'sticky' }, top: { lg: 16 }, maxHeight: { lg: 'calc(100vh - 32px)' }, overflowY: { lg: 'auto' } }}>
+
+        {/* Info card */}
         <Box sx={{ bgcolor: 'var(--background-raised-grey)', borderRadius: 1.5, p: 2.5, boxShadow: 'var(--raised-shadow)' }}>
           <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 1 }}>
             <Box sx={{ width: 10, height: 10, borderRadius: '50%', bgcolor: focusedColor, flexShrink: 0 }} />
@@ -485,91 +736,140 @@ export default function JobSkillTree({ job, onUpdate, isManager }: JobSkillTreeP
             {focusedNode?.label ?? '—'}
           </Typography>
 
-          <Typography variant="body2" color="text.secondary" sx={{ mb: 2, minHeight: 40, fontStyle: focusedNode?.description ? 'normal' : 'italic' }}>
-            {focusedNode?.description ?? t('projectSkillTree.noDescription')}
-          </Typography>
+          {focusedNode?.description ? (
+            <Box sx={{ maxHeight: 200, overflowY: 'auto', mb: 2 }}>
+              <MarkdownRenderer sx={{ color: 'text.secondary' }}>
+                {focusedNode.description}
+              </MarkdownRenderer>
+            </Box>
+          ) : (
+            <Typography variant="body2" color="text.secondary" sx={{ mb: 2, minHeight: 40, fontStyle: 'italic' }}>
+              {t('jobs.noDescription')}
+            </Typography>
+          )}
 
           <Divider sx={{ mb: 2 }} />
 
-          <Box sx={{ mb: 2 }}>
-            {focusedNode?.depth === 0 ? (
-              <Chip label={t('projectSkillTree.rootNode')} size="small" sx={{ bgcolor: '#1e2229', color: '#94a3b8' }} />
-            ) : focusedIsLocked ? (
-              <Chip
-                icon={<LockIcon sx={{ fontSize: '0.85rem !important' }} />}
-                label={t('projectSkillTree.locked')}
-                size="small" color="error" variant="outlined"
-              />
-            ) : focusedIsRequired ? (
-              <Chip label={t('projectSkillTree.required')} size="small" variant="outlined"
-                sx={{ borderColor: focusedColor, color: focusedColor }} />
-            ) : (
-              <Chip label={t('projectSkillTree.available')} size="small" variant="outlined"
-                sx={{ borderColor: focusedColor, color: focusedColor, opacity: 0.7, borderStyle: 'dashed' }} />
-            )}
-          </Box>
-
-          {focusedIsLocked && focusedParentLabel && (
-            <Typography variant="caption" color="error" sx={{ display: 'block', mb: 2 }}>
-              🔒 {t('projectSkillTree.lockReason', { parent: focusedParentLabel })}
-            </Typography>
+          {/* Root node */}
+          {focusedNode?.depth === 0 && (
+            <Chip icon={<LockOpenIcon fontSize="small" />} label={t('jobs.rootNode')} size="small" sx={{ bgcolor: '#1e2229', color: '#94a3b8' }} />
           )}
 
-          {isManager && !!focusedNode && focusedNode.depth > 0 && (
-            <Tooltip title={focusedIsLocked ? t('projectSkillTree.lockReason', { parent: focusedParentLabel }) : ''}>
-              <Box component="span">
+          {/* Non-root */}
+          {focusedNode && focusedNode.depth > 0 && (
+            <>
+              <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 2 }}>
+                {focusedIsUnlocked ? (
+                  <Chip icon={<LockOpenIcon fontSize="small" />} label={t('jobs.unlocked')} size="small" color="success" variant="outlined" />
+                ) : (
+                  <Chip icon={<LockIcon fontSize="small" />} label={t('jobs.locked')} size="small" color="default" variant="outlined" />
+                )}
+              </Box>
+
+              {/* Unlock button (manager only, locked node) */}
+              {isManager && !focusedIsUnlocked && (
                 <Box
                   component="button"
-                  onClick={handleToggleRequired}
-                  disabled={saving || focusedIsLocked}
+                  onClick={() => handleUnlockNode(focusedId)}
+                  disabled={saving}
                   sx={{
                     display: 'flex', alignItems: 'center', gap: 0.75, px: 1.5, py: 0.75,
-                    border: '1px solid', borderRadius: 1, cursor: 'pointer',
-                    bgcolor: 'transparent',
-                    borderColor: focusedIsRequired ? 'divider' : focusedIsLocked ? 'divider' : focusedColor,
-                    color: focusedIsRequired ? 'text.secondary' : focusedIsLocked ? 'text.disabled' : focusedColor,
+                    border: '1px solid', borderRadius: 1, cursor: 'pointer', mb: 2,
+                    bgcolor: 'transparent', borderColor: focusedColor, color: focusedColor,
                     transition: 'all 0.2s',
-                    '&:not(:disabled):hover': focusedIsRequired
-                      ? { borderColor: '#ef4444', color: '#ef4444' }
-                      : { bgcolor: `${focusedColor}18` },
+                    '&:not(:disabled):hover': { bgcolor: `${focusedColor}18` },
                     '&:disabled': { opacity: 0.35, cursor: 'not-allowed' },
                   }}
                 >
-                  {saving
-                    ? <CircularProgress size={14} sx={{ color: focusedIsRequired ? 'text.secondary' : focusedColor }} />
-                    : focusedIsRequired
-                      ? <RemoveCircleOutlineIcon fontSize="small" />
-                      : <AddCircleOutlineIcon fontSize="small" />
-                  }
+                  {saving ? <CircularProgress size={14} sx={{ color: focusedColor }} /> : <LockOpenIcon fontSize="small" />}
                   <Typography variant="caption" sx={{ fontWeight: 600, userSelect: 'none' }}>
-                    {focusedIsRequired ? t('projectSkillTree.remove') : t('projectSkillTree.add')}
+                    {t('jobs.unlock')}
                   </Typography>
                 </Box>
-              </Box>
-            </Tooltip>
+              )}
+
+              {/* Leaf + unlocked: star rating (manager sets required proficiency level) */}
+              {focusedIsLeaf && focusedIsUnlocked && (
+                <Box>
+                  <Typography variant="caption" color="text.secondary" sx={{ display: 'block', mb: 0.75 }}>
+                    {t('jobs.requiredLevel')}
+                  </Typography>
+                  <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.25, mb: 0.5 }}>
+                    {Array.from({ length: MAX_SKILL_POINTS }, (_, i) => (
+                      <Box key={i} component="span"
+                        onClick={() => isManager && handleSetRating(focusedId, i + 1)}
+                        sx={{
+                          fontSize: '1.6rem', lineHeight: 1,
+                          cursor: isManager ? 'pointer' : 'default',
+                          color: i < currentRating ? '#e2b714' : '#334155',
+                          transition: 'color 0.15s, transform 0.15s',
+                          '&:hover': isManager ? { color: '#e2b714', transform: 'scale(1.2)' } : {},
+                        }}>
+                        {i < currentRating ? '★' : '☆'}
+                      </Box>
+                    ))}
+                    <Typography variant="caption" color="text.secondary" sx={{ ml: 0.75 }}>
+                      {currentRating} / {MAX_SKILL_POINTS}
+                    </Typography>
+                  </Box>
+                  {saving && <CircularProgress size={12} sx={{ mt: 0.5 }} />}
+                </Box>
+              )}
+
+              {/* Parent + unlocked: computed score */}
+              {!focusedIsLeaf && focusedIsUnlocked && (() => {
+                const score = effectiveScores[focusedId] ?? 0;
+                const kids = [...(childrenOf.get(focusedId) ?? [])];
+                const unlockedKids = kids.filter(kid => (ratings[kid] ?? 0) > 0).length;
+                return (
+                  <Box>
+                    <Typography variant="caption" color="text.secondary" sx={{ display: 'block', mb: 0.75 }}>
+                      {t('jobs.computedScore')}
+                    </Typography>
+                    <Box sx={{ display: 'flex', alignItems: 'baseline', gap: 1, mb: 0.75 }}>
+                      <Typography variant="h4" sx={{ fontWeight: 700, color: focusedColor }}>
+                        {score.toFixed(1)}
+                      </Typography>
+                      <Typography variant="caption" color="text.secondary">/ 5</Typography>
+                    </Box>
+                    <Typography variant="caption" color="text.secondary" sx={{ display: 'block', mb: 0.75 }}>
+                      {unlockedKids} / {kids.length} {t('jobs.childrenUnlocked')}
+                    </Typography>
+                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.25 }}>
+                      {Array.from({ length: MAX_SKILL_POINTS }, (_, i) => (
+                        <Box key={i} component="span" sx={{ fontSize: '1.3rem', lineHeight: 1, color: i < score ? '#e2b714' : '#334155' }}>★</Box>
+                      ))}
+                    </Box>
+                  </Box>
+                );
+              })()}
+            </>
           )}
         </Box>
 
-        {required.size > 0 && (
-          <Box sx={{ bgcolor: 'var(--background-raised-grey)', borderRadius: 1.5, p: 2, boxShadow: 'var(--raised-shadow)' }}>
-            <Typography variant="subtitle2" sx={{ fontWeight: 700, mb: 1.5 }}>
-              {t('projectSkillTree.summaryTitle')} ({required.size})
-            </Typography>
-            <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.75 }}>
-              {Array.from(required).map(id => {
-                const n = nodeMap.get(id);
-                if (!n) return null;
-                const color = n.color ?? PALETTE[n.colorKey].stroke;
-                return (
-                  <Chip key={id} label={n.label} size="small" variant="outlined"
-                    onClick={() => handleNodeClick(n)}
-                    sx={{ borderColor: color, color, cursor: 'pointer', fontSize: '0.7rem' }}
-                  />
-                );
-              })}
-            </Box>
+        {/* Radar chart card */}
+        <Box sx={{ bgcolor: 'var(--background-raised-grey)', borderRadius: 1.5, p: 2.5, boxShadow: 'var(--raised-shadow)' }}>
+          <Typography variant="subtitle2" sx={{ fontWeight: 700, mb: 0.5 }}>{t('jobs.radarTitle')}</Typography>
+          <Typography variant="caption" color="text.secondary" sx={{ display: 'block', mb: 2 }}>
+            {t('jobs.radarHint')}
+          </Typography>
+          <Box sx={{ bgcolor: TREE_BG, borderRadius: 1.5, p: 1.5 }}>
+            <RadarChart categories={radarCategories} maxVal={5} />
           </Box>
-        )}
+          <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1, mt: 1.5 }}>
+            {radarCategories.map(cat => {
+              const catColor = cat.color ?? PALETTE[cat.colorKey].stroke;
+              return (
+                <Box key={cat.id} sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
+                  <Box sx={{ width: 8, height: 8, borderRadius: '50%', bgcolor: catColor }} />
+                  <Typography variant="caption" sx={{ color: catColor, fontSize: '0.68rem', fontWeight: 600 }}>
+                    {cat.label} ({cat.total.toFixed(1)})
+                  </Typography>
+                </Box>
+              );
+            })}
+          </Box>
+        </Box>
       </Box>
     </Box>
   );

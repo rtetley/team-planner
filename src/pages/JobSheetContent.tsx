@@ -71,7 +71,7 @@ export default function JobSheetContent({ job, onUpdate, isManager }: JobSheetCo
     try {
       const updated = await jobsApi.update({
         ...job,
-        requiredSkills: job.requiredSkills ?? [],
+        skillRatings: job.skillRatings ?? {},
         content: draft,
       });
       onUpdate(updated);

@@ -326,7 +326,19 @@ export const fr = {
       panelContent: 'Fiche de poste / Description',
       panelSkillTree: 'Compétences requises',
       errorTitleRequired: 'Le titre est requis',
-      errorLoad: 'Impossible de charger les fiches de poste.'
+      errorLoad: 'Impossible de charger les fiches de poste.',
+      searchPlaceholder: 'Rechercher des compétences…',
+      searchNoResults: 'Aucune compétence trouvée.',
+      rootNode: "Racine — explorez les branches",
+      unlocked: 'Déverrouillé',
+      locked: 'Verrouillé',
+      unlock: 'Déverrouiller',
+      requiredLevel: 'Niveau requis',
+      computedScore: 'Score calculé',
+      childrenUnlocked: 'sous-compétences déverrouillées',
+      radarTitle: 'Profil de compétences',
+      radarHint: 'Score calculé par catégorie principale',
+      requiredSkillsLabel: 'Compétences requises'
     }
   }
 };

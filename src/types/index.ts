@@ -100,7 +100,7 @@ export interface JobSheet {
   title: string;
   description: string;
   content?: string;
-  requiredSkills?: string[];
+  skillRatings?: Record<string, number>;
 }
 
 // ── Auth ─────────────────────────────────────────────────────────────────────

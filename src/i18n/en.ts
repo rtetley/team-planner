@@ -327,7 +327,19 @@ export const en = {
       panelContent: 'Job Sheet / Description',
       panelSkillTree: 'Required Skills',
       errorTitleRequired: 'Title is required',
-      errorLoad: 'Failed to load job sheets.'
+      errorLoad: 'Failed to load job sheets.',
+      searchPlaceholder: 'Search skills…',
+      searchNoResults: 'No skills found.',
+      rootNode: 'Root — explore branches',
+      unlocked: 'Unlocked',
+      locked: 'Locked',
+      unlock: 'Unlock',
+      requiredLevel: 'Required level',
+      computedScore: 'Computed score',
+      childrenUnlocked: 'sub-skills unlocked',
+      radarTitle: 'Skill Profile',
+      radarHint: 'Computed score per top-level category',
+      requiredSkillsLabel: 'Required skills'
     }
   }
 };
