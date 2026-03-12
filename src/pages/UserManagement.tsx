@@ -30,6 +30,7 @@ import { usersApi } from '../api';
 import { useAuth } from '../context/AuthContext';
 import type { AuthUser, UserRole } from '../types';
 
+// ── Main page ─────────────────────────────────────────────────────────────────
 export default function UserManagement() {
   const { t } = useTranslation();
   const { user: currentUser } = useAuth();
@@ -37,12 +38,8 @@ export default function UserManagement() {
   const [users, setUsers] = useState<AuthUser[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-
-  // Confirmation dialog for deletion
   const [deleteTarget, setDeleteTarget] = useState<AuthUser | null>(null);
   const [deleting, setDeleting] = useState(false);
-
-  // Per-row saving indicator
   const [savingId, setSavingId] = useState<string | null>(null);
 
   const load = useCallback(async () => {
@@ -122,7 +119,6 @@ export default function UserManagement() {
                 const isSaving = savingId === u.id;
                 return (
                   <TableRow key={u.id} hover>
-                    {/* Avatar + display name */}
                     <TableCell>
                       <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
                         <Avatar
@@ -148,15 +144,9 @@ export default function UserManagement() {
                         </Box>
                       </Box>
                     </TableCell>
-
-                    {/* Username */}
                     <TableCell>
-                      <Typography variant="body2" color="text.secondary">
-                        {u.username}
-                      </Typography>
+                      <Typography variant="body2" color="text.secondary">{u.username}</Typography>
                     </TableCell>
-
-                    {/* Role selector */}
                     <TableCell>
                       <Select
                         size="small"
@@ -172,8 +162,6 @@ export default function UserManagement() {
                         <CircularProgress size={16} sx={{ ml: 1, verticalAlign: 'middle' }} />
                       )}
                     </TableCell>
-
-                    {/* Delete */}
                     <TableCell align="center">
                       <Tooltip title={isSelf ? t('userManagement.cannotDeleteSelf') : t('userManagement.deleteTooltip')}>
                         <span>
@@ -192,7 +180,6 @@ export default function UserManagement() {
                   </TableRow>
                 );
               })}
-
               {users.length === 0 && (
                 <TableRow>
                   <TableCell colSpan={4} align="center" sx={{ py: 4, color: 'text.secondary' }}>
@@ -205,7 +192,6 @@ export default function UserManagement() {
         </TableContainer>
       )}
 
-      {/* Delete confirmation dialog */}
       <Dialog open={!!deleteTarget} onClose={() => !deleting && setDeleteTarget(null)}>
         <DialogTitle>{t('userManagement.confirmDeleteTitle')}</DialogTitle>
         <DialogContent>

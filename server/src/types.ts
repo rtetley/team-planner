@@ -61,6 +61,14 @@ export interface Objective {
   quarters: Quarter[];
 }
 
+export interface JobSheet {
+  id: string;
+  title: string;
+  description: string;
+  content?: string;
+  requiredSkills?: string[];
+}
+
 // ── Auth ─────────────────────────────────────────────────────────────────────
 
 export type UserRole = 'manager' | 'user';

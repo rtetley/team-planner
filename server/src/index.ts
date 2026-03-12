@@ -13,6 +13,7 @@ import { authRoute } from './routes/auth.js';
 import { requireAuth } from './middleware/auth.js';
 import { skillPointsRoute } from './routes/skillPoints.js';
 import { usersRoute } from './routes/users.js';
+import { jobsRoute } from './routes/jobs.js';
 import { db } from './db.js';
 import { runMigrations } from './migrations/runner.js';
 
@@ -43,6 +44,8 @@ app.use('/api/skill-tree',     requireAuth);app.use('/api/skill-points/*', requi
 app.use('/api/skill-points',   requireAuth);
 app.use('/api/users/*',        requireAuth);
 app.use('/api/users',          requireAuth);
+app.use('/api/jobs/*',         requireAuth);
+app.use('/api/jobs',           requireAuth);
 app.route('/api/team-members', teamMembersRoute);
 app.route('/api/projects',     projectsRoute);
 app.route('/api/tasks',        tasksRoute);
@@ -52,6 +55,7 @@ app.route('/api/skill-matrix', skillMatrixRoute);
 app.route('/api/skill-tree',   skillTreeRoute);
 app.route('/api/skill-points', skillPointsRoute);
 app.route('/api/users',        usersRoute);
+app.route('/api/jobs',         jobsRoute);
 
 const PORT = Number(process.env.PORT ?? 3001);
 

@@ -7,7 +7,8 @@ export const fr = {
       tasks: 'Tâches',
       matrix: 'Matrice',
       skills: 'Compétences',
-      objectives: 'Objectifs'
+      objectives: 'Objectifs',
+      jobs: 'Offres d\'emploi'
     },
     dashboard: {
       title: 'Tableau de bord',
@@ -282,6 +283,8 @@ export const fr = {
       title: 'Comptes utilisateurs',
       subtitle: 'Gérez les comptes enregistrés : modifiez les rôles ou supprimez des utilisateurs.',
       settingsButton: 'Comptes utilisateurs',
+      tabUsers: 'Utilisateurs',
+      tabJobs: "Offres d'emploi",
       columnUser: 'Utilisateur',
       columnUsername: 'Identifiant',
       columnRole: 'Rôle',
@@ -298,6 +301,32 @@ export const fr = {
       noUsers: 'Aucun compte trouvé.',
       errorLoad: 'Impossible de charger les comptes utilisateurs.',
       errorUpdate: 'Impossible de mettre à jour le rôle.',
-      errorDelete: 'Impossible de supprimer le compte.'    }
+      errorDelete: 'Impossible de supprimer le compte.'
+    },
+    jobs: {
+      title: 'Fiches de poste',
+      tabSubtitle: 'Créez et gérez les fiches de poste pour les postes ouverts.',
+      newJob: 'Nouvelle fiche de poste',
+      newJobTitle: 'Créer une fiche de poste',
+      titleField: 'Titre',
+      descriptionField: 'Description courte',
+      descriptionPlaceholder: "Ex. : Ingénieur logiciel senior pour l'équipe plateforme…",
+      create: 'Créer',
+      cancel: 'Annuler',
+      open: 'Ouvrir',
+      delete: 'Supprimer',
+      noJobs: 'Aucune fiche de poste. Créez-en une pour commencer.',
+      noDescription: 'Aucune description.',
+      skillCount: '{{count}} compétence requise',
+      skillCount_other: '{{count}} compétences requises',
+      notFound: 'Fiche de poste introuvable.',
+      backToList: 'Retour aux fiches de poste',
+      confirmDeleteTitle: 'Supprimer la fiche de poste',
+      confirmDelete: 'Êtes-vous sûr de vouloir supprimer « {{title}} » ? Cette action est irréversible.',
+      panelContent: 'Fiche de poste / Description',
+      panelSkillTree: 'Compétences requises',
+      errorTitleRequired: 'Le titre est requis',
+      errorLoad: 'Impossible de charger les fiches de poste.'
+    }
   }
 };

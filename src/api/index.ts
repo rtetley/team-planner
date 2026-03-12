@@ -10,6 +10,7 @@ import type {
   SkillTreeDoc,
   AuthUser,
   UserRole,
+  JobSheet,
 } from '../types';
 
 // Derive the API root from Vite's base URL so it works both locally and behind
@@ -152,4 +153,16 @@ export const usersApi = {
     req<AuthUser>(`/users/${id}`, { method: 'PATCH', body: JSON.stringify({ role }) }),
   remove: (id: string) =>
     req<void>(`/users/${id}`, { method: 'DELETE' }),
+};
+
+// ── Jobs ─────────────────────────────────────────────────────────────────────
+
+export const jobsApi = {
+  getAll: () => req<JobSheet[]>('/jobs'),
+  create: (data: Omit<JobSheet, 'id'>) =>
+    req<JobSheet>('/jobs', { method: 'POST', body: JSON.stringify(data) }),
+  update: (job: JobSheet) =>
+    req<JobSheet>(`/jobs/${job.id}`, { method: 'PUT', body: JSON.stringify(job) }),
+  remove: (id: string) =>
+    req<void>(`/jobs/${id}`, { method: 'DELETE' }),
 };

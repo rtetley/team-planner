@@ -13,6 +13,7 @@ db.on('connect', () => console.log('[Valkey] Connected to', VALKEY_URL));
 export const KEYS = {
   members:       'teamtree:members',
   projects:      'teamtree:projects',
+  jobs:          'teamtree:jobs',
   tasks:         'teamtree:tasks',
   objectives:    'teamtree:objectives',
   matrix:        'teamtree:matrix',

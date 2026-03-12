@@ -7,7 +7,8 @@ export const en = {
       tasks: 'Tasks',
       matrix: 'Matrix',
       skills: 'Skills',
-      objectives: 'Objectives'
+      objectives: 'Objectives',
+      jobs: 'Jobs'
     },
     dashboard: {
       title: 'Dashboard',
@@ -283,6 +284,8 @@ export const en = {
       title: 'User Accounts',
       subtitle: 'Manage registered accounts: change roles or remove users.',
       settingsButton: 'User accounts',
+      tabUsers: 'Users',
+      tabJobs: 'Jobs',
       columnUser: 'User',
       columnUsername: 'Username',
       columnRole: 'Role',
@@ -300,6 +303,31 @@ export const en = {
       errorLoad: 'Failed to load user accounts.',
       errorUpdate: 'Failed to update role.',
       errorDelete: 'Failed to delete account.'
+    },
+    jobs: {
+      title: 'Job Sheets',
+      tabSubtitle: 'Create and manage job sheets for open positions.',
+      newJob: 'New job sheet',
+      newJobTitle: 'Create a job sheet',
+      titleField: 'Title',
+      descriptionField: 'Short description',
+      descriptionPlaceholder: 'e.g. Senior software engineer for the platform team…',
+      create: 'Create',
+      cancel: 'Cancel',
+      open: 'Open',
+      delete: 'Delete',
+      noJobs: 'No job sheets yet. Create one to get started.',
+      noDescription: 'No description.',
+      skillCount: '{{count}} required skill',
+      skillCount_other: '{{count}} required skills',
+      notFound: 'Job sheet not found.',
+      backToList: 'Back to jobs',
+      confirmDeleteTitle: 'Delete job sheet',
+      confirmDelete: 'Are you sure you want to delete «{{title}}»? This action cannot be undone.',
+      panelContent: 'Job Sheet / Description',
+      panelSkillTree: 'Required Skills',
+      errorTitleRequired: 'Title is required',
+      errorLoad: 'Failed to load job sheets.'
     }
   }
 };

@@ -20,6 +20,8 @@ import UserSkills from './pages/UserSkills';
 import MemberSkillView from './pages/MemberSkillView';
 import GitLabCallback from './pages/GitLabCallback';
 import UserManagement from './pages/UserManagement';
+import Jobs from './pages/Jobs';
+import JobView from './pages/JobView';
 import { ObjectivesProvider } from './context/ObjectivesContext';
 import { AuthProvider, useAuth } from './context/AuthContext';
 import ProtectedRoute from './components/ProtectedRoute';
@@ -35,6 +37,7 @@ function AppContent() {
     { text: t('navigation.dashboard'), linkProps: { to: '/' },           isActive: location.pathname === '/' },
     { text: t('navigation.team'),      linkProps: { to: '/team' },       isActive: location.pathname === '/team' },
     { text: t('navigation.projects'),  linkProps: { to: '/projects' },   isActive: location.pathname === '/projects' },
+    { text: t('navigation.jobs'),      linkProps: { to: '/jobs' },       isActive: location.pathname.startsWith('/jobs') },
     { text: t('navigation.tasks'),     linkProps: { to: '/tasks' },      isActive: location.pathname === '/tasks' },
     { text: t('navigation.skills'),    linkProps: { to: '/skills' },     isActive: location.pathname === '/skills' },
     { text: t('navigation.objectives'),linkProps: { to: '/objectives' }, isActive: location.pathname.startsWith('/objectives') },
@@ -101,6 +104,8 @@ function AppContent() {
           <Route path="/team/:memberId/skills" element={<ProtectedRoute requiredRole="manager"><MemberSkillView /></ProtectedRoute>} />
           <Route path="/projects"      element={<ProtectedRoute requiredRole="manager"><Projects /></ProtectedRoute>} />
           <Route path="/projects/:id"  element={<ProtectedRoute requiredRole="manager"><ProjectView /></ProtectedRoute>} />
+          <Route path="/jobs"          element={<ProtectedRoute requiredRole="manager"><Jobs /></ProtectedRoute>} />
+          <Route path="/jobs/:id"      element={<ProtectedRoute requiredRole="manager"><JobView /></ProtectedRoute>} />
           <Route path="/matrix"     element={<ProtectedRoute requiredRole="manager"><TeamMatrix /></ProtectedRoute>} />
           <Route path="/skills"     element={<ProtectedRoute>{user?.role === 'manager' ? <Skills /> : <UserSkills />}</ProtectedRoute>} />
           <Route path="/objectives" element={<ProtectedRoute requiredRole="manager"><Objectives /></ProtectedRoute>} />
