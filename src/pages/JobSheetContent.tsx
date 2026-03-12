@@ -6,43 +6,77 @@ import MarkdownRenderer from '../components/MarkdownRenderer';
 import { jobsApi } from '../api';
 import type { JobSheet } from '../types';
 
-// ── Default skeleton ──────────────────────────────────────────────────────────
-const JOB_SKELETON = `# Job Sheet
+// ── Default skeleton (mirrors jobs.inria.fr structure) ───────────────────────
+const JOB_SKELETON = `## About the Research Centre / Department
 
-## 1. Role Overview
-> Brief description of the role and its purpose within the team.
+> Briefly describe the Inria centre or department hosting this position and its scientific environment.
 
-## 2. Responsibilities
-- **Responsibility 1** — _describe the key duty_
-- **Responsibility 2** — _describe the key duty_
-- **Responsibility 3** — _describe the key duty_
+## Context
 
-## 3. Required Profile
-### 3.1 Essential Skills
-- [ ] Skill / experience 1
-- [ ] Skill / experience 2
+> Describe the research team, the project, and the broader scientific or industrial context.
+> Mention any funding source, partners, or collaborations involved.
 
-### 3.2 Desirable Skills
-- [ ] Nice-to-have 1
-- [ ] Nice-to-have 2
+## Assignment
 
-## 4. Education & Experience
-- **Education** — _e.g. Engineering degree or equivalent_
-- **Experience** — _e.g. 3+ years in a similar role_
+> Describe the main goal of the position: what the recruited person will work on and what they will contribute to.
 
-## 5. Working Conditions
-- **Location** — _e.g. Paris (hybrid)_
-- **Contract** — _e.g. Permanent, full-time_
-- **Salary** — _e.g. competitive, depending on experience_
+## Main Activities
 
-## 6. Application Process
-- [ ] Send CV and cover letter to [contact]
-- [ ] Technical assessment
-- [ ] Interview with the team
+- _Activity 1_ — describe the specific task or deliverable
+- _Activity 2_ — describe the specific task or deliverable
+- _Activity 3_ — describe the specific task or deliverable
+- Participate in team meetings, seminars, and scientific events
+- Contribute to written reports and publications
 
-## 7. Open Questions
-- [ ] Question 1
-- [ ] Question 2
+## Skills
+
+### Required
+- _Degree_ — e.g. PhD or Engineering degree in Computer Science or equivalent
+- _Experience_ — e.g. 2+ years in a relevant field
+- _Technical skill_ — e.g. strong knowledge of X
+- _Language_ — e.g. professional proficiency in English
+
+### Desirable
+- Experience with _tool / framework_
+- Knowledge of _domain_
+- _Other asset_
+
+## General Information
+
+| Field | Details |
+|---|---|
+| **Contract type** | _e.g. Fixed-term contract — 2 years_ |
+| **Level of qualifications** | _e.g. PhD or equivalent_ |
+| **Function** | _e.g. Research Engineer / Temporary Scientific Engineer_ |
+| **Level of experience** | _e.g. From 3 to 5 years_ |
+| **Location** | _e.g. Rennes / Paris / Sophia Antipolis_ |
+| **Inria centre** | _e.g. Centre Inria de l'Université de Rennes_ |
+| **Inria team** | _e.g. TEAM-NAME_ |
+| **Starting date** | _e.g. 2025-09-01_ |
+| **Deadline to apply** | _e.g. 2025-06-30_ |
+
+## Benefits Package
+
+- Subsidised meals
+- Partial reimbursement of public transport costs
+- 7 weeks of annual leave + 10 RTT days
+- Possibility of teleworking (after 6 months) and flexible working hours
+- Professional equipment (videoconferencing, computer loan, etc.)
+- Access to vocational training
+- Social, cultural and sports activities
+- Full social security coverage
+
+## Instructions to Apply
+
+Please submit online: your **résumé**, a **cover letter**, and optionally **letters of recommendation**.
+
+> ⚠️ Applications must be submitted through the Inria recruitment portal.
+> Processing of applications sent by other channels is not guaranteed.
+
+## Contacts
+
+- **Inria team:** [TEAM-NAME](https://www.inria.fr/equipes/TEAM-NAME)
+- **Recruiter:** Firstname Lastname — [firstname.lastname@inria.fr](mailto:firstname.lastname@inria.fr)
 `;
 
 // ── Component ─────────────────────────────────────────────────────────────────
@@ -55,14 +89,14 @@ interface JobSheetContentProps {
 export default function JobSheetContent({ job, onUpdate, isManager }: JobSheetContentProps) {
   const { t } = useTranslation();
 
-  const initial = job.content ?? JOB_SKELETON;
+  const initial = job.content || JOB_SKELETON;
 
   const [mode,   setMode]   = useState<'preview' | 'edit'>('preview');
   const [draft,  setDraft]  = useState(initial);
   const [saving, setSaving] = useState(false);
 
   useEffect(() => {
-    if (!saving) setDraft(job.content ?? JOB_SKELETON);
+    if (!saving) setDraft(job.content || JOB_SKELETON);
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [job.content]);
 

@@ -284,7 +284,7 @@ export default function Jobs() {
   }, [t]);
 
   const handleCreate = async (title: string, description: string) => {
-    const created = await jobsApi.create({ title, description, content: '', skillRatings: {} });
+    const created = await jobsApi.create({ title, description, content: undefined, skillRatings: {} });
     setDialogOpen(false);
     navigate(`/jobs/${created.id}`);
   };
