@@ -7,15 +7,26 @@
  */
 import { useState, useCallback, useMemo, useEffect, useRef } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { Box, Typography, CircularProgress, Chip } from '@mui/material';
+import {
+  Box, Typography, CircularProgress, Chip,
+  Accordion, AccordionSummary, AccordionDetails,
+  LinearProgress, Divider, Avatar,
+  Dialog, DialogTitle, DialogContent, DialogActions,
+  Button as MuiButton, Card, CardContent,
+} from '@mui/material';
 import LockIcon from '@mui/icons-material/Lock';
 import LockOpenIcon from '@mui/icons-material/LockOpen';
+import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
+import PersonAddIcon from '@mui/icons-material/PersonAdd';
+import PersonRemoveIcon from '@mui/icons-material/PersonRemove';
 import { Button } from '@codegouvfr/react-dsfr/Button';
 import { SearchBar } from '@codegouvfr/react-dsfr/SearchBar';
 import { useTranslation } from 'react-i18next';
+import ReactMarkdown from 'react-markdown';
 import MarkdownRenderer from '../components/MarkdownRenderer';
-import { skillTreeApi, skillPointsApi, teamMembersApi } from '../api';
-import type { SkillTreeDoc, SkillTreeNode, TeamMember } from '../types';
+import { skillTreeApi, skillPointsApi, teamMembersApi, objectivesApi } from '../api';
+import type { SkillTreeDoc, SkillTreeNode, TeamMember, Objective, Quarter } from '../types';
+import { useObjectives } from '../context/ObjectivesContext';
 
 // ── Palette ───────────────────────────────────────────────────────────────────
 type PKey = 'root' | 'development' | 'research' | 'communication' | 'organisation' | 'default';
@@ -205,6 +216,18 @@ function RadarChart({ categories, maxVal }: { categories: RadarCat[]; maxVal: nu
   );
 }
 
+// ── Objective quarter helpers ─────────────────────────────────────────────────
+const OBJ_QUARTER_COLORS: Record<Quarter, string> = {
+  T1: '#3b82f6', T2: '#8b5cf6', T3: '#f97316', T4: '#22c55e',
+};
+const OBJ_QUARTER_ORDER: Quarter[] = ['T1', 'T2', 'T3', 'T4'];
+function objGetGridColumn(quarters: Quarter[]): string {
+  if (!quarters.length) return '1 / 2';
+  const indices = quarters.map(q => OBJ_QUARTER_ORDER.indexOf(q)).filter(i => i !== -1);
+  if (!indices.length) return '1 / 2';
+  return `${Math.min(...indices) + 1} / ${Math.max(...indices) + 2}`;
+}
+
 // ── Per-page layout cache (keyed by treeId) ───────────────────────────────────
 const viewLayoutCache = new Map<string, ConvergedLayout>();
 
@@ -214,7 +237,8 @@ export default function MemberSkillView() {
   const navigate = useNavigate();
   const { t, i18n } = useTranslation();
 
-  const [member, setMember]     = useState<TeamMember | null>(null);
+  const [member, setMember]       = useState<TeamMember | null>(null);
+  const [allMembers, setAllMembers] = useState<TeamMember[]>([]);
   const [skillTree, setSkillTree] = useState<SkillTreeDoc | null>(null);
   const [points, setPoints]     = useState<Record<string, number>>({});
   const [loading, setLoading]   = useState(true);
@@ -237,6 +261,17 @@ export default function MemberSkillView() {
   const [searchOpen, setSearchOpen]   = useState(false);
   const searchRef = useRef<HTMLDivElement>(null);
 
+  // Panels
+  const [objectivesOpen, setObjectivesOpen] = useState(true);
+  const [skillTreeOpen, setSkillTreeOpen]   = useState(true);
+
+  // Objective actions
+  const [viewObjective, setViewObjective]         = useState<Objective | null>(null);
+  const [togglingObjectiveId, setTogglingObjectiveId] = useState<string | null>(null);
+
+  // Objectives from context
+  const { objectives, updateObjective } = useObjectives();
+
   // ── Load member + tree + points ───────────────────────────────────────────
   useEffect(() => {
     if (!memberId) return;
@@ -247,6 +282,7 @@ export default function MemberSkillView() {
     ]).then(async ([members, tree]) => {
       const m = members.find(x => x.id === memberId) ?? null;
       setMember(m);
+      setAllMembers(members);
       setSkillTree(tree);
       if (m?.linkedUserId) {
         try {
@@ -475,11 +511,123 @@ export default function MemberSkillView() {
       </Box>
 
       {!member?.linkedUserId && (
-        <Box sx={{ mb: 3 }}>
+        <Box sx={{ mb: 2 }}>
           <Typography variant="body2" color="text.secondary" fontStyle="italic">{t('team.noLinkedUser')}</Typography>
         </Box>
       )}
 
+      {/* ── Objectives panel ─────────────────────────────────────────── */}
+      <Accordion
+        expanded={objectivesOpen}
+        onChange={() => setObjectivesOpen(o => !o)}
+        disableGutters
+        sx={{ mb: 2, '&:before': { display: 'none' }, borderRadius: '8px !important', border: '1px solid', borderColor: 'divider', overflow: 'hidden' }}
+      >
+        <AccordionSummary expandIcon={<ExpandMoreIcon />} sx={{ minHeight: 48, '& .MuiAccordionSummary-content': { my: 1 } }}>
+          <Typography variant="subtitle1" fontWeight={700}>{t('team.objectivesPanel')}</Typography>
+          <Typography variant="caption" color="text.secondary" sx={{ ml: 1.5, alignSelf: 'center' }}>
+            ({objectives.filter(o => o.assigneeIds?.includes(member?.id ?? '')).length}/{objectives.length})
+          </Typography>
+        </AccordionSummary>
+        <AccordionDetails sx={{ p: 2 }}>
+          {objectives.length === 0 ? (
+            <Typography variant="body2" color="text.secondary" fontStyle="italic">—</Typography>
+          ) : (
+            <Box sx={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', columnGap: 1.5, rowGap: 1.5, gridAutoFlow: 'row dense' }}>
+              {/* Quarter headers */}
+              {OBJ_QUARTER_ORDER.map((q, i) => (
+                <Box key={q} sx={{ gridColumn: i + 1, gridRow: 1, bgcolor: OBJ_QUARTER_COLORS[q], color: '#fff', p: 1, borderRadius: 1, textAlign: 'center' }}>
+                  <Typography variant="caption" fontWeight="bold">{t(`objectives.${q}`)}</Typography>
+                </Box>
+              ))}
+              {/* Objective cards */}
+              {objectives.map(obj => {
+                const isAssigned = obj.assigneeIds?.includes(member?.id ?? '') ?? false;
+                const firstQ = OBJ_QUARTER_ORDER.find(q => obj.quarters.includes(q)) ?? 'T1';
+                const accent = OBJ_QUARTER_COLORS[firstQ];
+                const isToggling = togglingObjectiveId === obj.id;
+                return (
+                  <Card
+                    key={obj.id}
+                    variant="outlined"
+                    onClick={() => setViewObjective(obj)}
+                    sx={{
+                      gridColumn: objGetGridColumn(obj.quarters),
+                      borderTop: `4px solid ${accent}`,
+                      outline: isAssigned ? `2px solid ${accent}` : 'none',
+                      outlineOffset: '-1px',
+                      bgcolor: isAssigned ? `${accent}0d` : undefined,
+                      cursor: 'pointer',
+                      transition: 'transform 0.15s ease, box-shadow 0.15s ease',
+                      '&:hover': {
+                        transform: 'scale(1.03)',
+                        boxShadow: `0 6px 20px ${accent}44`,
+                      },
+                    }}
+                  >
+                    <CardContent sx={{ p: 1.5, '&:last-child': { pb: 1.5 } }}>
+                      <Typography variant="caption" fontWeight="bold" sx={{ lineHeight: 1.4, display: 'block', mb: 1 }}>
+                        {obj.title}
+                      </Typography>
+                      <Box sx={{ mb: 1 }}>
+                        <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 0.4 }}>
+                          <Typography variant="caption" color="text.secondary" sx={{ fontSize: '0.63rem' }}>{t('objectives.kpiProgress')}</Typography>
+                          <Typography variant="caption" fontWeight="bold" sx={{ color: accent, fontSize: '0.63rem' }}>{obj.kpiProgress}%</Typography>
+                        </Box>
+                        <LinearProgress variant="determinate" value={obj.kpiProgress}
+                          sx={{ height: 4, borderRadius: 2, bgcolor: `${accent}22`, '& .MuiLinearProgress-bar': { bgcolor: accent, borderRadius: 2 } }}
+                        />
+                      </Box>
+                      <Box sx={{ display: 'flex', gap: 0.75, alignItems: 'center', mt: 1.25, ml: 0.5 }}>
+                        <MuiButton
+                          size="small"
+                          variant={isAssigned ? 'contained' : 'outlined'}
+                          color={isAssigned ? 'error' : 'primary'}
+                          startIcon={isAssigned
+                            ? <PersonRemoveIcon sx={{ fontSize: '0.8rem !important' }} />
+                            : <PersonAddIcon sx={{ fontSize: '0.8rem !important' }} />
+                          }
+                          disabled={isToggling || !member}
+                          onClick={async (e) => {
+                            e.stopPropagation();
+                            if (!member) return;
+                            setTogglingObjectiveId(obj.id);
+                            const newAssigneeIds = isAssigned
+                              ? (obj.assigneeIds ?? []).filter(id => id !== member.id)
+                              : [...(obj.assigneeIds ?? []), member.id];
+                            const updated = { ...obj, assigneeIds: newAssigneeIds };
+                            try {
+                              await objectivesApi.update(updated);
+                              updateObjective(updated);
+                            } finally {
+                              setTogglingObjectiveId(null);
+                            }
+                          }}
+                          sx={{ fontSize: '0.75rem', py: 0.6, px: 2.5, minWidth: 0, justifyContent: 'center' }}
+                        >
+                          {isAssigned ? t('objectives.remove') : t('objectives.assign')}
+                        </MuiButton>
+                      </Box>
+                    </CardContent>
+                  </Card>
+                );
+              })}
+            </Box>
+          )}
+        </AccordionDetails>
+      </Accordion>
+
+      {/* ── Skill tree panel ─────────────────────────────────────────── */}
+      <Accordion
+        expanded={skillTreeOpen}
+        onChange={() => setSkillTreeOpen(o => !o)}
+        disableGutters
+        sx={{ '&:before': { display: 'none' }, borderRadius: '8px !important', border: '1px solid', borderColor: 'divider', overflow: 'hidden' }}
+      >
+        <AccordionSummary expandIcon={<ExpandMoreIcon />} sx={{ minHeight: 48, '& .MuiAccordionSummary-content': { my: 1 } }}>
+          <Typography variant="subtitle1" fontWeight={700}>{t('team.skillTreePanel')}</Typography>
+        </AccordionSummary>
+        <AccordionDetails sx={{ p: 2 }}>
       <Box sx={{ display: 'flex', gap: 2, alignItems: 'flex-start', flexWrap: { xs: 'wrap', lg: 'nowrap' } }}>
 
         {/* ── Left: graph ──────────────────────────────────────────────── */}
@@ -723,6 +871,64 @@ export default function MemberSkillView() {
           </Box>
         </Box>
       </Box>
+        </AccordionDetails>
+      </Accordion>
+
+      {/* ── View objective modal ───────────────────────────────────────────── */}
+      <Dialog open={!!viewObjective} onClose={() => setViewObjective(null)} maxWidth="sm" fullWidth>
+        {viewObjective && (() => {
+          const firstQ = OBJ_QUARTER_ORDER.find(q => viewObjective.quarters.includes(q)) ?? 'T1';
+          const color = OBJ_QUARTER_COLORS[firstQ];
+          return (
+            <>
+              <DialogTitle sx={{ borderTop: `4px solid ${color}`, pt: 2.5 }}>
+                <Typography variant="h6" fontWeight="bold">{viewObjective.title}</Typography>
+              </DialogTitle>
+              <DialogContent dividers>
+                <Box sx={{ mb: 2, '& p': { mt: 0, mb: 1, fontSize: '0.9rem' }, '& ul': { mt: 0, mb: 1, pl: 3 }, '& li': { fontSize: '0.9rem' } }}>
+                  <ReactMarkdown>{viewObjective.description}</ReactMarkdown>
+                </Box>
+                <Divider sx={{ my: 1.5 }} />
+                <Box sx={{ mb: 1.5 }}>
+                  <Typography variant="caption" color="text.secondary" display="block" gutterBottom>{t('objectives.kpiField')}</Typography>
+                  <Typography variant="body2">{viewObjective.kpi}</Typography>
+                </Box>
+                <Divider sx={{ my: 1.5 }} />
+                <Box>
+                  <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 0.75 }}>
+                    <Typography variant="caption" color="text.secondary">{t('objectives.kpiProgress')}</Typography>
+                    <Typography variant="caption" fontWeight="bold" sx={{ color }}>{viewObjective.kpiProgress}%</Typography>
+                  </Box>
+                  <LinearProgress variant="determinate" value={viewObjective.kpiProgress}
+                    sx={{ height: 8, borderRadius: 4, bgcolor: `${color}22`, '& .MuiLinearProgress-bar': { bgcolor: color, borderRadius: 4 } }}
+                  />
+                </Box>
+                {viewObjective.assigneeIds && viewObjective.assigneeIds.length > 0 && (
+                  <>
+                    <Divider sx={{ my: 1.5 }} />
+                    <Box>
+                      <Typography variant="caption" color="text.secondary" display="block" gutterBottom>{t('objectives.assigneesField')}</Typography>
+                      <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.75 }}>
+                        {viewObjective.assigneeIds.map(id => {
+                          const name = allMembers.find(m => m.id === id)?.name ?? id;
+                          return (
+                            <Chip key={id} label={name} size="small"
+                              avatar={<Avatar sx={{ width: 22, height: 22, fontSize: '0.7rem' }}>{name.charAt(0).toUpperCase()}</Avatar>}
+                            />
+                          );
+                        })}
+                      </Box>
+                    </Box>
+                  </>
+                )}
+              </DialogContent>
+              <DialogActions>
+                <MuiButton onClick={() => setViewObjective(null)}>{t('matrix.close')}</MuiButton>
+              </DialogActions>
+            </>
+          );
+        })()}
+      </Dialog>
     </Box>
   );
 }
