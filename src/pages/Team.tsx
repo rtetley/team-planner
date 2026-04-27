@@ -240,13 +240,16 @@ function TeamTableView({ members, skillTree, allPoints, objectives }: TeamTableV
   const { t } = useTranslation();
   const lang = i18n.language;
 
-  const mainSkills: { id: string; label: string; color?: string }[] = useMemo(() => {
+  const mainSkills: { id: string; label: string; color: string }[] = useMemo(() => {
     if (!skillTree) return [];
-    return (skillTree.root.children ?? []).map(cat => ({
-      id: cat.id,
-      label: cat.labels?.[lang] ?? cat.label,
-      color: cat.color,
-    }));
+    return (skillTree.root.children ?? []).map(cat => {
+      const ck = (CAT_KEYS[cat.id] ?? 'default') as PKey;
+      return {
+        id: cat.id,
+        label: cat.labels?.[lang] ?? cat.label,
+        color: cat.color ?? PALETTE[ck].stroke,
+      };
+    });
   }, [skillTree, lang]);
 
   const childrenOf = useMemo(
@@ -261,7 +264,7 @@ function TeamTableView({ members, skillTree, allPoints, objectives }: TeamTableV
           <TableRow>
             <TableCell sx={{ fontWeight: 'bold', minWidth: 160 }}>{t('team.title').replace(/s$/, '')}</TableCell>
             {mainSkills.map(s => (
-              <TableCell key={s.id} align="center" sx={{ fontWeight: 'bold', color: s.color ?? 'inherit', whiteSpace: 'nowrap' }}>
+              <TableCell key={s.id} align="center" sx={{ fontWeight: 'bold', color: s.color, whiteSpace: 'nowrap' }}>
                 {s.label}
               </TableCell>
             ))}
@@ -286,7 +289,7 @@ function TeamTableView({ members, skillTree, allPoints, objectives }: TeamTableV
                   return (
                     <TableCell key={s.id} align="center">
                       {score !== null
-                        ? <Typography variant="body2" sx={{ color: s.color ?? 'inherit', fontWeight: 600 }}>{score.toFixed(1)}</Typography>
+                        ? <Typography variant="body2" sx={{ color: s.color, fontWeight: 600 }}>{score.toFixed(1)}</Typography>
                         : <Typography variant="caption" color="text.disabled">N/A</Typography>
                       }
                     </TableCell>
