@@ -8,12 +8,15 @@ import {
   CardContent,
   CardActions,
   Chip,
+  Collapse,
   Container,
   Dialog,
   DialogActions,
   DialogContent,
   DialogTitle,
+  Divider,
   Grid,
+  Paper,
   Table,
   TableBody,
   TableCell,
@@ -31,6 +34,7 @@ import LockOpenIcon from '@mui/icons-material/LockOpen';
 import VisibilityIcon from '@mui/icons-material/Visibility';
 import ViewModuleIcon from '@mui/icons-material/ViewModule';
 import TableRowsIcon from '@mui/icons-material/TableRows';
+import TuneIcon from '@mui/icons-material/Tune';
 import { useNavigate } from 'react-router-dom';
 import { teamMembersApi, skillTreeApi, skillPointsApi, objectivesApi } from '../api';
 import { AvailableMember, TeamMember, Objective } from '../types';
@@ -317,7 +321,7 @@ function TeamTableView({ members, skillTree, allPoints, objectives }: TeamTableV
 }
 
 export default function Team() {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const { user } = useAuth();
   const navigate = useNavigate();
   const [teamMembers, setTeamMembers] = useState<TeamMember[]>([]);
@@ -333,6 +337,60 @@ export default function Team() {
   const myTeam = isManager ? teamMembers.filter((m) => m.managerId === user?.id) : teamMembers;
   const [objectives, setObjectives] = useState<Objective[]>([]);
   const [viewMode, setViewMode] = useState<ViewMode>('cards');
+
+  // ── Filters ────────────────────────────────────────────────────────────────
+  const [filtersOpen, setFiltersOpen] = useState(false);
+  const [filterObjectiveIds, setFilterObjectiveIds] = useState<string[]>([]);
+  const [filterSkills, setFilterSkills] = useState<Record<string, string[]>>({});
+
+  // Build flat node list per top-level category for filter dropdowns
+  const lang = i18n.language;
+  interface SkillOption { id: string; label: string; catId: string; catColor: string; depth: number; }
+  const skillOptionsByCategory = useMemo((): { catId: string; catLabel: string; catColor: string; options: SkillOption[] }[] => {
+    if (!skillTree) return [];
+    return (skillTree.root.children ?? []).map(cat => {
+      const ck = (CAT_KEYS[cat.id] ?? 'default') as PKey;
+      const catColor = cat.color ?? PALETTE[ck].stroke;
+      const options: SkillOption[] = [];
+      function collect(node: SkillTreeNode, depth: number) {
+        options.push({ id: node.id, label: node.labels?.[lang] ?? node.label ?? node.id, catId: cat.id, catColor, depth });
+        (node.children ?? []).forEach(c => collect(c, depth + 1));
+      }
+      (cat.children ?? []).forEach(c => collect(c, 0));
+      return { catId: cat.id, catLabel: cat.labels?.[lang] ?? cat.label ?? cat.id, catColor, options };
+    });
+  }, [skillTree, lang]);
+
+  // Build childrenOf map once
+  const childrenOfGlobal = useMemo(
+    () => skillTree ? buildChildrenOf(skillTree.root) : new Map<string, string[]>(),
+    [skillTree],
+  );
+
+  // Apply filters to produce the visible member list
+  const filteredTeam = useMemo(() => {
+    let result = myTeam;
+    if (filterObjectiveIds.length > 0) {
+      result = result.filter(m =>
+        filterObjectiveIds.some(oid =>
+          objectives.find(o => o.id === oid)?.assigneeIds?.includes(m.id)
+        )
+      );
+    }
+    const activeSkillFilters = Object.entries(filterSkills).filter(([, ids]) => ids.length > 0);
+    if (activeSkillFilters.length > 0) {
+      result = result.filter(m => {
+        const pts = allPoints[m.id] ?? {};
+        return activeSkillFilters.every(([, nodeIds]) =>
+          nodeIds.some(nid => computeScore(nid, childrenOfGlobal, pts) > 0)
+        );
+      });
+    }
+    return result;
+  }, [myTeam, filterObjectiveIds, filterSkills, objectives, allPoints, childrenOfGlobal]);
+
+  const activeFilterCount =
+    filterObjectiveIds.length + Object.values(filterSkills).filter(v => v.length > 0).length;
 
   useEffect(() => {
     teamMembersApi.getAll().then(setTeamMembers).catch(console.error);
@@ -393,6 +451,16 @@ export default function Team() {
       <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 3 }}>
         <Typography variant="h3">{t('team.title')}</Typography>
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
+          <Button
+            variant={filtersOpen ? 'contained' : 'outlined'}
+            startIcon={<TuneIcon />}
+            onClick={() => setFiltersOpen(v => !v)}
+            size="small"
+            color={activeFilterCount > 0 ? 'primary' : 'inherit'}
+          >
+            {t('team.filters')}
+            {activeFilterCount > 0 && ` (${activeFilterCount})`}
+          </Button>
           <ToggleButtonGroup
             value={viewMode}
             exclusive
@@ -410,16 +478,87 @@ export default function Team() {
         </Box>
       </Box>
 
+      {/* ── Filter panel ─────────────────────────────────────────────────── */}
+      <Collapse in={filtersOpen}>
+        <Paper variant="outlined" sx={{ p: 2, mb: 3 }}>
+          <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 2 }}>
+            <Typography variant="subtitle2" fontWeight="bold">{t('team.filters')}</Typography>
+            {activeFilterCount > 0 && (
+              <Button size="small" onClick={() => { setFilterObjectiveIds([]); setFilterSkills({}); }}>
+                {t('team.clearFilters')}
+              </Button>
+            )}
+          </Box>
+
+          {/* Objectives filter */}
+          <Autocomplete
+            multiple
+            size="small"
+            options={objectives}
+            getOptionLabel={o => o.title}
+            value={objectives.filter(o => filterObjectiveIds.includes(o.id))}
+            onChange={(_, val) => setFilterObjectiveIds(val.map(o => o.id))}
+            renderInput={params => <TextField {...params} label={t('objectives.title')} />}
+            renderTags={(val, getProps) =>
+              val.map((o, i) => <Chip label={o.title} size="small" {...getProps({ index: i })} key={o.id} />)
+            }
+            sx={{ mb: 2 }}
+          />
+
+          <Divider sx={{ mb: 2 }} />
+
+          {/* Per-category skill filters */}
+          <Box sx={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(220px, 1fr))', gap: 2 }}>
+            {skillOptionsByCategory.map(({ catId, catLabel, catColor, options }) => (
+              <Autocomplete
+                key={catId}
+                multiple
+                size="small"
+                options={options}
+                getOptionLabel={o => o.label}
+                value={options.filter(o => (filterSkills[catId] ?? []).includes(o.id))}
+                onChange={(_, val) =>
+                  setFilterSkills(prev => ({ ...prev, [catId]: val.map(o => o.id) }))
+                }
+                renderInput={params => (
+                  <TextField
+                    {...params}
+                    label={catLabel}
+                    InputLabelProps={{ style: { color: catColor } }}
+                  />
+                )}
+                renderOption={(props, option) => (
+                  <li {...props} key={option.id} style={{ paddingLeft: 8 + option.depth * 12 }}>
+                    <Typography variant="body2">{option.label}</Typography>
+                  </li>
+                )}
+                renderTags={(val, getTagProps) =>
+                  val.map((o, i) => (
+                    <Chip
+                      label={o.label}
+                      size="small"
+                      sx={{ bgcolor: catColor + '22', color: catColor, borderColor: catColor + '55', border: '1px solid' }}
+                      {...getTagProps({ index: i })}
+                      key={o.id}
+                    />
+                  ))
+                }
+              />
+            ))}
+          </Box>
+        </Paper>
+      </Collapse>
+
       {viewMode === 'table' ? (
         <TeamTableView
-          members={myTeam}
+          members={filteredTeam}
           skillTree={skillTree}
           allPoints={allPoints}
           objectives={objectives}
         />
       ) : (
         <Grid container spacing={3}>
-          {myTeam.map((member) => (
+          {filteredTeam.map((member) => (
             <Grid item xs={12} sm={6} md={4} key={member.id}>
               <Card sx={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
                 <CardContent sx={{ flex: 1 }}>

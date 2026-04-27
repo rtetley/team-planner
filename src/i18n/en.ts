@@ -34,6 +34,8 @@ export const en = {
       unlockedSkills: 'Unlocked skills',
       viewCards: 'Card view',
       viewTable: 'Table view',
+      filters: 'Filters',
+      clearFilters: 'Clear all',
     },
     projects: {
       title: 'Projects',

@@ -34,6 +34,8 @@ export const fr = {
       unlockedSkills: 'Compétences déverrouillées',
       viewCards: 'Vue en cartes',
       viewTable: 'Vue tableau',
+      filters: 'Filtres',
+      clearFilters: 'Tout effacer',
     },
     projects: {
       title: 'Projets',
