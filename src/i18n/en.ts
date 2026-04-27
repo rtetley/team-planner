@@ -112,7 +112,8 @@ export const en = {
       notFound: 'Objective not found',
       errorTitleRequired: 'Title is required',
       errorKpiRequired: 'KPI target is required',
-      errorQuartersRequired: 'At least one quarter must be selected'
+      errorQuartersRequired: 'At least one quarter must be selected',
+      assigneesField: 'Assignees'
     },
     matrix: {
       title: 'Team Maturity Matrix',

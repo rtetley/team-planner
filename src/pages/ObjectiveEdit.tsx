@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import {
   Container,
@@ -21,7 +21,8 @@ import AddIcon from '@mui/icons-material/Add';
 import ReactMarkdown from 'react-markdown';
 import { useTranslation } from 'react-i18next';
 import { useObjectives } from '../context/ObjectivesContext';
-import { Quarter } from '../types';
+import { teamMembersApi } from '../api';
+import { Quarter, TeamMember } from '../types';
 
 const QUARTERS: Quarter[] = ['T1', 'T2', 'T3', 'T4'];
 
@@ -46,7 +47,13 @@ export default function ObjectiveEdit() {
   const [kpi, setKpi] = useState(objective?.kpi ?? '');
   const [kpiProgress, setKpiProgress] = useState<number>(objective?.kpiProgress ?? 0);
   const [quarters, setQuarters] = useState<Quarter[]>(objective?.quarters ?? []);
+  const [assigneeIds, setAssigneeIds] = useState<string[]>(objective?.assigneeIds ?? []);
+  const [teamMembers, setTeamMembers] = useState<TeamMember[]>([]);
   const [submitted, setSubmitted] = useState(false);
+
+  useEffect(() => {
+    teamMembersApi.getAll().then(setTeamMembers).catch(console.error);
+  }, []);
 
   // Not found: only when an id param exists but matches nothing
   if (!isNew && !objective) {
@@ -75,9 +82,10 @@ export default function ObjectiveEdit() {
         kpi: kpi.trim(),
         kpiProgress,
         quarters,
+        assigneeIds,
       });
     } else {
-      updateObjective({ ...objective!, title: title.trim(), description, kpi: kpi.trim(), kpiProgress, quarters });
+      updateObjective({ ...objective!, title: title.trim(), description, kpi: kpi.trim(), kpiProgress, quarters, assigneeIds });
     }
     navigate('/objectives');
   };
@@ -85,6 +93,11 @@ export default function ObjectiveEdit() {
   const handleQuartersChange = (event: SelectChangeEvent<Quarter[]>) => {
     const value = event.target.value;
     setQuarters(typeof value === 'string' ? (value.split(',') as Quarter[]) : value);
+  };
+
+  const handleAssigneesChange = (event: SelectChangeEvent<string[]>) => {
+    const value = event.target.value;
+    setAssigneeIds(typeof value === 'string' ? value.split(',') : value);
   };
 
   const headingLabel = isNew
@@ -189,6 +202,34 @@ export default function ObjectiveEdit() {
             </Typography>
           </Box>
         </Box>
+
+        {/* Assignees multi-select */}
+        <FormControl fullWidth>
+          <InputLabel>{t('objectives.assigneesField')}</InputLabel>
+          <Select
+            multiple
+            value={assigneeIds}
+            onChange={handleAssigneesChange}
+            input={<OutlinedInput label={t('objectives.assigneesField')} />}
+            renderValue={(selected) => (
+              <Box sx={{ display: 'flex', gap: 0.5, flexWrap: 'wrap' }}>
+                {(selected as string[]).map((id) => {
+                  const member = teamMembers.find((m) => m.id === id);
+                  return member ? (
+                    <Chip key={id} label={member.name} size="small" />
+                  ) : null;
+                })}
+              </Box>
+            )}
+          >
+            {teamMembers.map((member) => (
+              <MenuItem key={member.id} value={member.id}>
+                {member.name}
+                {member.position ? ` — ${member.position}` : ''}
+              </MenuItem>
+            ))}
+          </Select>
+        </FormControl>
 
         {/* Quarters multi-select */}
         <FormControl fullWidth required error={quartersError}>

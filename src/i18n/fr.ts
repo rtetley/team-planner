@@ -112,7 +112,8 @@ export const fr = {
       notFound: 'Objectif introuvable',
       errorTitleRequired: 'Le titre est requis',
       errorKpiRequired: 'L\'objectif KPI est requis',
-      errorQuartersRequired: 'Au moins un trimestre doit être sélectionné'
+      errorQuartersRequired: 'Au moins un trimestre doit être sélectionné',
+      assigneesField: 'Responsables'
     },
     matrix: {
       title: 'Matrice de maturité de l\'équipe',
