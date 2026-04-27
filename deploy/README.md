@@ -168,3 +168,11 @@ systemctl status teamtree-api
 # Test nginx config before reload
 sudo nginx -t && sudo systemctl reload nginx
 ```
+
+### Troubleshooting
+
+If you get a "permission denied" message, it is probably because you should do a
+```bash
+ssh-add
+```
+command before running the script (the ssh connection will fail if the user is prompted for a password access to their key)

@@ -31,6 +31,8 @@ export const en = {
       noLinkedUser: 'No linked account — ask the member to sign in.',
       viewSkillTree: 'View skill tree',
       viewOnlyBanner: 'Read-only view — skills belong to the member',
+      objectivesPanel: 'Objectives',
+      skillTreePanel: 'Skill Tree',
       unlockedSkills: 'Unlocked skills',
       viewCards: 'Card view',
       viewTable: 'Table view',
@@ -117,7 +119,10 @@ export const en = {
       errorTitleRequired: 'Title is required',
       errorKpiRequired: 'KPI target is required',
       errorQuartersRequired: 'At least one quarter must be selected',
-      assigneesField: 'Assignees'
+      assigneesField: 'Assignees',
+      assign: 'Assign',
+      remove: 'Remove',
+      viewButton: 'View',
     },
     matrix: {
       title: 'Team Maturity Matrix',

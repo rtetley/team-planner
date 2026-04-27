@@ -31,6 +31,8 @@ export const fr = {
       noLinkedUser: "Aucun compte lié — demandez au membre de se connecter.",
       viewSkillTree: "Voir l'arbre de compétences",
       viewOnlyBanner: 'Vue en lecture seule — les compétences appartiennent au membre',
+      objectivesPanel: 'Objectifs',
+      skillTreePanel: 'Arbre de compétences',
       unlockedSkills: 'Compétences déverrouillées',
       viewCards: 'Vue en cartes',
       viewTable: 'Vue tableau',
@@ -117,7 +119,10 @@ export const fr = {
       errorTitleRequired: 'Le titre est requis',
       errorKpiRequired: 'L\'objectif KPI est requis',
       errorQuartersRequired: 'Au moins un trimestre doit être sélectionné',
-      assigneesField: 'Responsables'
+      assigneesField: 'Responsables',
+      assign: 'Assigner',
+      remove: 'Retirer',
+      viewButton: 'Voir',
     },
     matrix: {
       title: 'Matrice de maturité de l\'équipe',
