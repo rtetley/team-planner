@@ -1,0 +1,83 @@
+name: Draft Release
+
+on:
+  push:
+
+permissions:
+  contents: write
+  pull-requests: read
+
+jobs:
+  draft-release:
+    runs-on: ubuntu-latest
+    if: github.ref_type == 'tag'
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Get previous tag
+        id: prev_tag
+        run: |
+          CURRENT_TAG="${GITHUB_REF_NAME}"
+          PREV_TAG=$(git tag --sort=-version:refname | grep -v "^${CURRENT_TAG}$" | head -n 1)
+          echo "current=${CURRENT_TAG}" >> $GITHUB_OUTPUT
+          echo "previous=${PREV_TAG}" >> $GITHUB_OUTPUT
+
+      - name: Generate release notes
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          REPO: ${{ github.repository }}
+          CURRENT_TAG: ${{ steps.prev_tag.outputs.current }}
+          PREV_TAG: ${{ steps.prev_tag.outputs.previous }}
+        run: |
+          if [ -n "$PREV_TAG" ]; then
+            SINCE=$(git log "${PREV_TAG}" -1 --format="%cI")
+            QUERY="repo:${REPO} is:pr is:merged merged:>${SINCE}"
+          else
+            QUERY="repo:${REPO} is:pr is:merged"
+          fi
+
+          PRS=$(gh pr list \
+            --repo "$REPO" \
+            --state merged \
+            --json number,title,labels,url \
+            --limit 200 \
+            --search "$QUERY")
+
+          FEATS=""
+          FIXES=""
+          MISC=""
+
+          while IFS= read -r pr; do
+            NUMBER=$(echo "$pr" | jq -r '.number')
+            TITLE=$(echo "$pr" | jq -r '.title')
+            URL=$(echo "$pr" | jq -r '.url')
+            LABELS=$(echo "$pr" | jq -r '[.labels[].name] | join(",")')
+            LINE="- ${TITLE} ([#${NUMBER}](${URL}))"
+
+            if echo "$TITLE $LABELS" | grep -qiE '(^|[^a-z])feat(\(|:|$| )'; then
+              FEATS="${FEATS}${LINE}\n"
+            elif echo "$TITLE $LABELS" | grep -qiE '(^|[^a-z])(fix|bug)(\(|:|$| )'; then
+              FIXES="${FIXES}${LINE}\n"
+            else
+              MISC="${MISC}${LINE}\n"
+            fi
+          done < <(echo "$PRS" | jq -c '.[]')
+
+          BODY=""
+          [ -n "$FEATS" ] && BODY="${BODY}## New Features\n\n${FEATS}\n"
+          [ -n "$FIXES" ] && BODY="${BODY}## Bug Fixes\n\n${FIXES}\n"
+          [ -n "$MISC"  ] && BODY="${BODY}## Misc\n\n${MISC}\n"
+          [ -z "$BODY"  ] && BODY="No merged pull requests found since the previous release.\n"
+
+          printf "%b" "$BODY" > release_notes.md
+
+      - name: Create draft release
+        uses: softprops/action-gh-release@v1
+        with:
+          draft: true
+          name: ${{ steps.prev_tag.outputs.current }}
+          body_path: release_notes.md
