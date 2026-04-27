@@ -32,6 +32,8 @@ export const fr = {
       viewSkillTree: "Voir l'arbre de compétences",
       viewOnlyBanner: 'Vue en lecture seule — les compétences appartiennent au membre',
       unlockedSkills: 'Compétences déverrouillées',
+      viewCards: 'Vue en cartes',
+      viewTable: 'Vue tableau',
     },
     projects: {
       title: 'Projets',
