@@ -93,6 +93,7 @@ export interface Objective {
   kpi: string;
   kpiProgress: number;
   quarters: Quarter[];
+  assigneeIds?: string[];
 }
 
 export interface JobSheet {
