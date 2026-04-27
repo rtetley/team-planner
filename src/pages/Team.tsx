@@ -8,21 +8,36 @@ import {
   CardContent,
   CardActions,
   Chip,
+  Collapse,
   Container,
   Dialog,
   DialogActions,
   DialogContent,
   DialogTitle,
+  Divider,
   Grid,
+  Paper,
+  Table,
+  TableBody,
+  TableCell,
+  TableContainer,
+  TableHead,
+  TableRow,
   TextField,
+  ToggleButton,
+  ToggleButtonGroup,
+  Tooltip,
   Typography,
 } from '@mui/material';
 import PersonAddIcon from '@mui/icons-material/PersonAdd';
 import LockOpenIcon from '@mui/icons-material/LockOpen';
 import VisibilityIcon from '@mui/icons-material/Visibility';
+import ViewModuleIcon from '@mui/icons-material/ViewModule';
+import TableRowsIcon from '@mui/icons-material/TableRows';
+import TuneIcon from '@mui/icons-material/Tune';
 import { useNavigate } from 'react-router-dom';
-import { teamMembersApi, skillTreeApi, skillPointsApi } from '../api';
-import { AvailableMember, TeamMember } from '../types';
+import { teamMembersApi, skillTreeApi, skillPointsApi, objectivesApi } from '../api';
+import { AvailableMember, TeamMember, Objective } from '../types';
 import type { SkillTreeNode } from '../types';
 import { useTranslation } from 'react-i18next';
 import { useAuth } from '../context/AuthContext';
@@ -214,8 +229,99 @@ function MemberSkillSummary({ member, skillTree, points }: MemberSkillSummaryPro
 }
 
 // ── Main page ─────────────────────────────────────────────────────────────────
-export default function Team() {
+type ViewMode = 'cards' | 'table';
+
+// ── Table view ────────────────────────────────────────────────────────────────
+interface TeamTableViewProps {
+  members: TeamMember[];
+  skillTree: { root: SkillTreeNode } | null;
+  allPoints: Record<string, Record<string, number>>;
+  objectives: Objective[];
+}
+
+function TeamTableView({ members, skillTree, allPoints, objectives }: TeamTableViewProps) {
+  const { i18n } = useTranslation();
   const { t } = useTranslation();
+  const lang = i18n.language;
+
+  const mainSkills: { id: string; label: string; color: string }[] = useMemo(() => {
+    if (!skillTree) return [];
+    return (skillTree.root.children ?? []).map(cat => {
+      const ck = (CAT_KEYS[cat.id] ?? 'default') as PKey;
+      return {
+        id: cat.id,
+        label: cat.labels?.[lang] ?? cat.label,
+        color: cat.color ?? PALETTE[ck].stroke,
+      };
+    });
+  }, [skillTree, lang]);
+
+  const childrenOf = useMemo(
+    () => skillTree ? buildChildrenOf(skillTree.root) : new Map<string, string[]>(),
+    [skillTree],
+  );
+
+  return (
+    <TableContainer>
+      <Table size="small">
+        <TableHead>
+          <TableRow>
+            <TableCell sx={{ fontWeight: 'bold', minWidth: 160 }}>{t('team.title').replace(/s$/, '')}</TableCell>
+            {mainSkills.map(s => (
+              <TableCell key={s.id} align="center" sx={{ fontWeight: 'bold', color: s.color, whiteSpace: 'nowrap' }}>
+                {s.label}
+              </TableCell>
+            ))}
+            <TableCell sx={{ fontWeight: 'bold' }}>{t('objectives.title')}</TableCell>
+          </TableRow>
+        </TableHead>
+        <TableBody>
+          {members.map(member => {
+            const pts = allPoints[member.id] ?? {};
+            const memberObjectives = objectives.filter(o => o.assigneeIds?.includes(member.id));
+            return (
+              <TableRow key={member.id} hover>
+                <TableCell>
+                  <Typography variant="body2" fontWeight="bold">{member.name}</Typography>
+                  {member.position && (
+                    <Typography variant="caption" color="text.secondary" display="block">{member.position}</Typography>
+                  )}
+                </TableCell>
+                {mainSkills.map(s => {
+                  const hasPoints = member.linkedUserId && Object.keys(pts).length > 0;
+                  const score = hasPoints ? computeScore(s.id, childrenOf, pts) : null;
+                  return (
+                    <TableCell key={s.id} align="center">
+                      {score !== null
+                        ? <Typography variant="body2" sx={{ color: s.color, fontWeight: 600 }}>{score.toFixed(1)}</Typography>
+                        : <Typography variant="caption" color="text.disabled">N/A</Typography>
+                      }
+                    </TableCell>
+                  );
+                })}
+                <TableCell>
+                  <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>
+                    {memberObjectives.length === 0
+                      ? <Typography variant="caption" color="text.disabled">—</Typography>
+                      : memberObjectives.map(o => (
+                          <Tooltip key={o.id} title={o.kpi} arrow>
+                            <Chip label={o.title} size="small" variant="outlined" sx={{ maxWidth: 200 }} />
+                          </Tooltip>
+                        ))
+                    }
+                  </Box>
+                </TableCell>
+              </TableRow>
+            );
+          })}
+        </TableBody>
+      </Table>
+    </TableContainer>
+  );
+}
+
+export default function Team() {
+  const { t, i18n } = useTranslation();
   const { user } = useAuth();
   const navigate = useNavigate();
   const [teamMembers, setTeamMembers] = useState<TeamMember[]>([]);
@@ -229,10 +335,67 @@ export default function Team() {
 
   const isManager = user?.role === 'manager';
   const myTeam = isManager ? teamMembers.filter((m) => m.managerId === user?.id) : teamMembers;
+  const [objectives, setObjectives] = useState<Objective[]>([]);
+  const [viewMode, setViewMode] = useState<ViewMode>('cards');
+
+  // ── Filters ────────────────────────────────────────────────────────────────
+  const [filtersOpen, setFiltersOpen] = useState(false);
+  const [filterObjectiveIds, setFilterObjectiveIds] = useState<string[]>([]);
+  const [filterSkills, setFilterSkills] = useState<Record<string, string[]>>({});
+
+  // Build flat node list per top-level category for filter dropdowns
+  const lang = i18n.language;
+  interface SkillOption { id: string; label: string; catId: string; catColor: string; depth: number; }
+  const skillOptionsByCategory = useMemo((): { catId: string; catLabel: string; catColor: string; options: SkillOption[] }[] => {
+    if (!skillTree) return [];
+    return (skillTree.root.children ?? []).map(cat => {
+      const ck = (CAT_KEYS[cat.id] ?? 'default') as PKey;
+      const catColor = cat.color ?? PALETTE[ck].stroke;
+      const options: SkillOption[] = [];
+      function collect(node: SkillTreeNode, depth: number) {
+        options.push({ id: node.id, label: node.labels?.[lang] ?? node.label ?? node.id, catId: cat.id, catColor, depth });
+        (node.children ?? []).forEach(c => collect(c, depth + 1));
+      }
+      (cat.children ?? []).forEach(c => collect(c, 0));
+      return { catId: cat.id, catLabel: cat.labels?.[lang] ?? cat.label ?? cat.id, catColor, options };
+    });
+  }, [skillTree, lang]);
+
+  // Build childrenOf map once
+  const childrenOfGlobal = useMemo(
+    () => skillTree ? buildChildrenOf(skillTree.root) : new Map<string, string[]>(),
+    [skillTree],
+  );
+
+  // Apply filters to produce the visible member list
+  const filteredTeam = useMemo(() => {
+    let result = myTeam;
+    if (filterObjectiveIds.length > 0) {
+      result = result.filter(m =>
+        filterObjectiveIds.some(oid =>
+          objectives.find(o => o.id === oid)?.assigneeIds?.includes(m.id)
+        )
+      );
+    }
+    const activeSkillFilters = Object.entries(filterSkills).filter(([, ids]) => ids.length > 0);
+    if (activeSkillFilters.length > 0) {
+      result = result.filter(m => {
+        const pts = allPoints[m.id] ?? {};
+        return activeSkillFilters.every(([, nodeIds]) =>
+          nodeIds.some(nid => computeScore(nid, childrenOfGlobal, pts) > 0)
+        );
+      });
+    }
+    return result;
+  }, [myTeam, filterObjectiveIds, filterSkills, objectives, allPoints, childrenOfGlobal]);
+
+  const activeFilterCount =
+    filterObjectiveIds.length + Object.values(filterSkills).filter(v => v.length > 0).length;
 
   useEffect(() => {
     teamMembersApi.getAll().then(setTeamMembers).catch(console.error);
     skillTreeApi.get().then(setSkillTree).catch(console.error);
+    objectivesApi.getAll().then(setObjectives).catch(console.error);
   }, []);
 
   // Fetch skill points for each linked member once we have the member list
@@ -287,48 +450,148 @@ export default function Team() {
     <Container maxWidth="lg" sx={{ mt: 4, mb: 4 }}>
       <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 3 }}>
         <Typography variant="h3">{t('team.title')}</Typography>
-        {isManager && (
-          <Button variant="contained" startIcon={<PersonAddIcon />} onClick={openDialog}>
-            {t('team.addMember')}
+        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
+          <Button
+            variant={filtersOpen ? 'contained' : 'outlined'}
+            startIcon={<TuneIcon />}
+            onClick={() => setFiltersOpen(v => !v)}
+            size="small"
+            color={activeFilterCount > 0 ? 'primary' : 'inherit'}
+          >
+            {t('team.filters')}
+            {activeFilterCount > 0 && ` (${activeFilterCount})`}
           </Button>
-        )}
+          <ToggleButtonGroup
+            value={viewMode}
+            exclusive
+            onChange={(_, v) => v && setViewMode(v)}
+            size="small"
+          >
+            <ToggleButton value="cards"><Tooltip title={t('team.viewCards')}><ViewModuleIcon fontSize="small" /></Tooltip></ToggleButton>
+            <ToggleButton value="table"><Tooltip title={t('team.viewTable')}><TableRowsIcon fontSize="small" /></Tooltip></ToggleButton>
+          </ToggleButtonGroup>
+          {isManager && (
+            <Button variant="contained" startIcon={<PersonAddIcon />} onClick={openDialog}>
+              {t('team.addMember')}
+            </Button>
+          )}
+        </Box>
       </Box>
 
-      <Grid container spacing={3}>
-        {myTeam.map((member) => (
-          <Grid item xs={12} sm={6} md={4} key={member.id}>
-            <Card sx={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
-              <CardContent sx={{ flex: 1 }}>
-                <Typography variant="h5" gutterBottom>{member.name}</Typography>
-                {member.position && (
-                  <Typography variant="subtitle1" color="textSecondary" gutterBottom>{member.position}</Typography>
-                )}
-                {member.linkedUserId && (
-                  <Chip icon={<LockOpenIcon fontSize="small" />} size="small" color="success" variant="outlined"
-                    label={t('team.linked')} sx={{ mb: 1.5 }} />
-                )}
-                <MemberSkillSummary
-                  member={member}
-                  skillTree={skillTree}
-                  points={allPoints[member.id] ?? {}}
-                />
-              </CardContent>
-              {member.linkedUserId && (
-                <CardActions sx={{ pt: 0, px: 2, pb: 1.5 }}>
-                  <Button
-                    size="small"
-                    startIcon={<VisibilityIcon />}
-                    onClick={() => navigate(`/team/${member.id}/skills`)}
-                  >
-                    {t('team.viewSkillTree')}
-                  </Button>
-                </CardActions>
-              )}
-            </Card>
-          </Grid>
-        ))}
-      </Grid>
+      {/* ── Filter panel ─────────────────────────────────────────────────── */}
+      <Collapse in={filtersOpen}>
+        <Paper variant="outlined" sx={{ p: 2, mb: 3 }}>
+          <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 2 }}>
+            <Typography variant="subtitle2" fontWeight="bold">{t('team.filters')}</Typography>
+            {activeFilterCount > 0 && (
+              <Button size="small" onClick={() => { setFilterObjectiveIds([]); setFilterSkills({}); }}>
+                {t('team.clearFilters')}
+              </Button>
+            )}
+          </Box>
 
+          {/* Objectives filter */}
+          <Autocomplete
+            multiple
+            size="small"
+            options={objectives}
+            getOptionLabel={o => o.title}
+            value={objectives.filter(o => filterObjectiveIds.includes(o.id))}
+            onChange={(_, val) => setFilterObjectiveIds(val.map(o => o.id))}
+            renderInput={params => <TextField {...params} label={t('objectives.title')} />}
+            renderTags={(val, getProps) =>
+              val.map((o, i) => <Chip label={o.title} size="small" {...getProps({ index: i })} key={o.id} />)
+            }
+            sx={{ mb: 2 }}
+          />
+
+          <Divider sx={{ mb: 2 }} />
+
+          {/* Per-category skill filters */}
+          <Box sx={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(220px, 1fr))', gap: 2 }}>
+            {skillOptionsByCategory.map(({ catId, catLabel, catColor, options }) => (
+              <Autocomplete
+                key={catId}
+                multiple
+                size="small"
+                options={options}
+                getOptionLabel={o => o.label}
+                value={options.filter(o => (filterSkills[catId] ?? []).includes(o.id))}
+                onChange={(_, val) =>
+                  setFilterSkills(prev => ({ ...prev, [catId]: val.map(o => o.id) }))
+                }
+                renderInput={params => (
+                  <TextField
+                    {...params}
+                    label={catLabel}
+                    InputLabelProps={{ style: { color: catColor } }}
+                  />
+                )}
+                renderOption={(props, option) => (
+                  <li {...props} key={option.id} style={{ paddingLeft: 8 + option.depth * 12 }}>
+                    <Typography variant="body2">{option.label}</Typography>
+                  </li>
+                )}
+                renderTags={(val, getTagProps) =>
+                  val.map((o, i) => (
+                    <Chip
+                      label={o.label}
+                      size="small"
+                      sx={{ bgcolor: catColor + '22', color: catColor, borderColor: catColor + '55', border: '1px solid' }}
+                      {...getTagProps({ index: i })}
+                      key={o.id}
+                    />
+                  ))
+                }
+              />
+            ))}
+          </Box>
+        </Paper>
+      </Collapse>
+
+      {viewMode === 'table' ? (
+        <TeamTableView
+          members={filteredTeam}
+          skillTree={skillTree}
+          allPoints={allPoints}
+          objectives={objectives}
+        />
+      ) : (
+        <Grid container spacing={3}>
+          {filteredTeam.map((member) => (
+            <Grid item xs={12} sm={6} md={4} key={member.id}>
+              <Card sx={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
+                <CardContent sx={{ flex: 1 }}>
+                  <Typography variant="h5" gutterBottom>{member.name}</Typography>
+                  {member.position && (
+                    <Typography variant="subtitle1" color="textSecondary" gutterBottom>{member.position}</Typography>
+                  )}
+                  {member.linkedUserId && (
+                    <Chip icon={<LockOpenIcon fontSize="small" />} size="small" color="success" variant="outlined"
+                      label={t('team.linked')} sx={{ mb: 1.5 }} />
+                  )}
+                  <MemberSkillSummary
+                    member={member}
+                    skillTree={skillTree}
+                    points={allPoints[member.id] ?? {}}
+                  />
+                </CardContent>
+                {member.linkedUserId && (
+                  <CardActions sx={{ pt: 0, px: 2, pb: 1.5 }}>
+                    <Button
+                      size="small"
+                      startIcon={<VisibilityIcon />}
+                      onClick={() => navigate(`/team/${member.id}/skills`)}
+                    >
+                      {t('team.viewSkillTree')}
+                    </Button>
+                  </CardActions>
+                )}
+              </Card>
+            </Grid>
+          ))}
+        </Grid>
+      )}
       {/* Add Member Dialog */}
       <Dialog open={dialogOpen} onClose={() => setDialogOpen(false)} maxWidth="sm" fullWidth>
         <DialogTitle>{t('team.addMemberDialogTitle')}</DialogTitle>

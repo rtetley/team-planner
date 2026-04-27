@@ -32,6 +32,10 @@ export const en = {
       viewSkillTree: 'View skill tree',
       viewOnlyBanner: 'Read-only view — skills belong to the member',
       unlockedSkills: 'Unlocked skills',
+      viewCards: 'Card view',
+      viewTable: 'Table view',
+      filters: 'Filters',
+      clearFilters: 'Clear all',
     },
     projects: {
       title: 'Projects',
