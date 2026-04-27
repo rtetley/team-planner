@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import {
   Container,
   Typography,
@@ -12,6 +12,8 @@ import {
   DialogActions,
   Button,
   Divider,
+  Chip,
+  Avatar,
 } from '@mui/material';
 import EditIcon from '@mui/icons-material/Edit';
 import AddIcon from '@mui/icons-material/Add';
@@ -19,7 +21,8 @@ import ReactMarkdown from 'react-markdown';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
 import { useObjectives } from '../context/ObjectivesContext';
-import { Objective, Quarter } from '../types';
+import { teamMembersApi } from '../api';
+import { Objective, Quarter, TeamMember } from '../types';
 
 const quarterColors: Record<Quarter, string> = {
   T1: '#3b82f6',
@@ -46,6 +49,13 @@ export default function Objectives() {
   const navigate = useNavigate();
   const { objectives } = useObjectives();
   const [viewObjective, setViewObjective] = useState<Objective | null>(null);
+  const [teamMembers, setTeamMembers] = useState<TeamMember[]>([]);
+
+  useEffect(() => {
+    teamMembersApi.getAll().then(setTeamMembers).catch(console.error);
+  }, []);
+
+  const getMemberName = (id: string) => teamMembers.find((m) => m.id === id)?.name ?? id;
 
   return (
     <Container maxWidth="xl" sx={{ mt: 4, mb: 4 }}>
@@ -156,6 +166,22 @@ export default function Objectives() {
                     }}
                   />
                 </Box>
+
+                {/* Assignees */}
+                {obj.assigneeIds && obj.assigneeIds.length > 0 && (
+                  <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5, mt: 1.5 }}>
+                    {obj.assigneeIds.map((id) => (
+                      <Chip
+                        key={id}
+                        label={getMemberName(id)}
+                        size="small"
+                        avatar={<Avatar sx={{ width: 20, height: 20, fontSize: '0.65rem' }}>{getMemberName(id).charAt(0).toUpperCase()}</Avatar>}
+                        variant="outlined"
+                        sx={{ fontSize: '0.7rem' }}
+                      />
+                    ))}
+                  </Box>
+                )}
               </CardContent>
             </Card>
           );
@@ -226,6 +252,28 @@ export default function Objectives() {
                     }}
                   />
                 </Box>
+
+                {/* Assignees */}
+                {viewObjective.assigneeIds && viewObjective.assigneeIds.length > 0 && (
+                  <>
+                    <Divider sx={{ my: 1.5 }} />
+                    <Box>
+                      <Typography variant="caption" color="text.secondary" display="block" gutterBottom>
+                        {t('objectives.assigneesField')}
+                      </Typography>
+                      <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.75 }}>
+                        {viewObjective.assigneeIds.map((id) => (
+                          <Chip
+                            key={id}
+                            label={getMemberName(id)}
+                            size="small"
+                            avatar={<Avatar sx={{ width: 22, height: 22, fontSize: '0.7rem' }}>{getMemberName(id).charAt(0).toUpperCase()}</Avatar>}
+                          />
+                        ))}
+                      </Box>
+                    </Box>
+                  </>
+                )}
               </DialogContent>
               <DialogActions>
                 <Button onClick={() => setViewObjective(null)}>
