@@ -1,5 +1,6 @@
 # TeamTree
 
+[![CI](https://github.com/rtetley/team-planner/actions/workflows/ci.yml/badge.svg)](https://github.com/rtetley/team-planner/actions/workflows/ci.yml)
 [![License: AGPL v3](https://img.shields.io/badge/License-AGPL%20v3-blue.svg)](LICENSE)
 
 A comprehensive team planning and management tool built with React, TypeScript, MUI, and the French Design System (DSFR).
