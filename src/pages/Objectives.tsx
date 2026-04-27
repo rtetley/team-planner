@@ -166,22 +166,6 @@ export default function Objectives() {
                     }}
                   />
                 </Box>
-
-                {/* Assignees */}
-                {obj.assigneeIds && obj.assigneeIds.length > 0 && (
-                  <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5, mt: 1.5 }}>
-                    {obj.assigneeIds.map((id) => (
-                      <Chip
-                        key={id}
-                        label={getMemberName(id)}
-                        size="small"
-                        avatar={<Avatar sx={{ width: 20, height: 20, fontSize: '0.65rem' }}>{getMemberName(id).charAt(0).toUpperCase()}</Avatar>}
-                        variant="outlined"
-                        sx={{ fontSize: '0.7rem' }}
-                      />
-                    ))}
-                  </Box>
-                )}
               </CardContent>
             </Card>
           );
